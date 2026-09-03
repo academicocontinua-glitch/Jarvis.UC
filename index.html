@@ -203,7 +203,7 @@
 
     .resource-card {
       background: var(--card-bg);
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-gray);
       border-radius: 12px;
       padding: 24px;
       transition: all 0.2s ease;
@@ -263,6 +263,8 @@
       transition: background 0.2s;
       width: 100%;
       text-align: center;
+      text-decoration: none;
+      display: inline-block;
     }
 
     .btn-action:hover {
@@ -303,7 +305,7 @@
       <div class="dropdown">
         <button class="tab-btn">📊 EXCEL ▾</button>
         <div class="dropdown-content">
-          <a onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento.')">📈 Seguimiento Continua</a>
+          <a href="https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?usp=drive_web&ouid=101409496400991192860&rtpof=true" target="_blank">📈 Seguimiento Continua ↗</a>
         </div>
       </div>
 
@@ -337,9 +339,9 @@
             <div class="card-icon">📊</div>
             <div class="card-title">Módulo Excel</div>
           </div>
-          <div class="card-body">Accede al archivo de Seguimiento Continua para revisar y actualizar métricas.</div>
+          <div class="card-body">Accede directamente a la hoja de cálculo oficial de Seguimiento Continua en Google Drive.</div>
         </div>
-        <button class="btn-action" onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento.')">Ir a Seguimiento</button>
+        <a href="https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?usp=drive_web&ouid=101409496400991192860&rtpof=true" target="_blank" class="btn-action">Abrir Seguimiento Continua ↗</a>
       </div>
 
       <div class="resource-card">
@@ -388,10 +390,10 @@
               <div class="card-title">Archivos de ${titulo}</div>
             </div>
             <div class="card-body">
-              Espacio preparado para integrar tablas, enlaces directos a Google Sheets, PDFs o botones de carga para <b>${titulo}</b>.
+              Espacio preparado para integrar enlaces directos a carpetas de Google Drive, documentos PDF o planillas para <b>${titulo}</b>.
             </div>
           </div>
-          <button class="btn-action" onclick="alert('Área lista para vincular archivos.')">Cargar / Gestionar Archivos</button>
+          <button class="btn-action" onclick="alert('Área lista para vincular tus enlaces o archivos.')">Cargar / Gestionar Archivos</button>
         </div>
       `;
     }
