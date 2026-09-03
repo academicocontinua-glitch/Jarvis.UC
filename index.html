@@ -194,26 +194,62 @@
       margin-top: 4px;
     }
 
-    /* FORMULARIO DE REGISTRO / BÚSQUEDA DE CVs */
+    /* PANEL DINÁMICO DE BÚSQUEDA Y REGISTRO */
     .search-panel {
       background: var(--card-bg);
-      padding: 20px;
+      padding: 24px;
       border-radius: 12px;
       border: 1px solid var(--border-gray);
       margin-bottom: 24px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
 
-    .search-panel h2 {
-      font-size: 1.1rem;
+    .filter-box-main {
+      margin-bottom: 20px;
+    }
+
+    .filter-box-main label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
       color: var(--primary-blue);
-      margin-bottom: 14px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-box-main input {
+      width: 100%;
+      padding: 12px 18px;
+      border: 2px solid var(--primary-blue);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      background: #F8FAFC;
+    }
+
+    .filter-box-main input:focus {
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(0, 43, 102, 0.1);
+    }
+
+    .accordion-toggle {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-orange);
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 12px;
     }
 
     .input-group {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+      background: #F8FAFC;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px dashed var(--border-gray);
     }
 
     .input-field {
@@ -222,11 +258,7 @@
       border-radius: 6px;
       font-size: 0.88rem;
       outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .input-field:focus {
-      border-color: var(--primary-blue);
+      background: #FFFFFF;
     }
 
     .field-profesion {
@@ -236,7 +268,7 @@
 
     .field-nombre {
       flex: 2;
-      min-width: 220px;
+      min-width: 200px;
     }
 
     .field-celular {
@@ -258,21 +290,6 @@
 
     .btn-save:hover {
       background: var(--accent-orange);
-    }
-
-    .filter-box {
-      margin-top: 16px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .filter-box input {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid var(--border-gray);
-      border-radius: 6px;
-      font-size: 0.85rem;
     }
 
     /* PARRILLA DE RECURSOS / RESULTADOS */
@@ -391,7 +408,7 @@
 
     <!-- NAVEGACIÓN Y MENÚS DESPLEGABLES -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="location.reload()">🏠 Inicio</button>
+      <button class="tab-btn active" onclick="limpiarFiltro()">🏠 Inicio</button>
 
       <!-- SECCIÓN EXCEL -->
       <div class="dropdown">
@@ -402,7 +419,7 @@
         </div>
       </div>
 
-      <!-- SECCIÓN CVs CON ENLACES DE GOOGLE DRIVE Y MÓDULO INTERACTIVO -->
+      <!-- SECCIÓN CVs CON FILTRO DINÁMICO POR CARRERA -->
       <div class="dropdown">
         <button class="tab-btn">📄 CVs ▾</button>
         <div class="dropdown-content">
@@ -421,30 +438,32 @@
   <!-- CONTENIDO PRINCIPAL DE LA PÁGINA -->
   <main>
     <section class="page-title-section">
-      <h1>Base de Datos de CVs & Candidatos</h1>
-      <p>Añade candidatos a tu base de datos mediante los 3 campos o filtra por carrera/nombre instantáneamente.</p>
+      <h1>Buscador Dinámico de CVs & Personal</h1>
+      <p>Escribe cualquier dato (carrera, nombre o celular) para filtrar al instante tus registros.</p>
     </section>
 
-    <!-- BARRA DE REGISTRO CON LOS 3 ESPACIOS SOLICITADOS -->
+    <!-- BÚSQUEDA Y REGISTRO OPCIONAL -->
     <section class="search-panel">
-      <h2>Agregar / Registrar Candidato</h2>
-      <div class="input-group">
-        <input type="text" id="regProfesion" class="input-field field-profesion" placeholder="Profesión (Ej: Derecho)" autocomplete="off">
-        <input type="text" id="regNombre" class="input-field field-nombre" placeholder="Nombre y Apellido" autocomplete="off">
-        <input type="text" id="regCelular" class="input-field field-celular" placeholder="Número de Celular" autocomplete="off">
-        <button class="btn-save" onclick="guardarCandidato()">Guardar Registro</button>
+      <!-- BARRA PRINCIPAL DE BÚSQUEDA DINÁMICA -->
+      <div class="filter-box-main">
+        <label for="buscarInput">🔍 Búsqueda Dinámica:</label>
+        <input type="text" id="buscarInput" placeholder="Escribe la profesión (ej. Derecho), nombre o celular..." oninput="renderizarCandidatos()">
       </div>
 
-      <!-- BARRA DE BÚSQUEDA EN TIEMPO REAL -->
-      <div class="filter-box">
-        <span>🔍 Buscar:</span>
-        <input type="text" id="buscarInput" placeholder="Escribe para buscar por profesión o nombre..." oninput="renderizarCandidatos()">
+      <!-- SECCIÓN PARA AGREGAR NUEVOS REGISTROS (OPCIONAL) -->
+      <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (Opcional)</span>
+      
+      <div class="input-group" id="secRegistro" style="display: none;">
+        <input type="text" id="regProfesion" class="input-field field-profesion" placeholder="Profesión" autocomplete="off">
+        <input type="text" id="regNombre" class="input-field field-nombre" placeholder="Nombre y Apellido" autocomplete="off">
+        <input type="text" id="regCelular" class="input-field field-celular" placeholder="Celular" autocomplete="off">
+        <button class="btn-save" onclick="guardarCandidato()">Guardar</button>
       </div>
     </section>
 
-    <!-- PARRILLA DONDE APARECEN LOS CUADROS DE PERSONAS -->
+    <!-- RESULTADOS DINÁMICOS EN CUADROS -->
     <section class="content-grid" id="listaCandidatos">
-      <!-- Los cuadros se generarán automáticamente aquí -->
+      <!-- Se generan de manera dinámica por JS -->
     </section>
   </main>
 
@@ -467,23 +486,35 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // LÓGICA DE BASE DE DATOS DE CANDIDATOS
+    // BASE DE DATOS LOCAL
     var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [
       { profesion: "Derecho", nombre: "Ejemplo Juan Pérez", celular: "987654321" },
+      { profesion: "Derecho", nombre: "Ejemplo Carlos Mendoza", celular: "998877665" },
       { profesion: "Ingeniería", nombre: "Ejemplo Maria Gomez", celular: "912345678" }
     ];
 
+    function toggleRegistro() {
+      var sec = document.getElementById('secRegistro');
+      sec.style.display = (sec.style.display === 'none') ? 'flex' : 'none';
+    }
+
+    // AHORA NO ES OBLIGATORIO LLENAR LOS 3 CAMPOS
     function guardarCandidato() {
       var profesion = document.getElementById('regProfesion').value.trim();
       var nombre = document.getElementById('regNombre').value.trim();
       var celular = document.getElementById('regCelular').value.trim();
 
-      if (profesion === "" || nombre === "" || celular === "") {
-        alert("Por favor completa los 3 campos (Profesión, Nombre/Apellido y Celular).");
+      if (profesion === "" && nombre === "" && celular === "") {
+        alert("Por favor ingresa al menos uno de los campos para guardar.");
         return;
       }
 
-      candidatosDB.push({ profesion: profesion, nombre: nombre, celular: celular });
+      candidatosDB.push({
+        profesion: profesion || "Sin Especificar",
+        nombre: nombre || "Sin Nombre",
+        celular: celular || "Sin Celular"
+      });
+
       localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
 
       document.getElementById('regProfesion').value = "";
@@ -494,7 +525,7 @@
     }
 
     function eliminarCandidato(index) {
-      if (confirm("¿Deseas eliminar a este candidato de la base de datos?")) {
+      if (confirm("¿Deseas eliminar este registro de la base de datos?")) {
         candidatosDB.splice(index, 1);
         localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
         renderizarCandidatos();
@@ -506,35 +537,47 @@
       renderizarCandidatos();
     }
 
+    function limpiarFiltro() {
+      document.getElementById('buscarInput').value = "";
+      renderizarCandidatos();
+    }
+
+    // BÚSQUEDA DINÁMICA (EVALÚA PROFESIÓN, NOMBRE Y CELULAR)
     function renderizarCandidatos() {
       var filtro = document.getElementById('buscarInput').value.toLowerCase().trim();
       var contenedor = document.getElementById('listaCandidatos');
       contenedor.innerHTML = "";
 
       var filtrados = candidatosDB.filter(function(item) {
-        return item.profesion.toLowerCase().includes(filtro) || item.nombre.toLowerCase().includes(filtro);
+        return item.profesion.toLowerCase().includes(filtro) ||
+               item.nombre.toLowerCase().includes(filtro) ||
+               item.celular.toLowerCase().includes(filtro);
       });
 
       if (filtrados.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B;">No se encontraron personas registradas para esta búsqueda.</p>';
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B;">No se encontraron registros que coincidan con la búsqueda.</p>';
         return;
       }
 
       filtrados.forEach(function(item, idx) {
         var card = document.createElement('div');
         card.className = 'resource-card';
+
+        var enlaceWs = item.celular !== "Sin Celular" 
+          ? `<a href="https://wa.me/51${item.celular.replace(/\s+/g, '')}" target="_blank" class="btn-action">Contactar WhatsApp ↗</a>`
+          : `<span class="btn-action" style="background:#CBD5E1; cursor:default;">Sin Teléfono</span>`;
+
         card.innerHTML = `
           <button class="btn-delete" onclick="eliminarCandidato(${idx})" title="Eliminar">✕</button>
           <div class="badge-profesion">${item.profesion}</div>
           <div class="card-nombre">${item.nombre}</div>
           <div class="card-celular">📱 ${item.celular}</div>
-          <a href="https://wa.me/51${item.celular.replace(/\s+/g, '')}" target="_blank" class="btn-action">Contactar WhatsApp ↗</a>
+          ${enlaceWs}
         `;
         contenedor.appendChild(card);
       });
     }
 
-    // Cargar la lista al iniciar
     window.onload = function() {
       renderizarCandidatos();
     };
