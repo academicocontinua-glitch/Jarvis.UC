@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS System - Asistente Personal</title>
+  <title>Plataforma Educativa Continua</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -25,13 +25,12 @@
     body {
       background-color: var(--bg-light);
       color: var(--text-dark);
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* BARRA SUPERIOR */
+    /* BARRA SUPERIOR INSTITUCIONAL / NAVEGACIÓN */
     .top-bar {
       position: fixed;
       top: 0;
@@ -49,20 +48,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 30px;
+      padding: 12px 40px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--primary-blue);
     }
 
     .brand span.line-accent {
       color: var(--accent-orange);
-      margin: 0 6px;
+      margin: 0 8px;
     }
 
     .clock-container {
@@ -78,18 +77,18 @@
     }
 
     .date {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: #64748B;
       font-weight: 500;
     }
 
-    /* BARRA DE NAVEGACIÓN Y MENÚS DESPLEGABLES */
+    /* MENÚ DE OPCIONES DE LA BARRA SUPERIOR */
     .nav-tabs {
       display: flex;
-      justify-content: center;
-      gap: 15px;
+      justify-content: flex-start;
+      gap: 10px;
       background: #F1F5F9;
-      padding: 6px 20px;
+      padding: 4px 40px;
       border-top: 1px solid var(--border-gray);
     }
 
@@ -101,11 +100,11 @@
     .tab-btn {
       background: transparent;
       border: none;
-      padding: 8px 18px;
-      font-size: 0.85rem;
+      padding: 10px 20px;
+      font-size: 0.9rem;
       font-weight: 600;
-      color: #64748B;
-      border-radius: 6px;
+      color: #475569;
+      border-radius: 6px 6px 0 0;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -115,7 +114,7 @@
 
     .tab-btn:hover, .dropdown:hover .tab-btn {
       color: var(--primary-blue);
-      background: rgba(0, 43, 102, 0.08);
+      background: #FFFFFF;
     }
 
     .tab-btn.active {
@@ -123,156 +122,172 @@
       background: var(--primary-blue);
     }
 
-    /* MENÚ DESPLEGABLE (DROPDOWN CONTENT) */
+    /* CONTENIDO DE MENÚS DESPLEGABLES (DROPDOWNS) */
     .dropdown-content {
       display: none;
       position: absolute;
       top: 100%;
       left: 0;
       background-color: var(--card-bg);
-      min-width: 200px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      min-width: 220px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
       border: 1px solid var(--border-gray);
-      border-radius: 8px;
+      border-radius: 0 0 8px 8px;
       z-index: 1001;
       overflow: hidden;
     }
 
     .dropdown-content a {
       color: var(--text-dark);
-      padding: 10px 16px;
+      padding: 12px 18px;
       text-decoration: none;
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 500;
-      transition: background 0.2s;
+      transition: all 0.2s;
       cursor: pointer;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
     }
 
     .dropdown-content a:hover {
       background-color: #F8FAFC;
       color: var(--accent-orange);
+      padding-left: 22px;
     }
 
     .dropdown:hover .dropdown-content {
       display: block;
     }
 
-    /* CONTENEDOR PRINCIPAL */
-    #app-container {
+    /* ÁREA PRINCIPAL / DASHBOARD EDUCATIVO */
+    main {
       flex: 1;
-      max-width: 800px;
+      max-width: 1200px;
       width: 100%;
-      margin: 115px auto 10px auto;
-      display: flex;
-      flex-direction: column;
+      margin: 130px auto 40px auto;
+      padding: 0 20px;
+    }
+
+    .page-title-section {
       background: var(--card-bg);
-      border: 1px solid var(--border-gray);
+      padding: 24px 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      overflow: hidden;
-    }
-
-    #chat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px;
-      overflow-y: auto;
-      background: #FAFAFC;
-    }
-
-    .msg {
-      max-width: 75%;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 14px;
-      line-height: 1.5;
-      word-wrap: break-word;
-    }
-
-    .bot {
-      background: #FFFFFF;
-      color: var(--text-dark);
-      align-self: flex-start;
       border: 1px solid var(--border-gray);
-      border-left: 4px solid var(--primary-blue);
+      border-left: 6px solid var(--primary-blue);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      margin-bottom: 24px;
     }
 
-    .user {
-      background: var(--primary-blue);
-      color: #FFFFFF;
-      align-self: flex-end;
+    .page-title-section h1 {
+      font-size: 1.5rem;
+      color: var(--primary-blue);
+      font-weight: 700;
     }
 
-    .time {
-      font-size: 10px;
-      opacity: 0.7;
-      text-align: right;
+    .page-title-section p {
+      font-size: 0.9rem;
+      color: #64748B;
       margin-top: 4px;
     }
 
-    /* INPUT AREA */
-    #inputArea {
-      padding: 14px 20px;
+    /* PARRILLA DE RECURSOS / CONTENIDO */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .resource-card {
       background: var(--card-bg);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      gap: 12px;
-    }
-
-    #input {
-      flex: 1;
-      padding: 12px 20px;
-      font-size: 14px;
-      border-radius: 24px;
       border: 1px solid var(--border-gray);
-      background: #F8FAFC;
-      color: var(--text-dark);
-      outline: none;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    #input:focus {
+    .resource-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
       border-color: var(--primary-blue);
-      background: #FFFFFF;
     }
 
-    .send-btn {
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-icon {
       width: 44px;
       height: 44px;
-      border-radius: 50%;
-      background: var(--primary-blue);
-      color: #FFFFFF;
-      border: none;
-      cursor: pointer;
+      border-radius: 8px;
+      background: #F1F5F9;
+      color: var(--primary-blue);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
     }
 
-    .send-btn:hover {
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-blue);
+    }
+
+    .card-body {
+      font-size: 0.88rem;
+      color: #64748B;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: var(--primary-blue);
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn-action:hover {
       background: var(--accent-orange);
     }
 
-    .footer-creditos {
+    /* FOOTER */
+    footer {
       text-align: center;
-      font-size: 11px;
+      font-size: 0.8rem;
       color: #94A3B8;
-      padding: 6px;
+      padding: 16px;
       background: var(--card-bg);
       border-top: 1px solid var(--border-gray);
+      margin-top: auto;
     }
   </style>
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR -->
+  <!-- CABECERA DE LA PÁGINA WEB -->
   <header class="top-bar">
     <div class="header-info">
       <div class="brand">
-        JARVIS <span class="line-accent">|</span> ASISTENTE PERSONAL
+        PLATAFORMA EDUCATIVA <span class="line-accent">|</span> GESTIÓN CONTINUA
       </div>
       <div class="clock-container">
         <div id="clock" class="clock">00:00:00</div>
@@ -280,50 +295,72 @@
       </div>
     </div>
 
-    <!-- PESTAÑAS Y DESPLEGABLES -->
+    <!-- NAVEGACIÓN Y MENÚS DESPLEGABLES -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="seleccionarVista('Chat Principal')">💬 Chat</button>
+      <button class="tab-btn active" onclick="cargarSeccion('Inicio', 'Selecciona un módulo de la barra superior para explorar el contenido.')">🏠 Inicio</button>
 
-      <!-- MENÚ EXCEL -->
+      <!-- SECCIÓN EXCEL -->
       <div class="dropdown">
         <button class="tab-btn">📊 EXCEL ▾</button>
         <div class="dropdown-content">
-          <a onclick="seleccionarOpcion('EXCEL', 'Seguimiento Continua')">📈 Seguimiento Continua</a>
+          <a onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento académico.')">📈 Seguimiento Continua</a>
         </div>
       </div>
 
-      <!-- MENÚ CVs -->
+      <!-- SECCIÓN CVs -->
       <div class="dropdown">
         <button class="tab-btn">📄 CVs ▾</button>
         <div class="dropdown-content">
-          <a onclick="seleccionarOpcion('CVs', 'Derecho')">⚖️ Derecho</a>
-          <a onclick="seleccionarOpcion('CVs', 'Ingeniería')">⚙️ Ingeniería</a>
-          <a onclick="seleccionarOpcion('CVs', 'Gestión')">📊 Gestión</a>
-          <a onclick="seleccionarOpcion('CVs', 'Salud')">🏥 Salud</a>
-          <a onclick="seleccionarOpcion('CVs', 'Empresas')">🏢 Empresas</a>
-          <a onclick="seleccionarOpcion('CVs', 'Otros')">📁 Otros</a>
+          <a onclick="cargarSeccion('CVs - Derecho', 'Repositorio de currículums y expedientes del área Jurídica.')">⚖️ Derecho</a>
+          <a onclick="cargarSeccion('CVs - Ingeniería', 'Repositorio de currículums y perfiles de Ingeniería.')">⚙️ Ingeniería</a>
+          <a onclick="cargarSeccion('CVs - Gestión', 'Repositorio de perfiles de Administración y Gestión.')">📊 Gestión</a>
+          <a onclick="cargarSeccion('CVs - Salud', 'Repositorio de personal de Ciencias de la Salud.')">🏥 Salud</a>
+          <a onclick="cargarSeccion('CVs - Empresas', 'Perfiles corporativos e institucionales.')">🏢 Empresas</a>
+          <a onclick="cargarSeccion('CVs - Otros', 'Documentos y perfiles adicionales.')">📁 Otros</a>
         </div>
       </div>
     </nav>
   </header>
 
-  <!-- CONTENEDOR PRINCIPAL DEL CHAT -->
-  <div id="app-container">
-    <div id="chat"></div>
+  <!-- CONTENIDO DINÁMICO DE LA PÁGINA -->
+  <main>
+    <section class="page-title-section">
+      <h1 id="seccion-titulo">Portal Académico de Gestión</h1>
+      <p id="seccion-descripcion">Selecciona una categoría de la barra superior para administrar tus plantillas, bases de datos o currículums.</p>
+    </section>
 
-    <div id="inputArea">
-      <input id="input" type="text" placeholder="Escribe un comando o consulta..." autocomplete="off">
-      <button class="send-btn" id="btnEnviar">➤</button>
-    </div>
+    <!-- TARJETAS DE MÓDULOS -->
+    <section class="content-grid" id="contenedor-tarjetas">
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">📊</div>
+            <div class="card-title">Módulo Excel</div>
+          </div>
+          <div class="card-body"> Accede al archivo de Seguimiento Continua para revisar y actualizar métricas de rendimiento.</div>
+        </div>
+        <button class="btn-action" onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento académico.')">Ir a Seguimiento</button>
+      </div>
 
-    <div class="footer-creditos">Desarrollado por: Lázaro Purizaca</div>
-  </div>
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">📁</div>
+            <div class="card-title">Base de CVs</div>
+          </div>
+          <div class="card-body">Organiza y consulta currículums por especialidades: Derecho, Ingeniería, Gestión, Salud, Empresas y Otros.</div>
+        </div>
+        <button class="btn-action" onclick="cargarSeccion('CVs - Derecho', 'Repositorio de currículums y expedientes del área Jurídica.')">Ver Áreas de CVs</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Plataforma Web Educativa — Desarrollado por Lázaro Purizaca
+  </footer>
 
   <script>
-    var chat = document.getElementById("chat");
-    var input = document.getElementById("input");
-    var btnEnviar = document.getElementById("btnEnviar");
-
+    // Reloj Digital
     function updateClock() {
       var now = new Date();
       var hours = String(now.getHours()).padStart(2, '0');
@@ -337,65 +374,27 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    function hora() {
-      var d = new Date();
-      return d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
+    // Función para actualizar la vista de la página web al hacer clic en el menú
+    function cargarSeccion(titulo, descripcion) {
+      document.getElementById('seccion-titulo').textContent = titulo;
+      document.getElementById('seccion-descripcion').textContent = descripcion;
+
+      var contenedor = document.getElementById('contenedor-tarjetas');
+      contenedor.innerHTML = `
+        <div class="resource-card" style="grid-column: 1 / -1;">
+          <div>
+            <div class="card-header">
+              <div class="card-icon">📂</div>
+              <div class="card-title">Archivos de ${titulo}</div>
+            </div>
+            <div class="card-body">
+              Espacio preparado para integrar tablas, enlaces directos a Google Sheets, PDFs o botones de carga para <b>${titulo}</b>.
+            </div>
+          </div>
+          <button class="btn-action" onclick="alert('Área lista para vincular archivos.')">Cargar / Gestionar Archivos</button>
+        </div>
+      `;
     }
-
-    function bot(msg) {
-      var div = document.createElement("div");
-      div.className = "msg bot";
-      div.innerHTML = msg + '<div class="time">' + hora() + '</div>';
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function user(msg) {
-      var div = document.createElement("div");
-      div.className = "msg user";
-      div.innerHTML = msg + '<div class="time">' + hora() + '</div>';
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function seleccionarOpcion(modulo, opcion) {
-      user("Abrir " + modulo + ": " + opcion);
-      setTimeout(function() {
-        bot("Has ingresado al módulo <b>" + modulo + "</b> > <b>" + opcion + "</b>.<br>Aquí podrás guardar y gestionar tus archivos de esta categoría.");
-      }, 300);
-    }
-
-    function seleccionarVista(nombre) {
-      user("Vista: " + nombre);
-      setTimeout(function() {
-        bot("Modo de chat libre activado.");
-      }, 300);
-    }
-
-    function enviar() {
-      var texto = input.value.trim();
-      if (texto === "") return;
-      input.value = "";
-      user(texto);
-
-      if (texto.toLowerCase().indexOf("hola") !== -1) {
-        bot("¡Hola Lázaro! Asistente activo. Selecciona alguna opción de la barra superior para gestionar tus documentos o escribe tu solicitud.");
-      } else {
-        bot("Comando recibido: " + texto);
-      }
-    }
-
-    btnEnviar.addEventListener("click", enviar);
-    input.addEventListener("keydown", function(e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        enviar();
-      }
-    });
-
-    window.onload = function() {
-      bot("<b>Bienvenido a tu Asistente Personal 👋</b><br>Accede a la sección de EXCEL o CVs desde la barra superior para organizar tus cosas.");
-    };
   </script>
 </body>
 </html>
