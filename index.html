@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS System - Interfaz Continental</title>
+  <title>JARVIS System - Interfaz Corporativa</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -31,37 +31,38 @@
       flex-direction: column;
     }
 
-    /* Top Navigation Bar con estética Continental */
+    /* BARRA SUPERIOR PRINCIPAL */
     .top-bar {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 65px;
       background: var(--card-bg);
       border-bottom: 3px solid var(--accent-orange);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       display: flex;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .header-info {
+      display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 30px;
-      z-index: 1000;
+      padding: 10px 30px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: var(--primary-blue);
-      letter-spacing: 0.5px;
     }
 
     .brand span.line-accent {
       color: var(--accent-orange);
-      font-weight: 300;
-      margin: 0 4px;
+      margin: 0 6px;
     }
 
     .clock-container {
@@ -71,23 +72,58 @@
     }
 
     .clock {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: var(--primary-blue);
     }
 
     .date {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #64748B;
       font-weight: 500;
     }
 
-    /* Desktop Chat Container */
+    /* BARRA DE TAREAS / OPCIONES SUPERIORES (PESTAÑAS) */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      background: #F1F5F9;
+      padding: 6px 20px;
+      border-top: 1px solid var(--border-gray);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748B;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary-blue);
+      background: rgba(0, 43, 102, 0.05);
+    }
+
+    .tab-btn.active {
+      color: #FFFFFF;
+      background: var(--primary-blue);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
     #app-container {
       flex: 1;
       max-width: 760px;
       width: 100%;
-      margin: 85px auto 75px auto;
+      margin: 115px auto 10px auto;
       display: flex;
       flex-direction: column;
       background: var(--card-bg);
@@ -97,14 +133,27 @@
       overflow: hidden;
     }
 
+    /* VISTAS DE PESTAÑAS */
+    .tab-content {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 20px;
+      background: #FAFAFC;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Chat Messages */
     #chat {
       flex: 1;
-      padding: 24px;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      background: #FAFAFC;
+      gap: 12px;
+      overflow-y: auto;
     }
 
     .msg {
@@ -122,14 +171,12 @@
       align-self: flex-start;
       border: 1px solid var(--border-gray);
       border-left: 4px solid var(--primary-blue);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
     .user {
       background: var(--primary-blue);
       color: #FFFFFF;
       align-self: flex-end;
-      border-bottom-right-radius: 2px;
     }
 
     .time {
@@ -139,9 +186,42 @@
       margin-top: 4px;
     }
 
+    /* Tarjetas para las secciones de opciones */
+    .card-option {
+      background: #FFFFFF;
+      border: 1px solid var(--border-gray);
+      border-left: 4px solid var(--accent-orange);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-option:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-color: var(--primary-blue);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary-blue);
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
     /* Input Area */
     #inputArea {
-      padding: 16px 20px;
+      padding: 14px 20px;
       background: var(--card-bg);
       border-top: 1px solid var(--border-gray);
       display: flex;
@@ -157,18 +237,16 @@
       background: #F8FAFC;
       color: var(--text-dark);
       outline: none;
-      transition: all 0.2s;
     }
 
     #input:focus {
       border-color: var(--primary-blue);
       background: #FFFFFF;
-      box-shadow: 0 0 0 3px rgba(0, 43, 102, 0.08);
     }
 
     .send-btn {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--primary-blue);
       color: #FFFFFF;
@@ -178,85 +256,9 @@
       align-items: center;
       justify-content: center;
       font-size: 16px;
-      transition: background 0.2s;
     }
 
     .send-btn:hover {
-      background: var(--accent-orange);
-    }
-
-    /* Sliding Taskbar Menu */
-    .taskbar-wrapper {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .menu-drawer {
-      background: var(--card-bg);
-      border: 1px solid var(--border-gray);
-      border-bottom: none;
-      border-radius: 12px 12px 0 0;
-      width: 380px;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
-    }
-
-    .menu-drawer.open {
-      max-height: 220px;
-      padding: 12px 0;
-    }
-
-    .menu-options {
-      list-style: none;
-    }
-
-    .menu-options li a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 24px;
-      color: var(--text-dark);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border-bottom: 1px solid #F1F5F9;
-    }
-
-    .menu-options li:last-child a {
-      border-bottom: none;
-    }
-
-    .menu-options li a:hover {
-      background: #F8FAFC;
-      color: var(--primary-blue);
-      padding-left: 28px;
-    }
-
-    .taskbar-trigger {
-      background: var(--primary-blue);
-      border: none;
-      border-radius: 12px 12px 0 0;
-      padding: 8px 36px;
-      cursor: pointer;
-      color: #FFFFFF;
-      font-weight: 600;
-      font-size: 12px;
-      letter-spacing: 1px;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      transition: background 0.2s;
-    }
-
-    .taskbar-trigger:hover {
       background: var(--accent-orange);
     }
 
@@ -272,43 +274,104 @@
 </head>
 <body>
 
-  <!-- Header Institucional -->
+  <!-- BARRA SUPERIOR CON MENÚ DE OPCIONES DE NAVEGACIÓN -->
   <header class="top-bar">
-    <div class="brand">
-      JARVIS <span class="line-accent">|</span> ASISTENTE
+    <div class="header-info">
+      <div class="brand">
+        JARVIS <span class="line-accent">|</span> ASISTENTE
+      </div>
+      <div class="clock-container">
+        <div id="clock" class="clock">00:00:00</div>
+        <div id="date" class="date">CARGANDO...</div>
+      </div>
     </div>
-    <div class="clock-container">
-      <div id="clock" class="clock">00:00:00</div>
-      <div id="date" class="date">CARGANDO...</div>
-    </div>
+
+    <!-- Pestañas Superiores -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="cambiarTab('chatTab', this)">💬 Asistente</button>
+      <button class="tab-btn" onclick="cambiarTab('tramitesTab', this)">🧭 Trámites</button>
+      <button class="tab-btn" onclick="cambiarTab('docsTab', this)">📂 Documentos</button>
+      <button class="tab-btn" onclick="cambiarTab('soporteTab', this)">❓ Soporte</button>
+    </nav>
   </header>
 
-  <!-- Panel Principal de Mensajes -->
+  <!-- PANEL PRINCIPAL -->
   <div id="app-container">
-    <div id="chat"></div>
+
+    <!-- TAB 1: CHAT INTERACTIVO -->
+    <div id="chatTab" class="tab-content active">
+      <div id="chat"></div>
+    </div>
+
+    <!-- TAB 2: TRÁMITES -->
+    <div id="tramitesTab" class="tab-content">
+      <div class="card-option" onclick="enviarAccion('Información de Trámites Generales')">
+        <div>
+          <div class="card-title">Trámites Generales</div>
+          <div class="card-desc">Consultas sobre requerimientos e inicios de proceso.</div>
+        </div>
+        <span>➔</span>
+      </div>
+      <div class="card-option" onclick="enviarAccion('Solicitud de Certificados')">
+        <div>
+          <div class="card-title">Certificados y Constancias</div>
+          <div class="card-desc">Emisión de documentos e historiales oficiales.</div>
+        </div>
+        <span>➔</span>
+      </div>
+    </div>
+
+    <!-- TAB 3: DOCUMENTOS -->
+    <div id="docsTab" class="tab-content">
+      <div class="card-option" onclick="enviarAccion('Ver Reglamentos Oficiales')">
+        <div>
+          <div class="card-title">Reglamentos del Sistema</div>
+          <div class="card-desc">Normativas e información legal.</div>
+        </div>
+        <span>📄</span>
+      </div>
+      <div class="card-option" onclick="enviarAccion('Descargar Formatos')">
+        <div>
+          <div class="card-title">Formatos de Solicitud</div>
+          <div class="card-desc">Plantillas PDF para trámites.</div>
+        </div>
+        <span>📥</span>
+      </div>
+    </div>
+
+    <!-- TAB 4: SOPORTE -->
+    <div id="soporteTab" class="tab-content">
+      <div class="card-option" onclick="enviarAccion('Horarios de Atención')">
+        <div>
+          <div class="card-title">Horarios de Atención</div>
+          <div class="card-desc">Atención de ventanilla y soporte técnico.</div>
+        </div>
+        <span>🕒</span>
+      </div>
+    </div>
+
+    <!-- ENTRADA DE TEXTO -->
     <div id="inputArea">
-      <input id="input" type="text" placeholder="Escribe tu consulta aquí..." autocomplete="off">
+      <input id="input" type="text" placeholder="Escribe tu mensaje..." autocomplete="off">
       <button class="send-btn" id="btnEnviar">➤</button>
     </div>
-    <div class="footer-creditos">Desarrollado por: Lázaro Purizaca</div>
-  </div>
 
-  <!-- Menú Inferior Desplegable -->
-  <div class="taskbar-wrapper">
-    <div id="menuDrawer" class="menu-drawer">
-      <ul class="menu-options">
-        <li><a onclick="ejecutarMenu('Diagnóstico de Servicios')">⚙️ Diagnóstico de Servicios</a></li>
-        <li><a onclick="ejecutarMenu('Módulo de Consultas')">📋 Módulo de Consultas</a></li>
-        <li><a onclick="ejecutarMenu('Gestión de Documentos')">📁 Gestión de Documentos</a></li>
-      </ul>
-    </div>
-    <button id="taskbarTrigger" class="taskbar-trigger">MENÚ ▲</button>
+    <div class="footer-creditos">Desarrollado por: Lázaro Purizaca</div>
   </div>
 
   <script>
     var chat = document.getElementById("chat");
     var input = document.getElementById("input");
     var btnEnviar = document.getElementById("btnEnviar");
+
+    // Función para cambiar entre pestañas superiores
+    function cambiarTab(tabId, btn) {
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(button => button.classList.remove("active"));
+
+      document.getElementById(tabId).classList.add("active");
+      btn.classList.add("active");
+    }
 
     // Actualización del Reloj
     function updateClock() {
@@ -323,21 +386,6 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
-
-    // Control del Menú Inferior
-    var trigger = document.getElementById('taskbarTrigger');
-    var drawer = document.getElementById('menuDrawer');
-
-    trigger.addEventListener('click', function(e) {
-      e.stopPropagation();
-      drawer.classList.toggle('open');
-    });
-
-    document.addEventListener('click', function(e) {
-      if (!drawer.contains(e.target) && !trigger.contains(e.target)) {
-        drawer.classList.remove('open');
-      }
-    });
 
     function hora() {
       var d = new Date();
@@ -360,9 +408,13 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    function ejecutarMenu(opcion) {
-      drawer.classList.remove('open');
-      bot("Has seleccionado: <b>" + opcion + "</b>");
+    function enviarAccion(texto) {
+      const primerTab = document.querySelectorAll(".tab-btn")[0];
+      cambiarTab('chatTab', primerTab);
+      user(texto);
+      setTimeout(() => {
+        bot("Procesando la solicitud: <b>" + texto + "</b>");
+      }, 300);
     }
 
     function enviar() {
@@ -372,7 +424,7 @@
       user(texto);
 
       if (texto.toLowerCase().indexOf("hola") !== -1) {
-        bot("¡Hola! Bienvenido al sistema interactivo JARVIS. ¿En qué te puedo orientar hoy?");
+        bot("¡Hola! Sistema activo. Navega por las opciones de la barra superior o consulta directamente.");
       } else {
         bot("Consulta recibida: " + texto);
       }
@@ -387,7 +439,7 @@
     });
 
     window.onload = function() {
-      bot("<b>Bienvenido a JARVIS 👋</b><br>Ingresa tu mensaje o selecciona una opción del menú inferior.");
+      bot("<b>Bienvenido a JARVIS System 👋</b><br>Usa las pestañas superiores para navegar entre módulos.");
     };
   </script>
 </body>
