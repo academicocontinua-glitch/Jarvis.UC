@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plataforma Educativa Continua</title>
+  <title>JARVIS - Gestión Continua</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -163,7 +163,7 @@
       display: block;
     }
 
-    /* ÁREA PRINCIPAL / DASHBOARD EDUCATIVO */
+    /* ÁREA PRINCIPAL / DASHBOARD */
     main {
       flex: 1;
       max-width: 1200px;
@@ -203,7 +203,7 @@
 
     .resource-card {
       background: var(--card-bg);
-      border: 1px solid var(--border-gray);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 24px;
       transition: all 0.2s ease;
@@ -287,7 +287,7 @@
   <header class="top-bar">
     <div class="header-info">
       <div class="brand">
-        PLATAFORMA EDUCATIVA <span class="line-accent">|</span> GESTIÓN CONTINUA
+        JARVIS <span class="line-accent">|</span> GESTIÓN CONTINUA
       </div>
       <div class="clock-container">
         <div id="clock" class="clock">00:00:00</div>
@@ -303,7 +303,7 @@
       <div class="dropdown">
         <button class="tab-btn">📊 EXCEL ▾</button>
         <div class="dropdown-content">
-          <a onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento académico.')">📈 Seguimiento Continua</a>
+          <a onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento.')">📈 Seguimiento Continua</a>
         </div>
       </div>
 
@@ -325,7 +325,7 @@
   <!-- CONTENIDO DINÁMICO DE LA PÁGINA -->
   <main>
     <section class="page-title-section">
-      <h1 id="seccion-titulo">Portal Académico de Gestión</h1>
+      <h1 id="seccion-titulo">Portal de Gestión JARVIS</h1>
       <p id="seccion-descripcion">Selecciona una categoría de la barra superior para administrar tus plantillas, bases de datos o currículums.</p>
     </section>
 
@@ -337,9 +337,9 @@
             <div class="card-icon">📊</div>
             <div class="card-title">Módulo Excel</div>
           </div>
-          <div class="card-body"> Accede al archivo de Seguimiento Continua para revisar y actualizar métricas de rendimiento.</div>
+          <div class="card-body">Accede al archivo de Seguimiento Continua para revisar y actualizar métricas.</div>
         </div>
-        <button class="btn-action" onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento académico.')">Ir a Seguimiento</button>
+        <button class="btn-action" onclick="cargarSeccion('Seguimiento Continua', 'Módulo de control de reportes y archivos de seguimiento.')">Ir a Seguimiento</button>
       </div>
 
       <div class="resource-card">
@@ -356,7 +356,7 @@
   </main>
 
   <footer>
-    Plataforma Web Educativa — Desarrollado por Lázaro Purizaca
+    JARVIS System — Desarrollado por Lázaro Purizaca
   </footer>
 
   <script>
