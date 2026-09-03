@@ -299,7 +299,7 @@
 
     <!-- NAVEGACIÓN Y MENÚS DESPLEGABLES -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="cargarSeccion('Inicio', 'Selecciona un módulo de la barra superior para explorar el contenido.')">🏠 Inicio</button>
+      <button class="tab-btn active" onclick="location.reload()">🏠 Inicio</button>
 
       <!-- SECCIÓN EXCEL -->
       <div class="dropdown">
@@ -309,50 +309,107 @@
         </div>
       </div>
 
-      <!-- SECCIÓN CVs -->
+      <!-- SECCIÓN CVs CON ENLACES DE GOOGLE DRIVE -->
       <div class="dropdown">
         <button class="tab-btn">📄 CVs ▾</button>
         <div class="dropdown-content">
-          <a onclick="cargarSeccion('CVs - Derecho', 'Repositorio de currículums y expedientes del área Jurídica.')">⚖️ Derecho</a>
-          <a onclick="cargarSeccion('CVs - Ingeniería', 'Repositorio de currículums y perfiles de Ingeniería.')">⚙️ Ingeniería</a>
-          <a onclick="cargarSeccion('CVs - Gestión', 'Repositorio de perfiles de Administración y Gestión.')">📊 Gestión</a>
-          <a onclick="cargarSeccion('CVs - Salud', 'Repositorio de personal de Ciencias de la Salud.')">🏥 Salud</a>
-          <a onclick="cargarSeccion('CVs - Empresas', 'Perfiles corporativos e institucionales.')">🏢 Empresas</a>
-          <a onclick="cargarSeccion('CVs - Otros', 'Documentos y perfiles adicionales.')">📁 Otros</a>
+          <a href="https://drive.google.com/drive/folders/1gMnGSfxCcktNJew6EYf97KyXWx3jwvrk?usp=sharing" target="_blank">⚖️ Derecho ↗</a>
+          <a href="https://drive.google.com/drive/folders/1JrO5-wSLv3z0GFmqr3kjczPyPhZppIHh?usp=sharing" target="_blank">⚙️ Ingeniería ↗</a>
+          <a href="https://drive.google.com/drive/folders/1itJtXZbalqFVJ2HztdGvDYQgmc5OHean?usp=sharing" target="_blank">📊 Gestión ↗</a>
+          <a href="https://drive.google.com/drive/folders/1exczkNLUVOZOjIO3nN3rsQINzLGFgv9E?usp=sharing" target="_blank">🏥 Salud ↗</a>
+          <a href="https://drive.google.com/drive/folders/1LBd35O8HybfK1YJGVDiJqnUnYrdST1Rk?usp=sharing" target="_blank">🏢 Empresas ↗</a>
+          <a href="https://drive.google.com/drive/folders/11o0H7BnbgFXCeKR77NseRS7i1qmMz8eO?usp=sharing" target="_blank">📁 Otros ↗</a>
         </div>
       </div>
     </nav>
   </header>
 
-  <!-- CONTENIDO DINÁMICO DE LA PÁGINA -->
+  <!-- CONTENIDO PRINCIPAL DE LA PÁGINA -->
   <main>
     <section class="page-title-section">
-      <h1 id="seccion-titulo">Portal de Gestión JARVIS</h1>
-      <p id="seccion-descripcion">Selecciona una categoría de la barra superior para administrar tus plantillas, bases de datos o currículums.</p>
+      <h1>Portal de Gestión JARVIS</h1>
+      <p>Acceso rápido a la hoja de control en Excel y a las carpetas de almacenamiento de CVs por especialidad.</p>
     </section>
 
-    <!-- TARJETAS DE MÓDULOS -->
-    <section class="content-grid" id="contenedor-tarjetas">
+    <!-- TARJETAS DE ACCESO DIRECTO -->
+    <section class="content-grid">
+      <!-- MÓDULO EXCEL -->
       <div class="resource-card">
         <div>
           <div class="card-header">
             <div class="card-icon">📊</div>
-            <div class="card-title">Módulo Excel</div>
+            <div class="card-title">Seguimiento Continua</div>
           </div>
-          <div class="card-body">Accede directamente a la hoja de cálculo oficial de Seguimiento Continua en Google Drive.</div>
+          <div class="card-body">Hoja de cálculo principal para el registro y seguimiento de métricas.</div>
         </div>
-        <a href="https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?usp=drive_web&ouid=101409496400991192860&rtpof=true" target="_blank" class="btn-action">Abrir Seguimiento Continua ↗</a>
+        <a href="https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?usp=drive_web&ouid=101409496400991192860&rtpof=true" target="_blank" class="btn-action">Abrir Excel ↗</a>
+      </div>
+
+      <!-- CARPETAS DE CVs -->
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">⚖️</div>
+            <div class="card-title">CVs Derecho</div>
+          </div>
+          <div class="card-body">Carpeta en Google Drive con los currículums del área jurídica.</div>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1gMnGSfxCcktNJew6EYf97KyXWx3jwvrk?usp=sharing" target="_blank" class="btn-action">Abrir Carpeta ↗</a>
+      </div>
+
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">⚙️</div>
+            <div class="card-title">CVs Ingeniería</div>
+          </div>
+          <div class="card-body">Carpeta en Google Drive con perfiles y expedientes de ingeniería.</div>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1JrO5-wSLv3z0GFmqr3kjczPyPhZppIHh?usp=sharing" target="_blank" class="btn-action">Abrir Carpeta ↗</a>
+      </div>
+
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">📊</div>
+            <div class="card-title">CVs Gestión</div>
+          </div>
+          <div class="card-body">Carpeta en Google Drive con los expedientes de administración y gestión.</div>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1itJtXZbalqFVJ2HztdGvDYQgmc5OHean?usp=sharing" target="_blank" class="btn-action">Abrir Carpeta ↗</a>
+      </div>
+
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">🏥</div>
+            <div class="card-title">CVs Salud</div>
+          </div>
+          <div class="card-body">Carpeta en Google Drive con currículums del personal de ciencias de la salud.</div>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1exczkNLUVOZOjIO3nN3rsQINzLGFgv9E?usp=sharing" target="_blank" class="btn-action">Abrir Carpeta ↗</a>
+      </div>
+
+      <div class="resource-card">
+        <div>
+          <div class="card-header">
+            <div class="card-icon">🏢</div>
+            <div class="card-title">CVs Empresas</div>
+          </div>
+          <div class="card-body">Carpeta en Google Drive con perfiles corporativos e institucionales.</div>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1LBd35O8HybfK1YJGVDiJqnUnYrdST1Rk?usp=sharing" target="_blank" class="btn-action">Abrir Carpeta ↗</a>
       </div>
 
       <div class="resource-card">
         <div>
           <div class="card-header">
             <div class="card-icon">📁</div>
-            <div class="card-title">Base de CVs</div>
+            <div class="card-title">CVs Otros</div>
           </div>
-          <div class="card-body">Organiza y consulta currículums por especialidades: Derecho, Ingeniería, Gestión, Salud, Empresas y Otros.</div>
+          <div class="card-body">Carpeta en Google Drive con documentos y expedientes adicionales.</div>
         </div>
-        <button class="btn-action" onclick="cargarSeccion('CVs - Derecho', 'Repositorio de currículums y expedientes del área Jurídica.')">Ver Áreas de CVs</button>
+        <a href="https://drive.google.com/drive/folders/11o0H7BnbgFXCeKR77NseRS7i1qmMz8eO?usp=sharing" target="_blank" class="btn-action">Abrir Carpeta ↗</a>
       </div>
     </section>
   </main>
@@ -375,28 +432,6 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
-
-    // Función para actualizar la vista de la página web al hacer clic en el menú
-    function cargarSeccion(titulo, descripcion) {
-      document.getElementById('seccion-titulo').textContent = titulo;
-      document.getElementById('seccion-descripcion').textContent = descripcion;
-
-      var contenedor = document.getElementById('contenedor-tarjetas');
-      contenedor.innerHTML = `
-        <div class="resource-card" style="grid-column: 1 / -1;">
-          <div>
-            <div class="card-header">
-              <div class="card-icon">📂</div>
-              <div class="card-title">Archivos de ${titulo}</div>
-            </div>
-            <div class="card-body">
-              Espacio preparado para integrar enlaces directos a carpetas de Google Drive, documentos PDF o planillas para <b>${titulo}</b>.
-            </div>
-          </div>
-          <button class="btn-action" onclick="alert('Área lista para vincular tus enlaces o archivos.')">Cargar / Gestionar Archivos</button>
-        </div>
-      `;
-    }
   </script>
 </body>
 </html>
