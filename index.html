@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS System - Interfaz Corporativa</title>
+  <title>JARVIS System - Asistente Personal</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -31,7 +31,7 @@
       flex-direction: column;
     }
 
-    /* BARRA SUPERIOR PRINCIPAL */
+    /* BARRA SUPERIOR */
     .top-bar {
       position: fixed;
       top: 0;
@@ -83,14 +83,19 @@
       font-weight: 500;
     }
 
-    /* BARRA DE TAREAS / OPCIONES SUPERIORES (PESTAÑAS) */
+    /* BARRA DE NAVEGACIÓN Y MENÚS DESPLEGABLES */
     .nav-tabs {
       display: flex;
       justify-content: center;
-      gap: 8px;
+      gap: 15px;
       background: #F1F5F9;
       padding: 6px 20px;
       border-top: 1px solid var(--border-gray);
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
     }
 
     .tab-btn {
@@ -108,9 +113,9 @@
       gap: 6px;
     }
 
-    .tab-btn:hover {
+    .tab-btn:hover, .dropdown:hover .tab-btn {
       color: var(--primary-blue);
-      background: rgba(0, 43, 102, 0.05);
+      background: rgba(0, 43, 102, 0.08);
     }
 
     .tab-btn.active {
@@ -118,10 +123,45 @@
       background: var(--primary-blue);
     }
 
+    /* MENÚ DESPLEGABLE (DROPDOWN CONTENT) */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 200px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      z-index: 1001;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #F8FAFC;
+      color: var(--accent-orange);
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
     /* CONTENEDOR PRINCIPAL */
     #app-container {
       flex: 1;
-      max-width: 760px;
+      max-width: 800px;
       width: 100%;
       margin: 115px auto 10px auto;
       display: flex;
@@ -133,27 +173,14 @@
       overflow: hidden;
     }
 
-    /* VISTAS DE PESTAÑAS */
-    .tab-content {
-      flex: 1;
-      display: none;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 20px;
-      background: #FAFAFC;
-    }
-
-    .tab-content.active {
-      display: flex;
-    }
-
-    /* Chat Messages */
     #chat {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      padding: 20px;
       overflow-y: auto;
+      background: #FAFAFC;
     }
 
     .msg {
@@ -186,44 +213,11 @@
       margin-top: 4px;
     }
 
-    /* Tarjetas para las secciones de opciones */
-    .card-option {
-      background: #FFFFFF;
-      border: 1px solid var(--border-gray);
-      border-left: 4px solid var(--accent-orange);
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-option:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border-color: var(--primary-blue);
-    }
-
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--primary-blue);
-    }
-
-    .card-desc {
-      font-size: 0.8rem;
-      color: #64748B;
-      margin-top: 2px;
-    }
-
-    /* Input Area */
+    /* INPUT AREA */
     #inputArea {
       padding: 14px 20px;
       background: var(--card-bg);
-      border-top: 1px solid var(--border-gray);
+      border-top: 1px solid var(--border-color);
       display: flex;
       gap: 12px;
     }
@@ -274,11 +268,11 @@
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR CON MENÚ DE OPCIONES DE NAVEGACIÓN -->
+  <!-- BARRA SUPERIOR -->
   <header class="top-bar">
     <div class="header-info">
       <div class="brand">
-        JARVIS <span class="line-accent">|</span> ASISTENTE
+        JARVIS <span class="line-accent">|</span> ASISTENTE PERSONAL
       </div>
       <div class="clock-container">
         <div id="clock" class="clock">00:00:00</div>
@@ -286,73 +280,39 @@
       </div>
     </div>
 
-    <!-- Pestañas Superiores -->
+    <!-- PESTAÑAS Y DESPLEGABLES -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="cambiarTab('chatTab', this)">💬 Asistente</button>
-      <button class="tab-btn" onclick="cambiarTab('tramitesTab', this)">🧭 Trámites</button>
-      <button class="tab-btn" onclick="cambiarTab('docsTab', this)">📂 Documentos</button>
-      <button class="tab-btn" onclick="cambiarTab('soporteTab', this)">❓ Soporte</button>
+      <button class="tab-btn active" onclick="seleccionarVista('Chat Principal')">💬 Chat</button>
+
+      <!-- MENÚ EXCEL -->
+      <div class="dropdown">
+        <button class="tab-btn">📊 EXCEL ▾</button>
+        <div class="dropdown-content">
+          <a onclick="seleccionarOpcion('EXCEL', 'Seguimiento Continua')">📈 Seguimiento Continua</a>
+        </div>
+      </div>
+
+      <!-- MENÚ CVs -->
+      <div class="dropdown">
+        <button class="tab-btn">📄 CVs ▾</button>
+        <div class="dropdown-content">
+          <a onclick="seleccionarOpcion('CVs', 'Derecho')">⚖️ Derecho</a>
+          <a onclick="seleccionarOpcion('CVs', 'Ingeniería')">⚙️ Ingeniería</a>
+          <a onclick="seleccionarOpcion('CVs', 'Gestión')">📊 Gestión</a>
+          <a onclick="seleccionarOpcion('CVs', 'Salud')">🏥 Salud</a>
+          <a onclick="seleccionarOpcion('CVs', 'Empresas')">🏢 Empresas</a>
+          <a onclick="seleccionarOpcion('CVs', 'Otros')">📁 Otros</a>
+        </div>
+      </div>
     </nav>
   </header>
 
-  <!-- PANEL PRINCIPAL -->
+  <!-- CONTENEDOR PRINCIPAL DEL CHAT -->
   <div id="app-container">
+    <div id="chat"></div>
 
-    <!-- TAB 1: CHAT INTERACTIVO -->
-    <div id="chatTab" class="tab-content active">
-      <div id="chat"></div>
-    </div>
-
-    <!-- TAB 2: TRÁMITES -->
-    <div id="tramitesTab" class="tab-content">
-      <div class="card-option" onclick="enviarAccion('Información de Trámites Generales')">
-        <div>
-          <div class="card-title">Trámites Generales</div>
-          <div class="card-desc">Consultas sobre requerimientos e inicios de proceso.</div>
-        </div>
-        <span>➔</span>
-      </div>
-      <div class="card-option" onclick="enviarAccion('Solicitud de Certificados')">
-        <div>
-          <div class="card-title">Certificados y Constancias</div>
-          <div class="card-desc">Emisión de documentos e historiales oficiales.</div>
-        </div>
-        <span>➔</span>
-      </div>
-    </div>
-
-    <!-- TAB 3: DOCUMENTOS -->
-    <div id="docsTab" class="tab-content">
-      <div class="card-option" onclick="enviarAccion('Ver Reglamentos Oficiales')">
-        <div>
-          <div class="card-title">Reglamentos del Sistema</div>
-          <div class="card-desc">Normativas e información legal.</div>
-        </div>
-        <span>📄</span>
-      </div>
-      <div class="card-option" onclick="enviarAccion('Descargar Formatos')">
-        <div>
-          <div class="card-title">Formatos de Solicitud</div>
-          <div class="card-desc">Plantillas PDF para trámites.</div>
-        </div>
-        <span>📥</span>
-      </div>
-    </div>
-
-    <!-- TAB 4: SOPORTE -->
-    <div id="soporteTab" class="tab-content">
-      <div class="card-option" onclick="enviarAccion('Horarios de Atención')">
-        <div>
-          <div class="card-title">Horarios de Atención</div>
-          <div class="card-desc">Atención de ventanilla y soporte técnico.</div>
-        </div>
-        <span>🕒</span>
-      </div>
-    </div>
-
-    <!-- ENTRADA DE TEXTO -->
     <div id="inputArea">
-      <input id="input" type="text" placeholder="Escribe tu mensaje..." autocomplete="off">
+      <input id="input" type="text" placeholder="Escribe un comando o consulta..." autocomplete="off">
       <button class="send-btn" id="btnEnviar">➤</button>
     </div>
 
@@ -364,16 +324,6 @@
     var input = document.getElementById("input");
     var btnEnviar = document.getElementById("btnEnviar");
 
-    // Función para cambiar entre pestañas superiores
-    function cambiarTab(tabId, btn) {
-      document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach(button => button.classList.remove("active"));
-
-      document.getElementById(tabId).classList.add("active");
-      btn.classList.add("active");
-    }
-
-    // Actualización del Reloj
     function updateClock() {
       var now = new Date();
       var hours = String(now.getHours()).padStart(2, '0');
@@ -408,12 +358,17 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    function enviarAccion(texto) {
-      const primerTab = document.querySelectorAll(".tab-btn")[0];
-      cambiarTab('chatTab', primerTab);
-      user(texto);
-      setTimeout(() => {
-        bot("Procesando la solicitud: <b>" + texto + "</b>");
+    function seleccionarOpcion(modulo, opcion) {
+      user("Abrir " + modulo + ": " + opcion);
+      setTimeout(function() {
+        bot("Has ingresado al módulo <b>" + modulo + "</b> > <b>" + opcion + "</b>.<br>Aquí podrás guardar y gestionar tus archivos de esta categoría.");
+      }, 300);
+    }
+
+    function seleccionarVista(nombre) {
+      user("Vista: " + nombre);
+      setTimeout(function() {
+        bot("Modo de chat libre activado.");
       }, 300);
     }
 
@@ -424,9 +379,9 @@
       user(texto);
 
       if (texto.toLowerCase().indexOf("hola") !== -1) {
-        bot("¡Hola! Sistema activo. Navega por las opciones de la barra superior o consulta directamente.");
+        bot("¡Hola Lázaro! Asistente activo. Selecciona alguna opción de la barra superior para gestionar tus documentos o escribe tu solicitud.");
       } else {
-        bot("Consulta recibida: " + texto);
+        bot("Comando recibido: " + texto);
       }
     }
 
@@ -439,7 +394,7 @@
     });
 
     window.onload = function() {
-      bot("<b>Bienvenido a JARVIS System 👋</b><br>Usa las pestañas superiores para navegar entre módulos.");
+      bot("<b>Bienvenido a tu Asistente Personal 👋</b><br>Accede a la sección de EXCEL o CVs desde la barra superior para organizar tus cosas.");
     };
   </script>
 </body>
