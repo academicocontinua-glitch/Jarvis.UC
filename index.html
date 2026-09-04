@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JARVIS - Gestión Continua</title>
+  
+  <!-- ÍCONO DE LA PESTAÑA DEL NAVEGADOR (FAVICON) -->
+  <link rel="icon" type="image/jpeg" href="CONTINENTAL.jpg">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -58,6 +62,7 @@
       font-weight: 700;
       color: var(--primary-blue);
       gap: 10px;
+      cursor: pointer;
     }
 
     .brand img.logo-continua {
@@ -171,13 +176,51 @@
       display: block;
     }
 
-    /* ÁREA PRINCIPAL / DASHBOARD */
+    /* ÁREA PRINCIPAL */
     main {
       flex: 1;
       max-width: 1200px;
       width: 100%;
       margin: 135px auto 40px auto;
       padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* VISTA DE INICIO (HOME CENTRADO) */
+    .home-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .home-logo {
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+      margin-bottom: 24px;
+      object-fit: contain;
+    }
+
+    .home-greeting {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary-blue);
+      margin-bottom: 8px;
+    }
+
+    .home-subtext {
+      font-size: 1rem;
+      color: #64748B;
+    }
+
+    /* SECCIÓN DEL BUSCADOR Y RESULTADOS */
+    .search-view {
+      display: none;
     }
 
     .page-title-section {
@@ -202,7 +245,6 @@
       margin-top: 4px;
     }
 
-    /* PANEL DE BÚSQUEDA Y REGISTRO CON 4 CAMPOS */
     .search-panel {
       background: var(--card-bg);
       padding: 24px;
@@ -210,10 +252,6 @@
       border: 1px solid var(--border-gray);
       margin-bottom: 24px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-
-    .filter-box-main {
-      margin-bottom: 20px;
     }
 
     .filter-box-main label {
@@ -247,6 +285,7 @@
       color: var(--accent-orange);
       cursor: pointer;
       display: inline-block;
+      margin-top: 16px;
       margin-bottom: 12px;
     }
 
@@ -420,7 +459,7 @@
   <!-- CABECERA DE LA PÁGINA WEB -->
   <header class="top-bar">
     <div class="header-info">
-      <div class="brand">
+      <div class="brand" onclick="mostrarInicio()">
         <img src="CONTINUA LOGO.png" alt="Logo Continua" class="logo-continua" onerror="this.style.display='none'">
         JARVIS <span class="line-accent">|</span> GESTIÓN CONTINUA
       </div>
@@ -432,10 +471,10 @@
 
     <!-- NAVEGACIÓN Y MENÚS DESPLEGABLES -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="limpiarFiltro()">🏠 Inicio</button>
+      <button class="tab-btn active" id="btnInicio" onclick="mostrarInicio()">🏠 Inicio</button>
 
       <!-- OPCIÓN DEDICADA AL BUSCADOR DE CV -->
-      <button class="tab-btn" onclick="irAlBuscador()">🔍 BUSCADOR DE CV</button>
+      <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
       <!-- SECCIÓN EXCEL -->
       <div class="dropdown">
@@ -461,34 +500,41 @@
     </nav>
   </header>
 
-  <!-- CONTENIDO PRINCIPAL DE LA PÁGINA -->
+  <!-- CONTENIDO PRINCIPAL -->
   <main>
-    <section class="page-title-section">
-      <h1>Buscador Dinámico de CVs & Personal</h1>
-      <p>Filtra candidatos por carrera o registra nuevas personas ingresando su información y enlace de Drive.</p>
+    <!-- VISTA 1: HOME CENTRADO Y LIMPIO -->
+    <section class="home-view" id="vistaHome">
+      <img src="CONTINUA LOGO.png" alt="Logo Continua" class="home-logo" onerror="this.style.display='none'">
+      <h1 class="home-greeting" id="saludoHorario">¡Bienvenido!</h1>
+      <p class="home-subtext">Selecciona una opción de la barra superior para gestionar tus documentos o buscar candidatos.</p>
     </section>
 
-    <!-- INTERFAZ DEL BUSCADOR Y REGISTRO (4 CAMPOS) -->
-    <section class="search-panel" id="panelBuscador">
-      <div class="filter-box-main">
-        <label for="buscarInput">🔍 Búsqueda Dinámica:</label>
-        <input type="text" id="buscarInput" placeholder="Escribe la profesión (ej. Derecho), nombre o celular..." oninput="renderizarCandidatos()">
+    <!-- VISTA 2: BUSCADOR DE CVs Y REGISTRO -->
+    <section class="search-view" id="vistaBuscador">
+      <div class="page-title-section">
+        <h1>Buscador Dinámico de CVs & Personal</h1>
+        <p>Ingresa una profesión, nombre o número de celular para realizar la búsqueda.</p>
       </div>
 
-      <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (4 Campos)</span>
-      
-      <div class="input-group" id="secRegistro" style="display: none;">
-        <input type="text" id="regProfesion" class="input-field field-profesion" placeholder="Profesión" autocomplete="off">
-        <input type="text" id="regNombre" class="input-field field-nombre" placeholder="Nombre y Apellido" autocomplete="off">
-        <input type="text" id="regCelular" class="input-field field-celular" placeholder="Celular" autocomplete="off">
-        <input type="text" id="regLink" class="input-field field-link" placeholder="Link del CV (Google Drive/PDF)" autocomplete="off">
-        <button class="btn-save" onclick="guardarCandidato()">Guardar</button>
-      </div>
-    </section>
+      <div class="search-panel">
+        <div class="filter-box-main">
+          <label for="buscarInput">🔍 Búsqueda Dinámica:</label>
+          <input type="text" id="buscarInput" placeholder="Escribe la profesión (ej. Derecho), nombre o celular..." oninput="renderizarCandidatos()">
+        </div>
 
-    <!-- RESULTADOS EN CUADROS -->
-    <section class="content-grid" id="listaCandidatos">
-      <!-- Se generan de manera dinámica por JS -->
+        <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (4 Campos)</span>
+        
+        <div class="input-group" id="secRegistro" style="display: none;">
+          <input type="text" id="regProfesion" class="input-field field-profesion" placeholder="Profesión" autocomplete="off">
+          <input type="text" id="regNombre" class="input-field field-nombre" placeholder="Nombre y Apellido" autocomplete="off">
+          <input type="text" id="regCelular" class="input-field field-celular" placeholder="Celular" autocomplete="off">
+          <input type="text" id="regLink" class="input-field field-link" placeholder="Link del CV (Google Drive/PDF)" autocomplete="off">
+          <button class="btn-save" onclick="guardarCandidato()">Guardar</button>
+        </div>
+      </div>
+
+      <!-- CUADROS DE RESULTADOS -->
+      <div class="content-grid" id="listaCandidatos"></div>
     </section>
   </main>
 
@@ -497,34 +543,59 @@
   </footer>
 
   <script>
-    // Reloj Digital
+    // RELOJ DIGITAL Y SALUDO SEGÚN HORA LOCAL
     function updateClock() {
       var now = new Date();
-      var hours = String(now.getHours()).padStart(2, '0');
+      var hours = now.getHours();
       var minutes = String(now.getMinutes()).padStart(2, '0');
       var seconds = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('clock').textContent = hours + ":" + minutes + ":" + seconds;
+
+      document.getElementById('clock').textContent = String(hours).padStart(2, '0') + ":" + minutes + ":" + seconds;
 
       var options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
       document.getElementById('date').textContent = now.toLocaleDateString('es-ES', options).toUpperCase();
+
+      var saludo = "¡Bienvenido!";
+      if (hours >= 6 && hours < 12) {
+        saludo = "¡Buenos días, Bienvenido!";
+      } else if (hours >= 12 && hours < 19) {
+        saludo = "¡Buenas tardes, Bienvenido!";
+      } else {
+        saludo = "¡Buenas noches, Bienvenido!";
+      }
+      
+      var elemSaludo = document.getElementById('saludoHorario');
+      if (elemSaludo) {
+        elemSaludo.textContent = saludo;
+      }
     }
     setInterval(updateClock, 1000);
-    updateClock();
 
     // BASE DE DATOS LOCAL
-    var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [
-      { profesion: "Derecho", nombre: "Ejemplo Juan Pérez", celular: "987654321", link: "https://drive.google.com" },
-      { profesion: "Ingeniería", nombre: "Ejemplo Maria Gomez", celular: "912345678", link: "" }
-    ];
+    var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
+
+    function mostrarInicio() {
+      document.getElementById('vistaHome').style.display = 'flex';
+      document.getElementById('vistaBuscador').style.display = 'none';
+      
+      document.getElementById('btnInicio').classList.add('active');
+      document.getElementById('btnBuscador').classList.remove('active');
+    }
+
+    function mostrarBuscador() {
+      document.getElementById('vistaHome').style.display = 'none';
+      document.getElementById('vistaBuscador').style.display = 'block';
+
+      document.getElementById('btnInicio').classList.remove('active');
+      document.getElementById('btnBuscador').classList.add('active');
+
+      document.getElementById('buscarInput').focus();
+      renderizarCandidatos();
+    }
 
     function toggleRegistro() {
       var sec = document.getElementById('secRegistro');
       sec.style.display = (sec.style.display === 'none') ? 'flex' : 'none';
-    }
-
-    function irAlBuscador() {
-      document.getElementById('panelBuscador').scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('buscarInput').focus();
     }
 
     function guardarCandidato() {
@@ -564,20 +635,21 @@
     }
 
     function filtrarYRedirigir(carrera, urlDrive) {
+      mostrarBuscador();
       document.getElementById('buscarInput').value = carrera;
       renderizarCandidatos();
       window.open(urlDrive, '_blank');
-    }
-
-    function limpiarFiltro() {
-      document.getElementById('buscarInput').value = "";
-      renderizarCandidatos();
     }
 
     function renderizarCandidatos() {
       var filtro = document.getElementById('buscarInput').value.toLowerCase().trim();
       var contenedor = document.getElementById('listaCandidatos');
       contenedor.innerHTML = "";
+
+      if (filtro === "") {
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B; text-align: center; padding: 20px;">Ingresa una profesión, nombre o celular en la barra superior para buscar candidatos.</p>';
+        return;
+      }
 
       var filtrados = candidatosDB.filter(function(item) {
         return item.profesion.toLowerCase().includes(filtro) ||
@@ -586,7 +658,7 @@
       });
 
       if (filtrados.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B;">No se encontraron registros que coincidan con la búsqueda.</p>';
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B; text-align: center; padding: 20px;">No se encontraron registros que coincidan con "' + filtro + '".</p>';
         return;
       }
 
@@ -617,7 +689,8 @@
     }
 
     window.onload = function() {
-      renderizarCandidatos();
+      updateClock();
+      mostrarInicio();
     };
   </script>
 </body>
