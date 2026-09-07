@@ -312,7 +312,7 @@
       color: #FFF;
     }
 
-    /* LÍNEA HORIZONTAL CON PORCENTAJE DE AVANCE SUPERIOR Y LUZ PARPADEANTE */
+    /* LÍNEA HORIZONTAL CON PORCENTAJE SUPERIOR Y LUZ NEÓN */
     .timeline-panel {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -555,13 +555,16 @@
       <button class="tab-btn" id="btnProcesos" onclick="mostrarProcesos()">⚙️ PROCESOS</button>
       <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
-      <!-- EXCEL MATRIZ CON ENLACES DINÁMICOS -->
+      <!-- MENÚ DESPLEGABLE SIMPLIFICADO: "Excel" -->
       <div class="dropdown">
-        <button class="tab-btn">📊 EXCEL MATRIZ ▼</button>
+        <button class="tab-btn">📊 Excel ▼</button>
         <div class="dropdown-content" id="excelDropdownContent">
           <!-- Links inyectados por JavaScript -->
         </div>
       </div>
+
+      <!-- Opciones extra creadas dinámicamente -->
+      <div id="customNavTabsContainer" style="display: flex; gap: 8px;"></div>
 
       <button class="tab-btn" id="btnAdmin" style="display: none; background: #334155; color: #38BDF8;" onclick="mostrarAdmin()">👨‍💻 PANEL PROGRAMADOR</button>
     </nav>
@@ -637,34 +640,48 @@
       <div class="content-grid" id="listaCandidatos"></div>
     </section>
 
-    <!-- PANEL PROGRAMADOR COMPLETO -->
+    <!-- PANEL PROGRAMADOR TOTAL -->
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
         <h1 style="color: var(--accent-orange);">🛠️ Panel de Control Total (Programador)</h1>
-        <p>Gestiona los accesos de la barra superior, enlaces a Excel y requerimientos de etapas.</p>
+        <p>Gestiona los accesos a los Excel, la barra superior y los requerimientos por etapa.</p>
       </div>
 
-      <!-- SECCIÓN A: ADMINISTRAR ENLACES DE EXCEL MATRIZ -->
+      <!-- SECCIÓN A: ADMINISTRAR EXCEL -->
       <div class="admin-panel">
-        <h3>1. Gestión de Opción "EXCEL MATRIZ"</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o elimina documentos vinculados al menú desplegable.</p>
+        <h3>1. Gestión del Menú Desplegable "Excel"</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o quita accesos directos a hojas de cálculo.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
           <input type="text" id="nuevoExcelNombreInput" class="input-field" style="flex: 1;" placeholder="Nombre de la opción (ej: Seguimiento)">
-          <input type="text" id="nuevoExcelLinkInput" class="input-field" style="flex: 2;" placeholder="URL/Link directo de Google Sheets...">
-          <button class="btn-save" onclick="agregarExcelLinkMaster()">➕ Agregar Enlace</button>
+          <input type="text" id="nuevoExcelLinkInput" class="input-field" style="flex: 2;" placeholder="URL/Link directo del Google Sheet...">
+          <button class="btn-save" onclick="agregarExcelLinkMaster()">➕ Agregar Excel</button>
         </div>
 
         <div id="listaExcelAdminContainer"></div>
       </div>
 
-      <!-- SECCIÓN B: ETAPAS GLOBALES Y REQUERIMIENTOS -->
+      <!-- SECCIÓN B: ADMINISTRAR PESTAÑAS DE LA BARRA SUPERIOR -->
       <div class="admin-panel">
-        <h3>2. Configuración de la Línea Temporal de Procesos</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea etapas enteras para la línea horizontal.</p>
+        <h3>2. Herramienta de Modificación de la Barra Superior</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea nuevas opciones/pestañas en la barra principal con sus enlaces o direcciones.</p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <input type="text" id="nuevaPestañaNombreInput" class="input-field" style="flex: 1;" placeholder="Nombre del botón (ej: Drive General)">
+          <input type="text" id="nuevaPestañaLinkInput" class="input-field" style="flex: 2;" placeholder="Link/Dirección web de destino...">
+          <button class="btn-save" onclick="agregarPestañaBarraMaster()">➕ Crear Pestaña</button>
+        </div>
+
+        <div id="listaPestañasAdminContainer"></div>
+      </div>
+
+      <!-- SECCIÓN C: ETAPAS GLOBALES Y REQUERIMIENTOS -->
+      <div class="admin-panel">
+        <h3>3. Configuración de Etapas y Requerimientos</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea más etapas para la línea horizontal o agrega requerimientos.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-          <input type="text" id="nuevaEtapaNombreInput" class="input-field" placeholder="Nombre de la nueva etapa (ej: Campaña de Ventas)">
+          <input type="text" id="nuevaEtapaNombreInput" class="input-field" placeholder="Nombre de la nueva etapa (ej: Lanzamiento)">
           <button class="btn-save" onclick="crearNuevaEtapaMaster()">➕ Crear Etapa</button>
         </div>
 
@@ -687,7 +704,7 @@
           <button class="btn-save" onclick="agregarOpcionEtapa()">➕ Agregar Opción</button>
         </div>
 
-        <h4 style="margin-bottom: 12px;">Requerimientos configurados para esta etapa:</h4>
+        <h4 style="margin-bottom: 12px;">Requerimientos configurados:</h4>
         <div id="listaOpcionesAdmin"></div>
       </div>
     </section>
@@ -710,7 +727,7 @@
   <div class="modal-overlay" id="deleteCourseModal">
     <div class="modal-box">
       <h3 style="margin-bottom: 12px; color: var(--danger-red);">Autorizar Eliminación de Curso</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de autorización para confirmar la eliminación.</p>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña para confirmar la eliminación.</p>
       <input type="password" id="deleteCoursePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="cerrarModalEliminarCurso()">Cancelar</button>
@@ -759,10 +776,13 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // BASE DE DATOS DE EXCEL
+    // DATOS DE EXCEL ENLACES
     var excelLinksMaster = JSON.parse(localStorage.getItem('excelLinksJarvis')) || [
       { id: 1, label: '📊 Excel de Seguimiento', link: 'https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?gid=1634387007#gid=1634387007' }
     ];
+
+    // DATOS DE PESTAÑAS PERSONALIZADAS EN LA BARRA SUPERIOR
+    var customTabsMaster = JSON.parse(localStorage.getItem('customTabsJarvis')) || [];
 
     // ETAPAS Y REQUERIMIENTOS
     var nombresEtapasMaster = JSON.parse(localStorage.getItem('nombresJarvisEtapas')) || [
@@ -787,27 +807,41 @@
     var courseToDeleteId = null;
     var esProgramador = false;
 
-    // RENDERIZAR ENLACES EN EXCEL MATRIZ
+    // RENDERIZAR ENLACES EN MENÚ "EXCEL"
     function renderizarDropdownExcel() {
       var container = document.getElementById('excelDropdownContent');
       container.innerHTML = '';
 
       if (excelLinksMaster.length === 0) {
-        container.innerHTML = '<span style="padding:10px; color:#94A3B8; font-size:0.8rem;">Sin enlaces agregados</span>';
+        container.innerHTML = '<span style="padding:10px; color:#94A3B8; font-size:0.8rem;">Sin hojas de cálculo agregadas</span>';
         return;
       }
 
       excelLinksMaster.forEach(function(item) {
         container.innerHTML += `
-          <a onclick="abrirLinkExcel('${item.link}')">
+          <a onclick="abrirLinkWeb('${item.link}')">
             ${item.label}
           </a>
         `;
       });
     }
 
-    function abrirLinkExcel(url) {
-      if (!url) return alert('El enlace no es válido.');
+    // RENDERIZAR PESTAÑAS EXTRA EN LA BARRA SUPERIOR
+    function renderizarCustomNavTabs() {
+      var container = document.getElementById('customNavTabsContainer');
+      container.innerHTML = '';
+
+      customTabsMaster.forEach(function(item) {
+        container.innerHTML += `
+          <button class="tab-btn" onclick="abrirLinkWeb('${item.link}')">
+            🔗 ${item.label}
+          </button>
+        `;
+      });
+    }
+
+    function abrirLinkWeb(url) {
+      if (!url) return alert('Dirección no válida.');
       window.open(url, '_blank');
     }
 
@@ -870,11 +904,12 @@
       document.getElementById('vistaAdmin').style.display = 'block';
       document.getElementById('btnAdmin').classList.add('active');
       renderizarAdminExcel();
+      renderizarAdminCustomTabs();
       renderizarAdminEtapasGlobales();
       renderizarConfigEtapas();
     }
 
-    // ADMINISTRACIÓN DE EXCEL LINKS
+    // GESTIÓN DE EXCEL LINKS EN EL PROGRAMADOR
     function renderizarAdminExcel() {
       var container = document.getElementById('listaExcelAdminContainer');
       container.innerHTML = '';
@@ -899,7 +934,7 @@
       var name = nameInput.value.trim();
       var link = linkInput.value.trim();
 
-      if (!name || !link) return alert('Ingresa el nombre y la dirección URL.');
+      if (!name || !link) return alert('Ingresa el nombre y la dirección del Excel.');
 
       excelLinksMaster.push({ id: Date.now(), label: name, link: link });
       localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
@@ -918,7 +953,56 @@
       renderizarDropdownExcel();
     }
 
-    // ELIMINAR CURSO CON AUTORIZACIÓN
+    // GESTIÓN DE PESTAÑAS EXTRA EN LA BARRA SUPERIOR
+    function renderizarAdminCustomTabs() {
+      var container = document.getElementById('listaPestañasAdminContainer');
+      container.innerHTML = '';
+
+      if (customTabsMaster.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No hay botones extras agregados a la barra superior.</p>';
+        return;
+      }
+
+      customTabsMaster.forEach(function(item, idx) {
+        container.innerHTML += `
+          <div class="check-item">
+            <div>
+              <strong>🔗 ${item.label}</strong><br>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${item.link}</span>
+            </div>
+            <button class="btn-danger" onclick="eliminarPestañaBarra(${idx})">❌ Eliminar</button>
+          </div>
+        `;
+      });
+    }
+
+    function agregarPestañaBarraMaster() {
+      var nameInput = document.getElementById('nuevaPestañaNombreInput');
+      var linkInput = document.getElementById('nuevaPestañaLinkInput');
+
+      var name = nameInput.value.trim();
+      var link = linkInput.value.trim();
+
+      if (!name || !link) return alert('Ingresa el nombre y el enlace de destino.');
+
+      customTabsMaster.push({ id: Date.now(), label: name, link: link });
+      localStorage.setItem('customTabsJarvis', JSON.stringify(customTabsMaster));
+
+      nameInput.value = '';
+      linkInput.value = '';
+
+      renderizarAdminCustomTabs();
+      renderizarCustomNavTabs();
+    }
+
+    function eliminarPestañaBarra(idx) {
+      customTabsMaster.splice(idx, 1);
+      localStorage.setItem('customTabsJarvis', JSON.stringify(customTabsMaster));
+      renderizarAdminCustomTabs();
+      renderizarCustomNavTabs();
+    }
+
+    // ELIMINACIÓN DE CURSOS CON AUTORIZACIÓN
     function solicitarEliminarCurso(idCurso, event) {
       event.stopPropagation();
       courseToDeleteId = idCurso;
@@ -1289,6 +1373,7 @@
 
     window.onload = function() {
       renderizarDropdownExcel();
+      renderizarCustomNavTabs();
       mostrarInicio();
     };
   </script>
