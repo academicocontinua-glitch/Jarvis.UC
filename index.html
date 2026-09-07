@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis OS - Sistema Integral de Gestión</title>
+    <title>Jarvis OS - Workspace & Gestor de Procesos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         /* ==========================================================================
-           VARIABLES GLOBALES Y TEMA DARK / GLASSMORPHISM (JARVIS OS)
+           1. VARIABLES GLOBALES Y TEMA GLASSMORPHISM (JARVIS OS)
            ========================================================================== */
         :root {
             --bg-primary: #0b0f19;
@@ -34,12 +34,12 @@
             --transition-normal: 0.3s ease;
         }
 
-        /* RESETEO & ESTILOS BASE */
+        /* RESETEO & BASE */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -57,23 +57,13 @@
         }
 
         /* SCROLLBAR PERSONALIZADA */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-blue);
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
 
         /* ==========================================================================
-           LAYOUT PRINCIPAL (SIDEBAR + MAIN CONTENT)
+           2. LAYOUT ESTRUCTURAL (SIDEBAR + MAIN CONTENT)
            ========================================================================== */
         .app-layout {
             display: flex;
@@ -82,7 +72,7 @@
             overflow: hidden;
         }
 
-        /* SIDEBAR / NAVEGACIÓN LATERAL */
+        /* SIDEBAR LATERAL */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--glass-bg);
@@ -186,14 +176,8 @@
             border: 1px solid var(--glass-border);
         }
 
-        .user-info h4 {
-            font-size: 0.85rem;
-            color: var(--text-main);
-        }
-        .user-info p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
+        .user-info h4 { font-size: 0.85rem; color: var(--text-main); }
+        .user-info p { font-size: 0.75rem; color: var(--text-muted); }
 
         /* CONTENEDOR PRINCIPAL */
         .main-wrapper {
@@ -214,10 +198,7 @@
             backdrop-filter: blur(12px);
         }
 
-        .header-title h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
+        .header-title h2 { font-size: 1.25rem; font-weight: 600; }
 
         .status-badge {
             display: flex;
@@ -250,9 +231,7 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        .view-panel.active {
-            display: block;
-        }
+        .view-panel.active { display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
@@ -260,10 +239,9 @@
         }
 
         /* ==========================================================================
-           MÓDULO DE PROCESOS (NUEVO & MEJORADO)
+           3. MÓDULO DE PROCESOS (LÍNEA HORIZONTAL CON ILUMINACIÓN)
            ========================================================================== */
         
-        /* Botones de Acción */
         .btn {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -297,7 +275,6 @@
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
-        /* Tarjetas de Cursos */
         .header-actions {
             display: flex;
             justify-content: space-between;
@@ -328,19 +305,8 @@
             box-shadow: 0 12px 24px rgba(0,0,0,0.4);
         }
 
-        .course-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.6rem;
-            color: var(--text-main);
-        }
-
-        .course-card p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
+        .course-card h3 { font-size: 1.1rem; margin-bottom: 0.6rem; color: var(--text-main); }
+        .course-card p { color: var(--text-muted); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; }
 
         .course-card-footer {
             margin-top: 1.5rem;
@@ -360,7 +326,7 @@
             border-radius: 6px;
         }
 
-        /* Línea de Tiempo Horizontal */
+        /* LÍNEA TEMPORAL */
         .timeline-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -428,11 +394,9 @@
             transition: var(--transition-normal);
         }
 
-        .step-node i {
-            font-size: 1.1rem;
-        }
+        .step-node i { font-size: 1.1rem; }
 
-        /* Luces de la Línea Temporal */
+        /* LUCES DE ETAPAS */
         .timeline-step.completed .step-node {
             background: var(--success-green);
             border-color: var(--success-green);
@@ -454,19 +418,11 @@
             100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
         }
 
-        .step-title {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
+        .step-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
         .timeline-step.active .step-title,
-        .timeline-step.completed .step-title {
-            color: var(--text-main);
-            font-weight: 600;
-        }
+        .timeline-step.completed .step-title { color: var(--text-main); font-weight: 600; }
 
-        /* Panel Informativo y Lista de Tareas */
+        /* DETALLE E INVENTARIO DE TAREAS */
         .detail-panel {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -481,22 +437,10 @@
             margin-bottom: 1.75rem;
         }
 
-        .info-header h2 {
-            font-size: 1.4rem;
-            color: var(--accent-blue);
-            margin-bottom: 0.3rem;
-        }
+        .info-header h2 { font-size: 1.4rem; color: var(--accent-blue); margin-bottom: 0.3rem; }
+        .info-header p { color: var(--text-muted); font-size: 0.95rem; }
 
-        .info-header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .checklist-group {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .checklist-group { display: flex; flex-direction: column; gap: 1rem; }
 
         .check-item {
             display: flex;
@@ -510,25 +454,11 @@
             transition: var(--transition-fast);
         }
 
-        .check-item:hover {
-            border-color: rgba(255, 255, 255, 0.18);
-            background: rgba(15, 23, 42, 0.8);
-        }
+        .check-item:hover { border-color: rgba(255, 255, 255, 0.18); background: rgba(15, 23, 42, 0.8); }
+        .check-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent-blue); cursor: pointer; }
+        .check-item span { font-size: 0.95rem; color: var(--text-main); font-weight: 500; }
 
-        .check-item input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            accent-color: var(--accent-blue);
-            cursor: pointer;
-        }
-
-        .check-item span {
-            font-size: 0.95rem;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        /* Alerta Banner de Avance */
+        /* BANNER ALERTA */
         .alert-banner {
             display: none;
             background: rgba(34, 197, 94, 0.15);
@@ -547,7 +477,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Modal Generico */
+        /* MODALES GENERIQUIS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -569,22 +499,9 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .modal-box h3 {
-            margin-bottom: 1.25rem;
-            font-size: 1.2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
+        .modal-box h3 { margin-bottom: 1.25rem; font-size: 1.2rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem; }
         .form-group input {
             width: 100%;
             padding: 0.8rem 1rem;
@@ -595,20 +512,10 @@
             outline: none;
             font-size: 0.95rem;
         }
+        .form-group input:focus { border-color: var(--accent-blue); box-shadow: 0 0 10px var(--accent-glow); }
+        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.75rem; }
 
-        .form-group input:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-            margin-top: 1.75rem;
-        }
-
-        /* OTROS MÓDULOS DE RELLENO (DOCUMENTOS / CALCULA) */
+        /* SECCIONES SECUNDARIAS MANTENIDAS */
         .placeholder-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -622,13 +529,11 @@
 <body>
 
 <div class="app-layout">
-    <!-- NAVEGACIÓN LATERAL COMPLETA -->
+    <!-- NAVEGACIÓN LATERAL -->
     <aside class="sidebar">
         <div>
             <div class="brand-container">
-                <div class="brand-logo">
-                    <i class="fa-solid fa-cube"></i>
-                </div>
+                <div class="brand-logo"><i class="fa-solid fa-cube"></i></div>
                 <div class="brand-text">
                     <h1>JARVIS OS</h1>
                     <span>Workspace</span>
@@ -668,7 +573,6 @@
 
     <!-- ÁREA PRINCIPAL -->
     <main class="main-wrapper">
-        <!-- HEADER SUPERIOR -->
         <header class="top-header">
             <div class="header-title">
                 <h2 id="pageTitle">Gestión de Procesos y Cursos</h2>
@@ -679,37 +583,29 @@
             </div>
         </header>
 
-        <!-- ÁREA DE CONTENIDO -->
         <div class="content-area">
 
-            <!-- ===================================================================
-                 VISTA 1: MÓDULO DE PROCESOS (LISTA & DETALLE)
-                 =================================================================== -->
+            <!-- VISTA 1: PROCESOS Y LÍNEA HORIZONTAL -->
             <div id="view-procesos" class="view-panel active">
                 
-                <!-- SUB-VISTA A: LISTA DE CURSOS -->
+                <!-- LISTA DE CURSOS -->
                 <div id="subview-courses-list">
                     <div class="header-actions">
-                        <div>
-                            <h3 style="font-size: 1.1rem; color: var(--text-muted);">Cursos en Desarrollo</h3>
-                        </div>
+                        <div><h3 style="font-size: 1.1rem; color: var(--text-muted);">Cursos Registrados</h3></div>
                         <button class="btn btn-primary" onclick="openModal()">
                             <i class="fa-solid fa-plus"></i> Agregar Curso
                         </button>
                     </div>
 
-                    <div class="courses-grid" id="coursesGrid">
-                        <!-- Cursos dinámicos -->
-                    </div>
+                    <div class="courses-grid" id="coursesGrid"></div>
                 </div>
 
-                <!-- SUB-VISTA B: DETALLE DE SEGUIMIENTO CON LÍNEA TEMPORAL -->
+                <!-- DETALLE Y SEGUIMIENTO -->
                 <div id="subview-course-detail" style="display: none;">
                     <button class="btn" onclick="backToCoursesList()" style="margin-bottom: 1.5rem;">
                         <i class="fa-solid fa-arrow-left"></i> Volver a la Lista
                     </button>
 
-                    <!-- LÍNEA TEMPORAL HORIZONTAL CON LUCES -->
                     <div class="timeline-container">
                         <div class="timeline-track">
                             <div class="timeline-base-line"></div>
@@ -737,47 +633,43 @@
                         </div>
                     </div>
 
-                    <!-- BANNER ANUNCIO PROCESO Siguiente ETAPA -->
                     <div class="alert-banner" id="stageAlert">
                         <i class="fa-solid fa-circle-check fa-xl"></i>
                         <div>
                             <strong>Proceso pasa a la siguiente etapa</strong><br>
                             <span style="font-size: 0.85rem; opacity: 0.9;">
-                                Has completado los requerimientos. Haz clic en la luz de la siguiente etapa para continuar.
+                                Has completado los requerimientos. Haz clic en la luz que ha encendido para continuar.
                             </span>
                         </div>
                     </div>
 
-                    <!-- DETALLE INFERIOR Y CASILLAS -->
                     <div class="detail-panel">
                         <div class="info-header">
                             <h2 id="displayCourseName">Curso: --</h2>
                             <p>Propuesto por: <strong id="displayProposer" style="color: var(--text-main);">--</strong></p>
                         </div>
 
-                        <div class="checklist-group" id="checklistContainer">
-                            <!-- Checkboxes inyectados dinámicamente -->
-                        </div>
+                        <div class="checklist-group" id="checklistContainer"></div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- VISTA 2: DOCUMENTOS (ESTRUCTURA DE CONTEXTO) -->
+            <!-- VISTA 2: DOCUMENTOS -->
             <div id="view-documentos" class="view-panel">
                 <div class="placeholder-card">
                     <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom: 1rem; color: var(--accent-blue);"></i>
                     <h3>Repositorio de Documentos</h3>
-                    <p style="margin-top: 0.5rem;">Gestión centralizada de plantillas, fichas y reglamentos.</p>
+                    <p style="margin-top: 0.5rem;">Gestión centralizada de plantillas, fichas y solicitudes.</p>
                 </div>
             </div>
 
-            <!-- VISTA 3: HERRAMIENTAS (ESTRUCTURA DE CONTEXTO) -->
+            <!-- VISTA 3: HERRAMIENTAS -->
             <div id="view-herramientas" class="view-panel">
                 <div class="placeholder-card">
                     <i class="fa-solid fa-calculator fa-3x" style="margin-bottom: 1rem; color: var(--accent-purple);"></i>
                     <h3>Módulo de Utilidades</h3>
-                    <p style="margin-top: 0.5rem;">Calculadora de tiempos y cronograma proyectado de lanzamientos.</p>
+                    <p style="margin-top: 0.5rem;">Calculadora de tiempos e indicadores de avance del equipo.</p>
                 </div>
             </div>
 
@@ -785,7 +677,7 @@
     </main>
 </div>
 
-<!-- MODAL PARA REGISTRAR NUEVO CURSO -->
+<!-- MODAL REGISTRO CURSO -->
 <div class="modal-overlay" id="addCourseModal">
     <div class="modal-box">
         <h3>Agregar Nuevo Curso a Procesos</h3>
@@ -807,16 +699,13 @@
     </div>
 </div>
 
-<!-- ==========================================================================
-     LÓGICA JAVASCRIPT DEL SISTEMA
-     ========================================================================== -->
 <script>
-    // ESTADO BASE DE DATOS LOCAL
+    // BASE DE DATOS LOCAL
     let courses = [
         {
             id: 101,
-            name: "Diseño e Implementación de IA",
-            proposer: "Carlos Mendoza",
+            name: "Gestión de Procesos Educativos",
+            proposer: "Equipo de Desarrollo",
             currentStage: 1,
             unlockedStage: 1,
             tasksStage1: { idea: false, excel: false, fichaCorta: false }
@@ -825,7 +714,7 @@
 
     let activeCourseId = null;
 
-    // NAVEGACIÓN ENTRE SECCIONES PRINCIPALES
+    // CONTROL DE PESTAÑAS PRINCIPALES
     function switchMainTab(tabId, element) {
         document.querySelectorAll('.nav-item button').forEach(btn => btn.classList.remove('active'));
         element.classList.add('active');
@@ -841,14 +730,12 @@
         document.getElementById('pageTitle').innerText = titleMap[tabId];
     }
 
-    // NAVEGACIÓN INTERNA EN PROCESOS
     function backToCoursesList() {
         document.getElementById('subview-course-detail').style.display = 'none';
         document.getElementById('subview-courses-list').style.display = 'block';
         renderCourses();
     }
 
-    // RENDERIZAR TARJETAS DE CURSOS
     function renderCourses() {
         const grid = document.getElementById('coursesGrid');
         grid.innerHTML = '';
@@ -867,14 +754,8 @@
         });
     }
 
-    // MODAL HANDLERS
-    function openModal() {
-        document.getElementById('addCourseModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('addCourseModal').style.display = 'none';
-    }
+    function openModal() { document.getElementById('addCourseModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('addCourseModal').style.display = 'none'; }
 
     function saveCourse() {
         const nameInput = document.getElementById('inputCourseName');
@@ -901,7 +782,6 @@
         renderCourses();
     }
 
-    // DETALLE DEL CURSO Y LÍNEA DE TIEMPO
     function openCourseDetail(id) {
         activeCourseId = id;
         const course = courses.find(c => c.id === id);
@@ -915,12 +795,10 @@
         renderStage(course.currentStage);
     }
 
-    // RENDERIZAR ETAPAS Y CASILLAS
     function renderStage(stageNumber) {
         const course = courses.find(c => c.id === activeCourseId);
         course.currentStage = stageNumber;
 
-        // Actualización de la barra y luces
         const totalStages = 4;
         const progressPercentage = ((course.unlockedStage - 1) / (totalStages - 1)) * 100;
         document.getElementById('timelineProgress').style.width = `${progressPercentage}%`;
@@ -936,7 +814,6 @@
             }
         }
 
-        // Renderizar Casillas según la etapa
         const container = document.getElementById('checklistContainer');
         if (stageNumber === 1) {
             const t = course.tasksStage1;
@@ -955,13 +832,12 @@
                 </label>
             `;
         } else {
-            container.innerHTML = `<p style="color: var(--text-muted); padding: 1rem 0;">Opciones de la Etapa ${stageNumber} (Listas para configurar cuando avances).</p>`;
+            container.innerHTML = `<p style="color: var(--text-muted); padding: 1rem 0;">Opciones de la Etapa ${stageNumber} (Listas para configurar).</p>`;
         }
 
         checkStageCompletion();
     }
 
-    // SELECCIONAR LUZ / PASO DE LA LÍNEA TEMPORAL
     function selectStage(stageNumber) {
         const course = courses.find(c => c.id === activeCourseId);
         if (stageNumber <= course.unlockedStage) {
@@ -971,14 +847,12 @@
         }
     }
 
-    // ACTUALIZAR ESTADO DE CASILLAS
     function toggleTask(taskKey, isChecked) {
         const course = courses.find(c => c.id === activeCourseId);
         course.tasksStage1[taskKey] = isChecked;
         checkStageCompletion();
     }
 
-    // COMUNICADO DE AVANCE DE ETAPA
     function checkStageCompletion() {
         const course = courses.find(c => c.id === activeCourseId);
         const alertBanner = document.getElementById('stageAlert');
@@ -987,7 +861,7 @@
             const { idea, excel, fichaCorta } = course.tasksStage1;
             if (idea && excel && fichaCorta) {
                 if (course.unlockedStage === 1) {
-                    course.unlockedStage = 2; // Enciende la luz de la Etapa 2
+                    course.unlockedStage = 2;
                 }
                 alertBanner.style.display = 'flex';
             } else {
