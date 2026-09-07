@@ -106,6 +106,7 @@
       padding: 8px 24px;
       background: #1E293B;
       overflow-x: auto;
+      align-items: center;
     }
 
     .tab-btn {
@@ -122,6 +123,7 @@
       gap: 6px;
       transition: all 0.2s;
       text-decoration: none;
+      white-space: nowrap;
     }
 
     .tab-btn:hover, .tab-btn.active {
@@ -143,7 +145,7 @@
       top: 100%;
       left: 0;
       background-color: #1E293B;
-      min-width: 240px;
+      min-width: 260px;
       box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
       border-radius: 6px;
       z-index: 10;
@@ -160,6 +162,7 @@
       gap: 8px;
       font-size: 0.85rem;
       transition: background 0.2s, color 0.2s;
+      cursor: pointer;
     }
 
     .dropdown-content a:hover {
@@ -277,6 +280,7 @@
       border: 1px solid var(--border-color);
       padding: 20px;
       border-radius: var(--radius-md);
+      position: relative;
     }
 
     .course-card {
@@ -287,6 +291,25 @@
     .course-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .course-card-delete-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .course-card-delete-btn:hover {
+      background: var(--danger-red);
+      color: #FFF;
     }
 
     /* LÍNEA HORIZONTAL CON PORCENTAJE DE AVANCE SUPERIOR Y LUZ PARPADEANTE */
@@ -341,7 +364,6 @@
       cursor: pointer;
     }
 
-    /* BADGE DE PORCENTAJE ARRIBA DE CADA LUZ */
     .step-percent-badge {
       position: absolute;
       top: -28px;
@@ -449,7 +471,6 @@
       flex: 1;
     }
 
-    /* ESTILOS DE LOS 3 TIPOS DE ENTRADAS */
     .input-text-item {
       max-width: 250px;
       padding: 8px 12px;
@@ -528,19 +549,17 @@
       </div>
     </div>
 
-    <nav class="nav-tabs">
+    <!-- NAVEGACIÓN PRINCIPAL DINÁMICA -->
+    <nav class="nav-tabs" id="mainNavContainer">
       <button class="tab-btn active" id="btnInicio" onclick="mostrarInicio()">🏠 Inicio</button>
       <button class="tab-btn" id="btnProcesos" onclick="mostrarProcesos()">⚙️ PROCESOS</button>
       <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
+      <!-- EXCEL MATRIZ CON ENLACES DINÁMICOS -->
       <div class="dropdown">
         <button class="tab-btn">📊 EXCEL MATRIZ ▼</button>
-        <div class="dropdown-content">
-          <a href="https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?gid=1634387007#gid=1634387007" target="_blank">
-            📊 Excel de Seguimiento
-          </a>
-          <a href="#" onclick="alert('Abriendo Base de Datos de Docentes')">📄 Registro de Docentes / Expertos</a>
-          <a href="#" onclick="alert('Abriendo Control de Entregables')">📈 Control de Entregables</a>
+        <div class="dropdown-content" id="excelDropdownContent">
+          <!-- Links inyectados por JavaScript -->
         </div>
       </div>
 
@@ -572,7 +591,6 @@
       <div id="subvistaDetalleCurso" style="display: none;">
         <button class="tab-btn" style="background: #E2E8F0; color: #1E293B; margin-bottom: 20px;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
         
-        <!-- LÍNEA TEMPORAL CON PORCENTAJE DE AVANCE SUPERIOR -->
         <div class="timeline-panel">
           <div class="timeline-track" id="timelineTrackContainer"></div>
         </div>
@@ -580,7 +598,7 @@
         <div class="alert-banner" id="stageAlert">
           <i class="fa-solid fa-circle-check fa-lg"></i>
           <div>
-            <strong>Proceso alcanza el 100%. Passa a la siguiente etapa.</strong> Haz clic en la luz que ha encendido para ver los siguientes requerimientos.
+            <strong>Proceso alcanza el 100%. Pasa a la siguiente etapa.</strong> Haz clic en la luz que ha encendido para ver los siguientes requerimientos.
           </div>
         </div>
 
@@ -619,48 +637,57 @@
       <div class="content-grid" id="listaCandidatos"></div>
     </section>
 
-    <!-- PANEL PROGRAMADOR -->
+    <!-- PANEL PROGRAMADOR COMPLETO -->
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
-        <h1 style="color: var(--accent-orange);">🛠️ Panel de Configuración del Programador</h1>
-        <p>Agrega etapas y personaliza si cada requerimiento es Viñeta, Campo de Texto o Estado.</p>
+        <h1 style="color: var(--accent-orange);">🛠️ Panel de Control Total (Programador)</h1>
+        <p>Gestiona los accesos de la barra superior, enlaces a Excel y requerimientos de etapas.</p>
       </div>
 
-      <!-- SECCIÓN A: ETAPAS GLOBALES -->
+      <!-- SECCIÓN A: ADMINISTRAR ENLACES DE EXCEL MATRIZ -->
       <div class="admin-panel">
-        <h3>1. Gestión de Etapas de la Línea Temporal</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega más etapas al flujo global del proceso.</p>
+        <h3>1. Gestión de Opción "EXCEL MATRIZ"</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o elimina documentos vinculados al menú desplegable.</p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <input type="text" id="nuevoExcelNombreInput" class="input-field" style="flex: 1;" placeholder="Nombre de la opción (ej: Seguimiento)">
+          <input type="text" id="nuevoExcelLinkInput" class="input-field" style="flex: 2;" placeholder="URL/Link directo de Google Sheets...">
+          <button class="btn-save" onclick="agregarExcelLinkMaster()">➕ Agregar Enlace</button>
+        </div>
+
+        <div id="listaExcelAdminContainer"></div>
+      </div>
+
+      <!-- SECCIÓN B: ETAPAS GLOBALES Y REQUERIMIENTOS -->
+      <div class="admin-panel">
+        <h3>2. Configuración de la Línea Temporal de Procesos</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea etapas enteras para la línea horizontal.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
           <input type="text" id="nuevaEtapaNombreInput" class="input-field" placeholder="Nombre de la nueva etapa (ej: Campaña de Ventas)">
           <button class="btn-save" onclick="crearNuevaEtapaMaster()">➕ Crear Etapa</button>
         </div>
 
-        <div id="listaEtapasEliminarContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-      </div>
+        <div id="listaEtapasEliminarContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;"></div>
 
-      <!-- SECCIÓN B: REQUERIMIENTOS CON TIPO -->
-      <div class="admin-panel">
-        <h3>2. Opciones y Requerimientos por Etapa</h3>
-        <div style="margin-bottom: 16px; margin-top: 10px;">
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+
+        <div style="margin-bottom: 16px;">
           <label style="font-weight: 600; margin-bottom: 8px; display: block;">Seleccionar Etapa a Editar:</label>
           <select id="selectEtapaAdmin" class="input-field" onchange="renderizarConfigEtapas()"></select>
         </div>
 
-        <!-- FORMULARIO DE AGREGAR OPCIÓN CON TIPO -->
         <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-          <input type="text" id="nuevoRequerimientoInput" class="input-field" style="flex: 2; min-width: 200px;" placeholder="Nombre de la casilla u opción...">
-          
+          <input type="text" id="nuevoRequerimientoInput" class="input-field" style="flex: 2; min-width: 200px;" placeholder="Nombre del requerimiento...">
           <select id="nuevoTipoRequerimientoSelect" class="input-field" style="flex: 1; min-width: 150px;">
             <option value="CHECK">☑️ Viñeta (Check)</option>
             <option value="TEXT">📝 Texto / Número (Ventas)</option>
             <option value="STATUS">🚦 Estado (Bueno / Regular / Malo)</option>
           </select>
-
           <button class="btn-save" onclick="agregarOpcionEtapa()">➕ Agregar Opción</button>
         </div>
 
-        <h4 style="margin-bottom: 12px;">Requerimientos de esta Etapa:</h4>
+        <h4 style="margin-bottom: 12px;">Requerimientos configurados para esta etapa:</h4>
         <div id="listaOpcionesAdmin"></div>
       </div>
     </section>
@@ -675,6 +702,19 @@
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="cerrarModalLogin()">Cancelar</button>
         <button class="btn-save" onclick="validarCredenciales()">Ingresar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR CURSO CON CLAVE -->
+  <div class="modal-overlay" id="deleteCourseModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--danger-red);">Autorizar Eliminación de Curso</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de autorización para confirmar la eliminación.</p>
+      <input type="password" id="deleteCoursePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="cerrarModalEliminarCurso()">Cancelar</button>
+        <button class="btn-danger" onclick="confirmarEliminarCurso()">Eliminar Definitivamente</button>
       </div>
     </div>
   </div>
@@ -719,7 +759,12 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // NOMBRES Y ESTRUCTURA MAESTRA DE ETAPAS
+    // BASE DE DATOS DE EXCEL
+    var excelLinksMaster = JSON.parse(localStorage.getItem('excelLinksJarvis')) || [
+      { id: 1, label: '📊 Excel de Seguimiento', link: 'https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?gid=1634387007#gid=1634387007' }
+    ];
+
+    // ETAPAS Y REQUERIMIENTOS
     var nombresEtapasMaster = JSON.parse(localStorage.getItem('nombresJarvisEtapas')) || [
       { id: 1, name: 'Idea' },
       { id: 2, name: 'Mercado' },
@@ -739,7 +784,32 @@
       { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {} }
     ];
     var activeCourseId = null;
+    var courseToDeleteId = null;
     var esProgramador = false;
+
+    // RENDERIZAR ENLACES EN EXCEL MATRIZ
+    function renderizarDropdownExcel() {
+      var container = document.getElementById('excelDropdownContent');
+      container.innerHTML = '';
+
+      if (excelLinksMaster.length === 0) {
+        container.innerHTML = '<span style="padding:10px; color:#94A3B8; font-size:0.8rem;">Sin enlaces agregados</span>';
+        return;
+      }
+
+      excelLinksMaster.forEach(function(item) {
+        container.innerHTML += `
+          <a onclick="abrirLinkExcel('${item.link}')">
+            ${item.label}
+          </a>
+        `;
+      });
+    }
+
+    function abrirLinkExcel(url) {
+      if (!url) return alert('El enlace no es válido.');
+      window.open(url, '_blank');
+    }
 
     // LOGIN PROGRAMADOR
     function abrirModalLogin() { document.getElementById('loginModal').style.display = 'flex'; }
@@ -799,11 +869,83 @@
       resetTabs();
       document.getElementById('vistaAdmin').style.display = 'block';
       document.getElementById('btnAdmin').classList.add('active');
+      renderizarAdminExcel();
       renderizarAdminEtapasGlobales();
       renderizarConfigEtapas();
     }
 
-    // PANEL PROGRAMADOR
+    // ADMINISTRACIÓN DE EXCEL LINKS
+    function renderizarAdminExcel() {
+      var container = document.getElementById('listaExcelAdminContainer');
+      container.innerHTML = '';
+
+      excelLinksMaster.forEach(function(item, idx) {
+        container.innerHTML += `
+          <div class="check-item">
+            <div>
+              <strong>${item.label}</strong><br>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${item.link}</span>
+            </div>
+            <button class="btn-danger" onclick="eliminarExcelLink(${idx})">❌ Eliminar</button>
+          </div>
+        `;
+      });
+    }
+
+    function agregarExcelLinkMaster() {
+      var nameInput = document.getElementById('nuevoExcelNombreInput');
+      var linkInput = document.getElementById('nuevoExcelLinkInput');
+
+      var name = nameInput.value.trim();
+      var link = linkInput.value.trim();
+
+      if (!name || !link) return alert('Ingresa el nombre y la dirección URL.');
+
+      excelLinksMaster.push({ id: Date.now(), label: name, link: link });
+      localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
+
+      nameInput.value = '';
+      linkInput.value = '';
+
+      renderizarAdminExcel();
+      renderizarDropdownExcel();
+    }
+
+    function eliminarExcelLink(idx) {
+      excelLinksMaster.splice(idx, 1);
+      localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
+      renderizarAdminExcel();
+      renderizarDropdownExcel();
+    }
+
+    // ELIMINAR CURSO CON AUTORIZACIÓN
+    function solicitarEliminarCurso(idCurso, event) {
+      event.stopPropagation();
+      courseToDeleteId = idCurso;
+      document.getElementById('deleteCourseModal').style.display = 'flex';
+    }
+
+    function cerrarModalEliminarCurso() {
+      document.getElementById('deleteCourseModal').style.display = 'none';
+      document.getElementById('deleteCoursePass').value = '';
+      courseToDeleteId = null;
+    }
+
+    function confirmarEliminarCurso() {
+      var pass = document.getElementById('deleteCoursePass').value.trim();
+
+      if (pass === 'L@zaro0697') {
+        courses = courses.filter(function(c){ return c.id !== courseToDeleteId; });
+        localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+        cerrarModalEliminarCurso();
+        renderCourses();
+        alert('Curso eliminado exitosamente.');
+      } else {
+        alert('Contraseña de autorización incorrecta.');
+      }
+    }
+
+    // PANEL PROGRAMADOR DE ETAPAS
     function renderizarAdminEtapasGlobales() {
       var select = document.getElementById('selectEtapaAdmin');
       var containerEliminar = document.getElementById('listaEtapasEliminarContainer');
@@ -956,7 +1098,7 @@
       });
     }
 
-    // CÁLCULO DE PORCENTAJE DE AVANCE POR ETAPA
+    // CÁLCULO DE PORCENTAJE POR ETAPA
     function calcularPorcentajeEtapa(course, stageNumber) {
       var reqs = esquemaEtapasMaster[stageNumber] || [];
       if (reqs.length === 0) return 100;
@@ -972,12 +1114,19 @@
       return Math.round((completados / reqs.length) * 100);
     }
 
-    // PROCESOS, LÍNEA TEMPORAL Y CHECKLIST
+    // PROCESOS Y CHECKLIST
     function renderCourses() {
       var grid = document.getElementById('gridCursos');
       grid.innerHTML = '';
       courses.forEach(function(c) {
-        grid.innerHTML += '<div class="course-card" onclick="openCourseDetail(' + c.id + ')"><h3>' + c.name + '</h3><p style="color:var(--text-muted); font-size:0.85rem;">Propuesto por: ' + c.proposer + '</p><p style="margin-top:10px; font-weight:600; color:var(--accent-orange);">Etapa Actual: ' + c.currentStage + '</p></div>';
+        grid.innerHTML += `
+          <div class="course-card" onclick="openCourseDetail(${c.id})">
+            <button class="course-card-delete-btn" onclick="solicitarEliminarCurso(${c.id}, event)">🗑️ Eliminar</button>
+            <h3>${c.name}</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem;">Propuesto por: ${c.proposer}</p>
+            <p style="margin-top:10px; font-weight:600; color:var(--accent-orange);">Etapa Actual: ${c.currentStage}</p>
+          </div>
+        `;
       });
     }
 
@@ -1040,7 +1189,6 @@
       var progress = totalEtapas > 1 ? ((course.unlockedStage - 1) / (totalEtapas - 1)) * 100 : 0;
       document.getElementById('timelineProgress').style.width = progress + '%';
 
-      // ACTUALIZAR CADA LUZ Y SU % DE AVANCE SUPERIOR
       nombresEtapasMaster.forEach(function(e) {
         var node = document.getElementById('step-node-' + e.id);
         var badge = document.getElementById('step-percent-' + e.id);
@@ -1114,7 +1262,6 @@
 
       var pctActual = calcularPorcentajeEtapa(course, course.currentStage);
 
-      // SI NO ESTÁ AL 100%, REVERTER DESBLOQUEO
       if (pctActual < 100) {
         course.unlockedStage = course.currentStage;
       }
@@ -1141,6 +1288,7 @@
     }
 
     window.onload = function() {
+      renderizarDropdownExcel();
       mostrarInicio();
     };
   </script>
