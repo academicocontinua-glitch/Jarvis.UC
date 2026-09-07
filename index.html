@@ -71,9 +71,10 @@
       cursor: pointer;
     }
 
+    /* LOGO "CONTINUA LOGO.png" CORREGIDO */
     .brand-logo-wrapper {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 8px;
       overflow: hidden;
       display: flex;
@@ -81,7 +82,7 @@
       justify-content: center;
       background: #FFFFFF;
       border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 3px;
+      padding: 2px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
@@ -273,7 +274,7 @@
 
     .content-grid, .courses-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 16px;
     }
 
@@ -312,6 +313,25 @@
     .course-card-delete-btn:hover {
       background: var(--danger-red);
       color: #FFF;
+    }
+
+    /* BADGE PORCENTAJE EN TARJETA DE CURSO */
+    .course-card-progress-info {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .total-percent-badge {
+      background: #FFEDD5;
+      color: #C2410C;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--accent-orange);
     }
 
     /* LÍNEA HORIZONTAL CON PORCENTAJE */
@@ -506,7 +526,7 @@
       gap: 10px;
     }
 
-    /* ESTILOS DE BITÁCORA DE PROGRESO */
+    /* ESTILOS DE BITÁCORA */
     .subview-nav {
       display: flex;
       gap: 10px;
@@ -564,7 +584,7 @@
       transition: width 0.3s ease;
     }
 
-    /* VISOR INTERACTIVO DIAGRAMA */
+    /* VISOR DIAGRAMA DE FLUJO */
     .viewer-toolbar {
       display: flex;
       gap: 10px;
@@ -676,7 +696,7 @@
     <div class="header-info">
       <div class="brand" onclick="mostrarInicio()">
         <div class="brand-logo-wrapper">
-          <img src="CONTINENTAL.jpg" alt="Logo Continua" onerror="this.src='CONTINUA LOGO.png'">
+          <img src="CONTINUA LOGO.png" alt="Logo Continua" onerror="this.src='CONTINENTAL.jpg'">
         </div>
         JARVIS <span class="line-accent">|</span> GESTIÓN CONTINUA
       </div>
@@ -735,7 +755,7 @@
       <div id="subvistaDetalleCurso" style="display: none;">
         <button class="tab-btn" style="background: #E2E8F0; color: #1E293B; margin-bottom: 20px;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
         
-        <!-- SUBNAVEGACIÓN INTERNA: CHECKLIST vs BITÁCORA/PROGRESO -->
+        <!-- SUBNAVEGACIÓN INTERNA -->
         <div class="subview-nav">
           <button class="subview-btn active" id="btnSubChecklist" onclick="cambiarModoDetalle('CHECKLIST')">☑️ Checklist por Etapas</button>
           <button class="subview-btn" id="btnSubBitacora" onclick="cambiarModoDetalle('BITACORA')">📋 Bitácora de Progreso</button>
@@ -777,7 +797,6 @@
             </div>
           </div>
 
-          <!-- HISTORIAL DE TODAS LAS ETAPAS -->
           <div id="bitacoraStagesContainer"></div>
         </div>
       </div>
@@ -969,7 +988,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // DATOS DE EXCEL Y PESTAÑAS
+    // DATOS MAESTROS
     var excelLinksMaster = JSON.parse(localStorage.getItem('excelLinksJarvis')) || [
       { id: 1, label: '📊 Excel de Seguimiento', link: 'https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?gid=1634387007#gid=1634387007' }
     ];
@@ -998,7 +1017,7 @@
     var courseToDeleteId = null;
     var esProgramador = false;
 
-    // RENDERIZAR NAVEGACIÓN
+    // RENDERIZAR MENÚS
     function renderizarDropdownExcel() {
       var container = document.getElementById('excelDropdownContent');
       container.innerHTML = '';
@@ -1049,7 +1068,7 @@
       }
     }
 
-    // NAVEGACIÓN PRINCIPAL
+    // NAVEGACIÓN
     function resetTabs() {
       document.getElementById('btnInicio').classList.remove('active');
       document.getElementById('btnProcesos').classList.remove('active');
@@ -1104,7 +1123,7 @@
       renderizarConfigEtapas();
     }
 
-    // SUBVISTAS EN DETALLE DE CURSO (CHECKLIST vs BITÁCORA)
+    // SUBVISTAS EN DETALLE DE CURSO
     function cambiarModoDetalle(modo) {
       var btnCheck = document.getElementById('btnSubChecklist');
       var btnBit = document.getElementById('btnSubBitacora');
@@ -1125,12 +1144,47 @@
       }
     }
 
+    // CÁLCULO DE PORCENTAJES
+    function calcularPorcentajeEtapa(course, stageNumber) {
+      var reqs = esquemaEtapasMaster[stageNumber] || [];
+      if (reqs.length === 0) return 100;
+
+      var completados = 0;
+      reqs.forEach(function(r) {
+        var val = course.tasks ? course.tasks[r.id] : null;
+        if (r.type === 'CHECK' && val === true) completados++;
+        else if (r.type === 'TEXT' && val && String(val).trim() !== '') completados++;
+        else if (r.type === 'STATUS' && (val === 'BUENO' || val === 'REGULAR' || val === 'MALO')) completados++;
+      });
+
+      return Math.round((completados / reqs.length) * 100);
+    }
+
+    function calcularPorcentajeTotalCurso(course) {
+      var totalOpciones = 0;
+      var totalCompletados = 0;
+
+      nombresEtapasMaster.forEach(function(e) {
+        var reqs = esquemaEtapasMaster[e.id] || [];
+        reqs.forEach(function(r) {
+          totalOpciones++;
+          var val = course.tasks ? course.tasks[r.id] : null;
+          if (r.type === 'CHECK' && val === true) totalCompletados++;
+          else if (r.type === 'TEXT' && val && String(val).trim() !== '') totalCompletados++;
+          else if (r.type === 'STATUS' && (val === 'BUENO' || val === 'REGULAR' || val === 'MALO')) totalCompletados++;
+        });
+      });
+
+      return totalOpciones > 0 ? Math.round((totalCompletados / totalOpciones) * 100) : 0;
+    }
+
     function renderizarBitacoraProgreso() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       document.getElementById('bitacoraCourseName').innerText = "Progreso de: " + course.name;
 
-      var totalCompletados = 0;
-      var totalOpciones = 0;
+      var globalPct = calcularPorcentajeTotalCurso(course);
+      document.getElementById('bitacoraGlobalPercent').innerText = globalPct + '%';
+      document.getElementById('bitacoraGlobalBar').style.width = globalPct + '%';
 
       var container = document.getElementById('bitacoraStagesContainer');
       container.innerHTML = '';
@@ -1144,20 +1198,16 @@
           reqsListHtml = '<p style="font-size:0.85rem; color:var(--text-muted);">Sin requerimientos configurados.</p>';
         } else {
           reqs.forEach(function(r) {
-            totalOpciones++;
             var val = course.tasks ? course.tasks[r.id] : null;
             var estadoBadge = '<span style="color:var(--danger-red);">❌ Pendiente</span>';
 
             if (r.type === 'CHECK' && val === true) {
               estadoBadge = '<span style="color:var(--success-green); font-weight:600;">☑️ Marcado (Completado)</span>';
-              totalCompletados++;
             } else if (r.type === 'TEXT' && val && String(val).trim() !== '') {
               estadoBadge = `<span style="color:var(--primary-blue); font-weight:600;">📝 Valor: "${val}"</span>`;
-              totalCompletados++;
             } else if (r.type === 'STATUS' && val) {
               var color = val === 'BUENO' ? 'var(--success-green)' : (val === 'REGULAR' ? 'var(--warning-yellow)' : 'var(--danger-red)');
               estadoBadge = `<span style="color:${color}; font-weight:600;">🚦 Estado: ${val}</span>`;
-              totalCompletados++;
             }
 
             reqsListHtml += `
@@ -1177,11 +1227,7 @@
               <h3>Etapa ${e.id}: ${e.name}</h3>
               <span style="font-weight:700; color:var(--accent-orange);">${stagePct}% Avance</span>
             </div>
-            
-            <div style="margin-bottom: 12px;">
-              ${reqsListHtml}
-            </div>
-
+            <div style="margin-bottom: 12px;">${reqsListHtml}</div>
             <div style="margin-top: 12px;">
               <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">📝 Comentarios / Bitácora de Observaciones:</label>
               <input type="text" class="input-field" placeholder="Escribe notas de lo que han avanzado o acordado..." value="${notaEtapa}" onchange="guardarNotaBitacora(${e.id}, this.value)">
@@ -1189,10 +1235,6 @@
           </div>
         `;
       });
-
-      var globalPct = totalOpciones > 0 ? Math.round((totalCompletados / totalOpciones) * 100) : 0;
-      document.getElementById('bitacoraGlobalPercent').innerText = globalPct + '%';
-      document.getElementById('bitacoraGlobalBar').style.width = globalPct + '%';
     }
 
     function guardarNotaBitacora(stageId, texto) {
@@ -1203,14 +1245,7 @@
     }
 
     // VISOR DIAGRAMA
-    var currentScale = 1;
-    var currentX = 0;
-    var currentY = 0;
-    var isDragging = false;
-    var startX = 0;
-    var startY = 0;
-    var isLaserActive = false;
-
+    var currentScale = 1; var currentX = 0; var currentY = 0; var isDragging = false; var startX = 0; var startY = 0; var isLaserActive = false;
     var viewport = document.getElementById('diagramaViewport');
     var container = document.getElementById('diagramaContainer');
     var laser = document.getElementById('laserPointer');
@@ -1227,38 +1262,24 @@
     function toggleLaser() {
       isLaserActive = !isLaserActive;
       var btn = document.getElementById('laserBtn');
-      if (isLaserActive) {
-        btn.classList.add('active');
-        laser.style.display = 'block';
-      } else {
-        btn.classList.remove('active');
-        laser.style.display = 'none';
-      }
+      if (isLaserActive) { btn.classList.add('active'); laser.style.display = 'block'; }
+      else { btn.classList.remove('active'); laser.style.display = 'none'; }
     }
 
-    viewport.addEventListener('mousedown', function(e) {
-      if (isLaserActive) return;
-      isDragging = true;
-      startX = e.clientX - currentX;
-      startY = e.clientY - currentY;
-    });
-
+    viewport.addEventListener('mousedown', function(e) { if (isLaserActive) return; isDragging = true; startX = e.clientX - currentX; startY = e.clientY - currentY; });
     window.addEventListener('mousemove', function(e) {
       if (isLaserActive) {
         var rect = viewport.getBoundingClientRect();
         laser.style.left = (e.clientX - rect.left) + 'px';
         laser.style.top = (e.clientY - rect.top) + 'px';
       } else if (isDragging) {
-        currentX = e.clientX - startX;
-        currentY = e.clientY - startY;
-        updateDiagramaTransform();
+        currentX = e.clientX - startX; currentY = e.clientY - startY; updateDiagramaTransform();
       }
     });
-
     window.addEventListener('mouseup', function() { isDragging = false; });
     viewport.addEventListener('wheel', function(e) { e.preventDefault(); if (e.deltaY < 0) zoomIn(); else zoomOut(); }, { passive: false });
 
-    // PROGRAMADOR Y DIVERSAS FUNCIONES DE EDICIÓN
+    // PROGRAMADOR
     function renderizarAdminExcel() {
       var container = document.getElementById('listaExcelAdminContainer');
       container.innerHTML = '';
@@ -1275,8 +1296,7 @@
     function agregarExcelLinkMaster() {
       var nameInput = document.getElementById('nuevoExcelNombreInput');
       var linkInput = document.getElementById('nuevoExcelLinkInput');
-      var name = nameInput.value.trim();
-      var link = linkInput.value.trim();
+      var name = nameInput.value.trim(); var link = linkInput.value.trim();
       if (!name || !link) return alert('Ingresa el nombre y la dirección del Excel.');
 
       excelLinksMaster.push({ id: Date.now(), label: name, link: link });
@@ -1497,33 +1517,21 @@
       });
     }
 
-    // CÁLCULO DE PORCENTAJE POR ETAPA
-    function calcularPorcentajeEtapa(course, stageNumber) {
-      var reqs = esquemaEtapasMaster[stageNumber] || [];
-      if (reqs.length === 0) return 100;
-
-      var completados = 0;
-      reqs.forEach(function(r) {
-        var val = course.tasks ? course.tasks[r.id] : null;
-        if (r.type === 'CHECK' && val === true) completados++;
-        else if (r.type === 'TEXT' && val && String(val).trim() !== '') completados++;
-        else if (r.type === 'STATUS' && (val === 'BUENO' || val === 'REGULAR' || val === 'MALO')) completados++;
-      });
-
-      return Math.round((completados / reqs.length) * 100);
-    }
-
-    // CURSOS
+    // RENDERIZAR VISTA DE CURSOS CON PORCENTAJE TOTAL
     function renderCourses() {
       var grid = document.getElementById('gridCursos');
       grid.innerHTML = '';
       courses.forEach(function(c) {
+        var pctTotal = calcularPorcentajeTotalCurso(c);
         grid.innerHTML += `
           <div class="course-card" onclick="openCourseDetail(${c.id})">
             <button class="course-card-delete-btn" onclick="solicitarEliminarCurso(${c.id}, event)">🗑️ Eliminar</button>
             <h3>${c.name}</h3>
             <p style="color:var(--text-muted); font-size:0.85rem;">Propuesto por: ${c.proposer}</p>
-            <p style="margin-top:10px; font-weight:600; color:var(--accent-orange);">Etapa Actual: ${c.currentStage}</p>
+            <div class="course-card-progress-info">
+              <span style="font-weight:600; color:var(--accent-orange);">Etapa Actual: ${c.currentStage}</span>
+              <span class="total-percent-badge">${pctTotal}% Avance</span>
+            </div>
           </div>
         `;
       });
