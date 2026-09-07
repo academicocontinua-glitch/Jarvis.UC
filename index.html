@@ -12,13 +12,14 @@
 
   <style>
     :root {
-      --primary-blue: #0F172A;
-      --accent-orange: #F97316;
+      --primary-purple: #6B00D7;
+      --primary-purple-dark: #4C0099;
+      --accent-purple-light: #9122FF;
       --card-bg: #FFFFFF;
-      --bg-body: #F8FAFC;
-      --text-main: #1E293B;
-      --text-muted: #64748B;
-      --border-color: #E2E8F0;
+      --bg-body: #F4F0FA;
+      --text-main: #1E1233;
+      --text-muted: #625871;
+      --border-color: #E2D9F3;
       --success-green: #22C55E;
       --warning-yellow: #EAB308;
       --danger-red: #EF4444;
@@ -41,16 +42,16 @@
       flex-direction: column;
     }
 
-    /* BARRA SUPERIOR */
+    /* BARRA SUPERIOR INSTITUCIONAL MORADA */
     .top-bar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      background: var(--primary-blue);
+      background: var(--primary-purple);
       color: #FFF;
       z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 14px rgba(107, 0, 215, 0.25);
     }
 
     .header-info {
@@ -58,7 +59,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
     }
 
     .brand {
@@ -80,9 +81,9 @@
       align-items: center;
       justify-content: center;
       background: #FFFFFF;
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       padding: 4px 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
     .brand-logo-wrapper img {
@@ -92,22 +93,22 @@
       object-fit: contain;
     }
 
-    .line-accent { color: var(--accent-orange); }
+    .line-accent { color: #D8B4FE; }
 
     .time-info {
       display: flex;
       gap: 16px;
       font-size: 0.85rem;
-      color: #94A3B8;
+      color: #E9D5FF;
       align-items: center;
     }
 
-    /* NAVEGACIÓN Y MENÚS */
+    /* NAVEGACIÓN Y MENÚS MORADOS */
     .nav-tabs {
       display: flex;
       gap: 8px;
       padding: 8px 24px;
-      background: #1E293B;
+      background: var(--primary-purple-dark);
       overflow-x: visible;
       align-items: center;
     }
@@ -115,7 +116,7 @@
     .tab-btn {
       background: transparent;
       border: none;
-      color: #94A3B8;
+      color: #E9D5FF;
       padding: 8px 16px;
       border-radius: 6px;
       font-weight: 500;
@@ -130,14 +131,21 @@
     }
 
     .tab-btn:hover, .tab-btn.active {
-      background: var(--accent-orange);
-      color: #FFF;
+      background: #FFFFFF;
+      color: var(--primary-purple);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
     .btn-admin-access {
-      background: rgba(249, 115, 22, 0.2);
-      border: 1px solid var(--accent-orange);
-      color: #FFEDD5;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #FFF;
+    }
+
+    .btn-admin-access:hover {
+      background: #FFF;
+      color: var(--primary-purple);
     }
 
     .dropdown { position: relative; display: inline-block; }
@@ -147,17 +155,17 @@
       position: absolute;
       top: 100%;
       left: 0;
-      background-color: #1E293B;
+      background-color: var(--primary-purple-dark);
       min-width: 260px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
       border-radius: 6px;
       z-index: 2000;
       padding: 6px 0;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .dropdown-content a {
-      color: #94A3B8;
+      color: #E9D5FF;
       padding: 10px 16px;
       text-decoration: none;
       display: flex;
@@ -169,7 +177,7 @@
     }
 
     .dropdown-content a:hover {
-      background-color: var(--accent-orange);
+      background-color: var(--primary-purple);
       color: #FFF;
     }
 
@@ -207,7 +215,7 @@
     .home-greeting {
       font-size: 2.2rem;
       font-weight: 700;
-      color: var(--primary-blue);
+      color: var(--primary-purple);
       margin-bottom: 8px;
     }
 
@@ -216,13 +224,14 @@
     .search-view, .procesos-view, .admin-view, .diagrama-view { display: none; }
 
     .page-title-section { margin-bottom: 20px; }
+    .page-title-section h1 { color: var(--primary-purple); }
 
     .search-panel, .admin-panel {
       background: var(--card-bg);
       padding: 24px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-color);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      box-shadow: 0 4px 12px rgba(107, 0, 215, 0.04);
       margin-bottom: 20px;
     }
 
@@ -231,6 +240,7 @@
       font-size: 0.85rem;
       font-weight: 600;
       margin-bottom: 8px;
+      color: var(--primary-purple);
     }
 
     .filter-box-main input, .input-field {
@@ -241,8 +251,13 @@
       outline: none;
     }
 
+    .filter-box-main input:focus, .input-field:focus {
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 3px rgba(107, 0, 215, 0.1);
+    }
+
     .accordion-toggle {
-      color: var(--accent-orange);
+      color: var(--primary-purple);
       cursor: pointer;
       display: inline-block;
       margin-top: 16px;
@@ -252,13 +267,18 @@
     .input-group { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
 
     .btn-save {
-      background: var(--primary-blue);
+      background: var(--primary-purple);
       color: #FFF;
       border: none;
       padding: 10px 20px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-save:hover {
+      background: var(--primary-purple-dark);
     }
 
     .btn-danger {
@@ -293,7 +313,12 @@
 
     .course-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 6px 18px rgba(107, 0, 215, 0.1);
+      border-color: var(--primary-purple);
+    }
+
+    .course-card h3 {
+      color: var(--primary-purple);
     }
 
     .course-card-delete-btn {
@@ -324,13 +349,13 @@
     }
 
     .total-percent-badge {
-      background: #FFEDD5;
-      color: #C2410C;
+      background: #F3E8FF;
+      color: var(--primary-purple);
       font-weight: 700;
       font-size: 0.8rem;
       padding: 3px 8px;
       border-radius: 12px;
-      border: 1px solid var(--accent-orange);
+      border: 1px solid var(--border-color);
     }
 
     /* LÍNEA HORIZONTAL CON PORCENTAJE */
@@ -368,11 +393,11 @@
       top: 32px;
       left: 0;
       height: 4px;
-      background: var(--accent-orange);
+      background: var(--primary-purple);
       z-index: 1;
       width: 0%;
       transition: width 0.4s ease;
-      box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+      box-shadow: 0 0 10px rgba(107, 0, 215, 0.5);
     }
 
     .timeline-step {
@@ -405,9 +430,9 @@
     }
 
     .timeline-step.active .step-percent-badge {
-      background: #FFEDD5;
-      color: #C2410C;
-      border-color: var(--accent-orange);
+      background: #F3E8FF;
+      color: var(--primary-purple);
+      border-color: var(--primary-purple);
     }
 
     .step-node {
@@ -433,19 +458,19 @@
 
     .timeline-step.active .step-node {
       background: #FFF;
-      border-color: var(--accent-orange);
-      color: var(--accent-orange);
+      border-color: var(--primary-purple);
+      color: var(--primary-purple);
       animation: neonPulse 1s infinite alternate;
     }
 
     @keyframes neonPulse {
       0% {
-        box-shadow: 0 0 4px #F97316, 0 0 8px #F97316, inset 0 0 4px #F97316;
-        border-color: #F97316;
+        box-shadow: 0 0 4px #6B00D7, 0 0 8px #6B00D7, inset 0 0 4px #6B00D7;
+        border-color: #6B00D7;
         transform: scale(1);
       }
       100% {
-        box-shadow: 0 0 18px #F97316, 0 0 30px #F97316, 0 0 45px #F97316, inset 0 0 8px #F97316;
+        box-shadow: 0 0 18px #6B00D7, 0 0 28px #6B00D7, 0 0 40px #6B00D7, inset 0 0 8px #6B00D7;
         border-color: #FFF;
         transform: scale(1.08);
       }
@@ -460,7 +485,7 @@
 
     .timeline-step.active .step-label,
     .timeline-step.completed .step-label {
-      color: var(--primary-blue);
+      color: var(--primary-purple);
       font-weight: 600;
     }
 
@@ -547,7 +572,7 @@
     }
 
     .subview-btn.active {
-      background: var(--primary-blue);
+      background: var(--primary-purple);
       color: #FFF;
     }
 
@@ -568,6 +593,8 @@
       padding-bottom: 8px;
     }
 
+    .bitacora-stage-header h3 { color: var(--primary-purple); }
+
     .progress-bar-bg {
       width: 100%;
       height: 10px;
@@ -579,7 +606,7 @@
 
     .progress-bar-fill {
       height: 100%;
-      background: var(--accent-orange);
+      background: var(--primary-purple);
       transition: width 0.3s ease;
     }
 
@@ -587,7 +614,7 @@
     .viewer-toolbar {
       display: flex;
       gap: 10px;
-      background: var(--primary-blue);
+      background: var(--primary-purple);
       padding: 12px 20px;
       border-radius: var(--radius-md) var(--radius-md) 0 0;
       align-items: center;
@@ -596,7 +623,7 @@
     }
 
     .viewer-toolbar-btn {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.18);
       border: 1px solid rgba(255,255,255,0.3);
       color: #FFF;
       padding: 6px 14px;
@@ -611,7 +638,8 @@
     }
 
     .viewer-toolbar-btn:hover, .viewer-toolbar-btn.active {
-      background: var(--accent-orange);
+      background: #FFFFFF;
+      color: var(--primary-purple);
     }
 
     .diagrama-viewport {
@@ -726,7 +754,7 @@
 
       <div id="customNavTabsContainer" style="display: flex; gap: 8px;"></div>
 
-      <button class="tab-btn" id="btnAdmin" style="display: none; background: #334155; color: #38BDF8;" onclick="mostrarAdmin()">👨‍💻 PANEL PROGRAMADOR</button>
+      <button class="tab-btn" id="btnAdmin" style="display: none; background: #381267; color: #D8B4FE;" onclick="mostrarAdmin()">👨‍💻 PANEL PROGRAMADOR</button>
     </nav>
   </header>
 
@@ -743,7 +771,7 @@
       <div id="subvistaListaCursos">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <div>
-            <h1>Gestión de Cursos</h1>
+            <h1 style="color: var(--primary-purple);">Gestión de Cursos</h1>
             <p style="color: var(--text-muted);">Seguimiento de etapas y entregables</p>
           </div>
           <button class="btn-save" onclick="openModal()">➕ Agregar Curso</button>
@@ -752,7 +780,7 @@
       </div>
 
       <div id="subvistaDetalleCurso" style="display: none;">
-        <button class="tab-btn" style="background: #E2E8F0; color: #1E293B; margin-bottom: 20px;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
+        <button class="tab-btn" style="background: #E2D9F3; color: var(--primary-purple); margin-bottom: 20px; font-weight: 600;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
         
         <!-- SUBNAVEGACIÓN INTERNA -->
         <div class="subview-nav">
@@ -774,7 +802,7 @@
           </div>
 
           <div class="checklist-panel">
-            <h2 id="displayCourseName" style="color: var(--primary-blue);">Curso: --</h2>
+            <h2 id="displayCourseName" style="color: var(--primary-purple);">Curso: --</h2>
             <p style="color: var(--text-muted); margin-bottom: 16px;">Propuesto por: <strong id="displayProposer">--</strong></p>
             <div id="checklistContainer"></div>
           </div>
@@ -783,12 +811,12 @@
         <!-- CONTENEDOR BITÁCORA / PROGRESO -->
         <div id="secDetalleBitacora" style="display: none;">
           <div class="checklist-panel" style="margin-bottom: 20px;">
-            <h2 id="bitacoraCourseName" style="color: var(--primary-blue);">Progreso de: --</h2>
+            <h2 id="bitacoraCourseName" style="color: var(--primary-purple);">Progreso de: --</h2>
             <p style="color: var(--text-muted);">Bitácora de avance global del proyecto</p>
             <div style="margin-top: 12px;">
               <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
                 <span>Avance Global:</span>
-                <span id="bitacoraGlobalPercent">0%</span>
+                <span id="bitacoraGlobalPercent" style="color: var(--primary-purple);">0%</span>
               </div>
               <div class="progress-bar-bg">
                 <div class="progress-bar-fill" id="bitacoraGlobalBar" style="width: 0%;"></div>
@@ -854,13 +882,13 @@
     <!-- PANEL PROGRAMADOR -->
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
-        <h1 style="color: var(--accent-orange);">🛠️ Panel de Control Total (Programador)</h1>
+        <h1 style="color: var(--primary-purple);">🛠️ Panel de Control Total (Programador)</h1>
         <p>Gestiona los accesos a los Excel, la barra superior y los requerimientos por etapa.</p>
       </div>
 
       <!-- SECCIÓN A: ADMINISTRAR EXCEL -->
       <div class="admin-panel">
-        <h3>1. Gestión del Menú Desplegable "Excel"</h3>
+        <h3 style="color: var(--primary-purple);">1. Gestión del Menú Desplegable "Excel"</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o quita accesos directos a hojas de cálculo.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
@@ -874,7 +902,7 @@
 
       <!-- SECCIÓN B: BARRA SUPERIOR -->
       <div class="admin-panel">
-        <h3>2. Herramienta de Modificación de la Barra Superior</h3>
+        <h3 style="color: var(--primary-purple);">2. Herramienta de Modificación de la Barra Superior</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea nuevas opciones/pestañas en la barra principal.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
@@ -888,7 +916,7 @@
 
       <!-- SECCIÓN C: ETAPAS GLOBALES -->
       <div class="admin-panel">
-        <h3>3. Configuración de Etapas y Requerimientos</h3>
+        <h3 style="color: var(--primary-purple);">3. Configuración de Etapas y Requerimientos</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea más etapas para la línea horizontal o agrega requerimientos.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
@@ -915,7 +943,7 @@
           <button class="btn-save" onclick="agregarOpcionEtapa()">➕ Agregar Opción</button>
         </div>
 
-        <h4 style="margin-bottom: 12px;">Requerimientos configurados:</h4>
+        <h4 style="margin-bottom: 12px; color: var(--primary-purple);">Requerimientos configurados:</h4>
         <div id="listaOpcionesAdmin"></div>
       </div>
     </section>
@@ -924,11 +952,11 @@
   <!-- MODAL LOGIN PROGRAMADOR -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--primary-blue);">Acceso Usuario Programador</h3>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Acceso Usuario Programador</h3>
       <input type="text" id="adminUser" class="input-field" style="margin-bottom: 10px;" placeholder="Usuario">
       <input type="password" id="adminPass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="cerrarModalLogin()">Cancelar</button>
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalLogin()">Cancelar</button>
         <button class="btn-save" onclick="validarCredenciales()">Ingresar</button>
       </div>
     </div>
@@ -941,7 +969,7 @@
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña para confirmar la eliminación.</p>
       <input type="password" id="deleteCoursePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="cerrarModalEliminarCurso()">Cancelar</button>
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalEliminarCurso()">Cancelar</button>
         <button class="btn-danger" onclick="confirmarEliminarCurso()">Eliminar Definitivamente</button>
       </div>
     </div>
@@ -950,11 +978,11 @@
   <!-- MODAL AGREGAR CURSO -->
   <div class="modal-overlay" id="addModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px;">Agregar Nuevo Curso</h3>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Agregar Nuevo Curso</h3>
       <input type="text" id="inputCourseName" class="input-field" style="margin-bottom: 10px;" placeholder="Nombre del Curso">
       <input type="text" id="inputProposer" class="input-field" style="margin-bottom: 16px;" placeholder="Propuesto por">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="closeModal()">Cancelar</button>
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="closeModal()">Cancelar</button>
         <button class="btn-save" onclick="saveCourse()">Guardar</button>
       </div>
     </div>
@@ -1022,7 +1050,7 @@
       container.innerHTML = '';
 
       if (excelLinksMaster.length === 0) {
-        container.innerHTML = '<span style="padding:10px; color:#94A3B8; font-size:0.8rem; display:block;">Sin opciones guardadas</span>';
+        container.innerHTML = '<span style="padding:10px; color:#E9D5FF; font-size:0.8rem; display:block;">Sin opciones guardadas</span>';
         return;
       }
 
@@ -1203,7 +1231,7 @@
             if (r.type === 'CHECK' && val === true) {
               estadoBadge = '<span style="color:var(--success-green); font-weight:600;">Completado</span>';
             } else if (r.type === 'TEXT' && val && String(val).trim() !== '') {
-              estadoBadge = `<span style="color:var(--primary-blue); font-weight:600;">📝 Valor: "${val}"</span>`;
+              estadoBadge = `<span style="color:var(--primary-purple); font-weight:600;">📝 Valor: "${val}"</span>`;
             } else if (r.type === 'STATUS' && val) {
               var color = val === 'BUENO' ? 'var(--success-green)' : (val === 'REGULAR' ? 'var(--warning-yellow)' : 'var(--danger-red)');
               estadoBadge = `<span style="color:${color}; font-weight:600;">🚦 Estado: ${val}</span>`;
@@ -1224,7 +1252,7 @@
           <div class="bitacora-stage-card">
             <div class="bitacora-stage-header">
               <h3>Etapa ${e.id}: ${e.name}</h3>
-              <span style="font-weight:700; color:var(--accent-orange);">${stagePct}% Avance</span>
+              <span style="font-weight:700; color:var(--primary-purple);">${stagePct}% Avance</span>
             </div>
             <div style="margin-bottom: 12px;">${reqsListHtml}</div>
             <div style="margin-top: 12px;">
@@ -1430,7 +1458,7 @@
           var tipoTag = item.type === 'TEXT' ? '📝 Texto/Número' : (item.type === 'STATUS' ? '🚦 Estado' : 'Casilla Check');
           contenedor.innerHTML += `
             <div class="check-item">
-              <div><strong>📌 ${item.label}</strong> <span style="font-size:0.75rem; background:#E2E8F0; padding:2px 6px; border-radius:4px; margin-left:8px;">${tipoTag}</span></div>
+              <div><strong>📌 ${item.label}</strong> <span style="font-size:0.75rem; background:#E2D9F3; color:var(--primary-purple); padding:2px 6px; border-radius:4px; margin-left:8px;">${tipoTag}</span></div>
               <button class="btn-danger" onclick="eliminarOpcionEtapa(${numEtapa}, ${idx})">❌ Eliminar</button>
             </div>
           `;
@@ -1492,7 +1520,7 @@
       contenedor.innerHTML = "";
 
       if (filtro === "") {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B; text-align: center; padding: 20px;">Ingresa una profesión, nombre o celular para buscar candidatos.</p>';
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #625871; text-align: center; padding: 20px;">Ingresa una profesión, nombre o celular para buscar candidatos.</p>';
         return;
       }
 
@@ -1503,15 +1531,15 @@
       });
 
       if (filtrados.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B; text-align: center; padding: 20px;">No se encontraron registros que coincidan con "' + filtro + '".</p>';
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #625871; text-align: center; padding: 20px;">No se encontraron registros que coincidan con "' + filtro + '".</p>';
         return;
       }
 
       filtrados.forEach(function(c) {
         var card = document.createElement('div');
         card.className = 'candidate-card';
-        card.innerHTML = '<h3>' + c.nombre + '</h3><p><strong>Profesión:</strong> ' + c.profesion + '</p><p><strong>Celular:</strong> ' + (c.celular || 'N/A') + '</p>' +
-                         (c.link ? '<a href="' + c.link + '" target="_blank" style="color:var(--accent-orange); font-weight:600; text-decoration:none;">📄 Ver CV</a>' : '');
+        card.innerHTML = '<h3 style="color:var(--primary-purple);">' + c.nombre + '</h3><p><strong>Profesión:</strong> ' + c.profesion + '</p><p><strong>Celular:</strong> ' + (c.celular || 'N/A') + '</p>' +
+                         (c.link ? '<a href="' + c.link + '" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>' : '');
         contenedor.appendChild(card);
       });
     }
@@ -1528,7 +1556,7 @@
             <h3>${c.name}</h3>
             <p style="color:var(--text-muted); font-size:0.85rem;">Propuesto por: ${c.proposer}</p>
             <div class="course-card-progress-info">
-              <span style="font-weight:600; color:var(--accent-orange);">Etapa Actual: ${c.currentStage}</span>
+              <span style="font-weight:600; color:var(--primary-purple);">Etapa Actual: ${c.currentStage}</span>
               <span class="total-percent-badge">${pctTotal}% Avance</span>
             </div>
           </div>
@@ -1641,7 +1669,6 @@
               </div>
             `;
           } else {
-            /* SE ELIMINÓ EL EMOJI DEL CHECK ANTES DE 'item.label' */
             container.innerHTML += `
               <div class="check-item">
                 <label class="check-item-label">
