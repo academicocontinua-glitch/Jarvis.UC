@@ -1,697 +1,1005 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS - Gestión Continua</title>
-  
-  <!-- ÍCONO DE LA PESTAÑA DEL NAVEGADOR (FAVICON) -->
-  <link rel="icon" type="image/jpeg" href="CONTINENTAL.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis OS - Sistema Integral de Gestión</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           VARIABLES GLOBALES Y TEMA DARK / GLASSMORPHISM (JARVIS OS)
+           ========================================================================== */
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --glass-bg: rgba(17, 24, 39, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.12);
+            --accent-blue: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.35);
+            --accent-purple: #818cf8;
+            --success-green: #22c55e;
+            --success-glow: rgba(34, 197, 94, 0.35);
+            --warning-amber: #f59e0b;
+            --danger-red: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-dim: #6b7280;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+        }
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-blue: #002B66;
-      --accent-orange: #FF4500;
-      --bg-light: #F4F6F9;
-      --card-bg: #FFFFFF;
-      --text-dark: #1E293B;
-      --border-gray: #E2E8F0;
-    }
+        /* RESETEO & ESTILOS BASE */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-    }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(34, 197, 94, 0.05) 0px, transparent 60%);
+            background-attachment: fixed;
+        }
 
-    body {
-      background-color: var(--bg-light);
-      color: var(--text-dark);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+        /* SCROLLBAR PERSONALIZADA */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
 
-    /* BARRA SUPERIOR INSTITUCIONAL / NAVEGACIÓN */
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: var(--card-bg);
-      border-bottom: 3px solid var(--accent-orange);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      display: flex;
-      flex-direction: column;
-      z-index: 1000;
-    }
+        /* ==========================================================================
+           LAYOUT PRINCIPAL (SIDEBAR + MAIN CONTENT)
+           ========================================================================== */
+        .app-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    .header-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 40px;
-    }
+        /* SIDEBAR / NAVEGACIÓN LATERAL */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--glass-bg);
+            border-right: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem 1rem;
+            z-index: 10;
+        }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--primary-blue);
-      gap: 10px;
-      cursor: pointer;
-    }
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 2rem;
+        }
 
-    .brand img.logo-continua {
-      height: 38px;
-      width: auto;
-      object-fit: contain;
-    }
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f172a;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
 
-    .brand span.line-accent {
-      color: var(--accent-orange);
-      margin: 0 4px;
-    }
+        .brand-text h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
 
-    .clock-container {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
+        .brand-text span {
+            font-size: 0.7rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
 
-    .clock {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--primary-blue);
-    }
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            list-style: none;
+        }
 
-    .date {
-      font-size: 0.75rem;
-      color: #64748B;
-      font-weight: 500;
-    }
+        .nav-item button {
+            width: 100%;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.85rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-size: 0.92rem;
+            font-weight: 500;
+            transition: var(--transition-fast);
+        }
 
-    /* MENÚ DE OPCIONES DE LA BARRA SUPERIOR */
-    .nav-tabs {
-      display: flex;
-      justify-content: flex-start;
-      gap: 10px;
-      background: #F1F5F9;
-      padding: 4px 40px;
-      border-top: 1px solid var(--border-gray);
-    }
+        .nav-item button:hover {
+            background: var(--glass-hover);
+            color: var(--text-main);
+        }
 
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
+        .nav-item button.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.3);
+            color: var(--accent-blue);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
 
-    .tab-btn {
-      background: transparent;
-      border: none;
-      padding: 10px 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #475569;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-    }
+        .sidebar-footer {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
-    .tab-btn:hover, .dropdown:hover .tab-btn {
-      color: var(--primary-blue);
-      background: #FFFFFF;
-    }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+        }
 
-    .tab-btn.active {
-      color: #FFFFFF;
-      background: var(--primary-blue);
-    }
+        .user-info h4 {
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+        .user-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
 
-    /* CONTENIDO DE MENÚS DESPLEGABLES (DROPDOWNS) */
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background-color: var(--card-bg);
-      min-width: 220px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      border: 1px solid var(--border-gray);
-      border-radius: 0 0 8px 8px;
-      z-index: 1001;
-      overflow: hidden;
-    }
+        /* CONTENEDOR PRINCIPAL */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(11, 15, 25, 0.4);
+        }
 
-    .dropdown-content a {
-      color: var(--text-dark);
-      padding: 12px 18px;
-      text-decoration: none;
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 500;
-      transition: all 0.2s;
-      cursor: pointer;
-      border-bottom: 1px solid #F1F5F9;
-    }
+        .top-header {
+            height: var(--header-height);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(12px);
+        }
 
-    .dropdown-content a:last-child {
-      border-bottom: none;
-    }
+        .header-title h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
 
-    .dropdown-content a:hover {
-      background-color: #F8FAFC;
-      color: var(--accent-orange);
-      padding-left: 22px;
-    }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--success-green);
+        }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-green);
+            box-shadow: 0 0 8px var(--success-green);
+        }
 
-    /* ÁREA PRINCIPAL */
-    main {
-      flex: 1;
-      max-width: 1200px;
-      width: 100%;
-      margin: 135px auto 40px auto;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-    }
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
 
-    /* VISTA DE INICIO (HOME CENTRADO) */
-    .home-view {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 20px;
-    }
+        .view-panel {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
 
-    .home-logo {
-      max-width: 280px;
-      width: 100%;
-      height: auto;
-      margin-bottom: 24px;
-      object-fit: contain;
-    }
+        .view-panel.active {
+            display: block;
+        }
 
-    .home-greeting {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--primary-blue);
-      margin-bottom: 8px;
-    }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .home-subtext {
-      font-size: 1rem;
-      color: #64748B;
-    }
+        /* ==========================================================================
+           MÓDULO DE PROCESOS (NUEVO & MEJORADO)
+           ========================================================================== */
+        
+        /* Botones de Acción */
+        .btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.65rem 1.25rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
 
-    /* SECCIÓN DEL BUSCADOR Y RESULTADOS */
-    .search-view {
-      display: none;
-    }
+        .btn:hover {
+            background: var(--glass-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
 
-    .page-title-section {
-      background: var(--card-bg);
-      padding: 24px 30px;
-      border-radius: 12px;
-      border: 1px solid var(--border-gray);
-      border-left: 6px solid var(--primary-blue);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-      margin-bottom: 24px;
-    }
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #0f172a;
+            border: none;
+            font-weight: 600;
+        }
 
-    .page-title-section h1 {
-      font-size: 1.5rem;
-      color: var(--primary-blue);
-      font-weight: 700;
-    }
+        .btn-primary:hover {
+            background: #7dd3fc;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
 
-    .page-title-section p {
-      font-size: 0.9rem;
-      color: #64748B;
-      margin-top: 4px;
-    }
+        /* Tarjetas de Cursos */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
 
-    .search-panel {
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 12px;
-      border: 1px solid var(--border-gray);
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
 
-    .filter-box-main label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--primary-blue);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+        .course-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            cursor: pointer;
+            transition: var(--transition-normal);
+            position: relative;
+        }
 
-    .filter-box-main input {
-      width: 100%;
-      padding: 12px 18px;
-      border: 2px solid var(--primary-blue);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      outline: none;
-      background: #F8FAFC;
-    }
+        .course-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+        }
 
-    .filter-box-main input:focus {
-      background: #FFFFFF;
-      box-shadow: 0 0 0 3px rgba(0, 43, 102, 0.1);
-    }
+        .course-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.6rem;
+            color: var(--text-main);
+        }
 
-    .accordion-toggle {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent-orange);
-      cursor: pointer;
-      display: inline-block;
-      margin-top: 16px;
-      margin-bottom: 12px;
-    }
+        .course-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
 
-    .input-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      background: #F8FAFC;
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px dashed var(--border-gray);
-    }
+        .course-card-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
 
-    .input-field {
-      padding: 10px 14px;
-      border: 1px solid var(--border-gray);
-      border-radius: 6px;
-      font-size: 0.88rem;
-      outline: none;
-      background: #FFFFFF;
-    }
+        .badge-stage {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
 
-    .field-profesion { flex: 1; min-width: 130px; }
-    .field-nombre { flex: 2; min-width: 180px; }
-    .field-celular { flex: 1; min-width: 130px; }
-    .field-link { flex: 2; min-width: 200px; }
+        /* Línea de Tiempo Horizontal */
+        .timeline-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem 2.5rem 2rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 2rem;
+        }
 
-    .btn-save {
-      background: var(--primary-blue);
-      color: #FFFFFF;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.88rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+        .timeline-track {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-    .btn-save:hover {
-      background: var(--accent-orange);
-    }
+        .timeline-base-line {
+            position: absolute;
+            top: 22px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
 
-    /* RESULTADOS Y TARJETAS */
-    .content-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
+        .timeline-active-line {
+            position: absolute;
+            top: 22px;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            box-shadow: 0 0 12px var(--accent-blue);
+            z-index: 1;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+        }
 
-    .resource-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-gray);
-      border-radius: 12px;
-      padding: 20px;
-      transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-    }
+        .timeline-step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            background: transparent;
+        }
 
-    .resource-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-      border-color: var(--primary-blue);
-    }
+        .step-node {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 2px solid var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text-dim);
+            transition: var(--transition-normal);
+        }
 
-    .badge-profesion {
-      align-self: flex-start;
-      background: #E2E8F0;
-      color: var(--primary-blue);
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
+        .step-node i {
+            font-size: 1.1rem;
+        }
 
-    .card-nombre {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text-dark);
-      margin-bottom: 6px;
-    }
+        /* Luces de la Línea Temporal */
+        .timeline-step.completed .step-node {
+            background: var(--success-green);
+            border-color: var(--success-green);
+            color: #ffffff;
+            box-shadow: 0 0 16px var(--success-glow);
+        }
 
-    .card-celular {
-      font-size: 0.9rem;
-      color: #64748B;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
+        .timeline-step.active .step-node {
+            background: var(--bg-primary);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--accent-glow);
+            animation: nodePulse 2s infinite;
+        }
 
-    .card-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+        @keyframes nodePulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6); }
+            70% { box-shadow: 0 0 0 14px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
 
-    .btn-action {
-      background: #25D366;
-      color: #FFFFFF;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      width: 100%;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-    }
+        .step-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
-    .btn-action:hover {
-      background: #1EBE5D;
-    }
+        .timeline-step.active .step-title,
+        .timeline-step.completed .step-title {
+            color: var(--text-main);
+            font-weight: 600;
+        }
 
-    .btn-cv {
-      background: var(--primary-blue);
-      color: #FFFFFF;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      width: 100%;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-    }
+        /* Panel Informativo y Lista de Tareas */
+        .detail-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+        }
 
-    .btn-cv:hover {
-      background: var(--accent-orange);
-    }
+        .info-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
 
-    .btn-delete {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: transparent;
-      border: none;
-      color: #94A3B8;
-      cursor: pointer;
-      font-size: 1rem;
-    }
+        .info-header h2 {
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.3rem;
+        }
 
-    .btn-delete:hover {
-      color: #EF4444;
-    }
+        .info-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
 
-    footer {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #94A3B8;
-      padding: 16px;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border-gray);
-      margin-top: auto;
-    }
-  </style>
+        .checklist-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1.1rem 1.4rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .check-item:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .check-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        .check-item span {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Alerta Banner de Avance */
+        .alert-banner {
+            display: none;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid var(--success-green);
+            color: #86efac;
+            padding: 1.2rem 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.75rem;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal Generico */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-box h3 {
+            margin-bottom: 1.25rem;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border);
+            background: var(--bg-primary);
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.75rem;
+        }
+
+        /* OTROS MÓDULOS DE RELLENO (DOCUMENTOS / CALCULA) */
+        .placeholder-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
 
-  <!-- CABECERA DE LA PÁGINA WEB -->
-  <header class="top-bar">
-    <div class="header-info">
-      <div class="brand" onclick="mostrarInicio()">
-        <img src="CONTINUA LOGO.png" alt="Logo Continua" class="logo-continua" onerror="this.style.display='none'">
-        JARVIS <span class="line-accent">|</span> GESTIÓN CONTINUA
-      </div>
-      <div class="clock-container">
-        <div id="clock" class="clock">00:00:00</div>
-        <div id="date" class="date">CARGANDO...</div>
-      </div>
-    </div>
+<div class="app-layout">
+    <!-- NAVEGACIÓN LATERAL COMPLETA -->
+    <aside class="sidebar">
+        <div>
+            <div class="brand-container">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>JARVIS OS</h1>
+                    <span>Workspace</span>
+                </div>
+            </div>
 
-    <!-- NAVEGACIÓN Y MENÚS DESPLEGABLES -->
-    <nav class="nav-tabs">
-      <button class="tab-btn active" id="btnInicio" onclick="mostrarInicio()">🏠 Inicio</button>
-
-      <!-- OPCIÓN DEDICADA AL BUSCADOR DE CV -->
-      <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
-
-      <!-- SECCIÓN EXCEL -->
-      <div class="dropdown">
-        <button class="tab-btn">📊 EXCEL ▾</button>
-        <div class="dropdown-content">
-          <a href="https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?usp=drive_web&ouid=101409496400991192860&rtpof=true" target="_blank">📈 Seguimiento Continua ↗</a>
-          <a href="https://docs.google.com/spreadsheets/d/1ejO0Nh7HC92xgMcFSM91SYsbTv1qj38N/edit?gid=73007696#gid=73007696" target="_blank">📊 Gestión Continua ↗</a>
-        </div>
-      </div>
-
-      <!-- SECCIÓN CVs CON FILTRO Y REDIRECCIÓN DRIVE AUTOMÁTICA -->
-      <div class="dropdown">
-        <button class="tab-btn">📄 CVs ▾</button>
-        <div class="dropdown-content">
-          <a onclick="filtrarYRedirigir('Derecho', 'https://drive.google.com/drive/folders/1gMnGSfxCcktNJew6EYf97KyXWx3jwvrk?usp=sharing')">⚖️ Derecho ↗</a>
-          <a onclick="filtrarYRedirigir('Ingeniería', 'https://drive.google.com/drive/folders/1JrO5-wSLv3z0GFmqr3kjczPyPhZppIHh?usp=sharing')">⚙️ Ingeniería ↗</a>
-          <a onclick="filtrarYRedirigir('Gestión', 'https://drive.google.com/drive/folders/1itJtXZbalqFVJ2HztdGvDYQgmc5OHean?usp=sharing')">📊 Gestión ↗</a>
-          <a onclick="filtrarYRedirigir('Salud', 'https://drive.google.com/drive/folders/1exczkNLUVOZOjIO3nN3rsQINzLGFgv9E?usp=sharing')">🏥 Salud ↗</a>
-          <a onclick="filtrarYRedirigir('Empresas', 'https://drive.google.com/drive/folders/1LBd35O8HybfK1YJGVDiJqnUnYrdST1Rk?usp=sharing')">🏢 Empresas ↗</a>
-          <a onclick="filtrarYRedirigir('Otros', 'https://drive.google.com/drive/folders/11o0H7BnbgFXCeKR77NseRS7i1qmMz8eO?usp=sharing')">📁 Otros ↗</a>
-        </div>
-      </div>
-    </nav>
-  </header>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <main>
-    <!-- VISTA 1: HOME CENTRADO Y LIMPIO -->
-    <section class="home-view" id="vistaHome">
-      <img src="CONTINUA LOGO.png" alt="Logo Continua" class="home-logo" onerror="this.style.display='none'">
-      <h1 class="home-greeting" id="saludoHorario">¡Bienvenido!</h1>
-      <p class="home-subtext">Selecciona una opción de la barra superior para gestionar tus documentos o buscar candidatos.</p>
-    </section>
-
-    <!-- VISTA 2: BUSCADOR DE CVs Y REGISTRO -->
-    <section class="search-view" id="vistaBuscador">
-      <div class="page-title-section">
-        <h1>Buscador Dinámico de CVs & Personal</h1>
-        <p>Ingresa una profesión, nombre o número de celular para realizar la búsqueda.</p>
-      </div>
-
-      <div class="search-panel">
-        <div class="filter-box-main">
-          <label for="buscarInput">🔍 Búsqueda Dinámica:</label>
-          <input type="text" id="buscarInput" placeholder="Escribe la profesión (ej. Derecho), nombre o celular..." oninput="renderizarCandidatos()">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <button class="active" onclick="switchMainTab('procesos', this)">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        <span>Procesos</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button onclick="switchMainTab('documentos', this)">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Documentos</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button onclick="switchMainTab('herramientas', this)">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Herramientas</span>
+                    </button>
+                </li>
+            </ul>
         </div>
 
-        <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (4 Campos)</span>
+        <div class="sidebar-footer">
+            <div class="user-avatar">J</div>
+            <div class="user-info">
+                <h4>Jarvis Admin</h4>
+                <p>Modo Operativo</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="main-wrapper">
+        <!-- HEADER SUPERIOR -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2 id="pageTitle">Gestión de Procesos y Cursos</h2>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span>Sistema en Línea</span>
+            </div>
+        </header>
+
+        <!-- ÁREA DE CONTENIDO -->
+        <div class="content-area">
+
+            <!-- ===================================================================
+                 VISTA 1: MÓDULO DE PROCESOS (LISTA & DETALLE)
+                 =================================================================== -->
+            <div id="view-procesos" class="view-panel active">
+                
+                <!-- SUB-VISTA A: LISTA DE CURSOS -->
+                <div id="subview-courses-list">
+                    <div class="header-actions">
+                        <div>
+                            <h3 style="font-size: 1.1rem; color: var(--text-muted);">Cursos en Desarrollo</h3>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal()">
+                            <i class="fa-solid fa-plus"></i> Agregar Curso
+                        </button>
+                    </div>
+
+                    <div class="courses-grid" id="coursesGrid">
+                        <!-- Cursos dinámicos -->
+                    </div>
+                </div>
+
+                <!-- SUB-VISTA B: DETALLE DE SEGUIMIENTO CON LÍNEA TEMPORAL -->
+                <div id="subview-course-detail" style="display: none;">
+                    <button class="btn" onclick="backToCoursesList()" style="margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-arrow-left"></i> Volver a la Lista
+                    </button>
+
+                    <!-- LÍNEA TEMPORAL HORIZONTAL CON LUCES -->
+                    <div class="timeline-container">
+                        <div class="timeline-track">
+                            <div class="timeline-base-line"></div>
+                            <div class="timeline-active-line" id="timelineProgress"></div>
+
+                            <div class="timeline-step active" id="step-node-1" onclick="selectStage(1)">
+                                <div class="step-node"><i class="fa-solid fa-lightbulb"></i></div>
+                                <span class="step-title">Etapa 1: Idea</span>
+                            </div>
+
+                            <div class="timeline-step" id="step-node-2" onclick="selectStage(2)">
+                                <div class="step-node"><i class="fa-solid fa-magnifying-glass"></i></div>
+                                <span class="step-title">Etapa 2: Mercado</span>
+                            </div>
+
+                            <div class="timeline-step" id="step-node-3" onclick="selectStage(3)">
+                                <div class="step-node"><i class="fa-solid fa-bullhorn"></i></div>
+                                <span class="step-title">Etapa 3: Testing</span>
+                            </div>
+
+                            <div class="timeline-step" id="step-node-4" onclick="selectStage(4)">
+                                <div class="step-node"><i class="fa-solid fa-chart-line"></i></div>
+                                <span class="step-title">Etapa 4: Comercial</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BANNER ANUNCIO PROCESO Siguiente ETAPA -->
+                    <div class="alert-banner" id="stageAlert">
+                        <i class="fa-solid fa-circle-check fa-xl"></i>
+                        <div>
+                            <strong>Proceso pasa a la siguiente etapa</strong><br>
+                            <span style="font-size: 0.85rem; opacity: 0.9;">
+                                Has completado los requerimientos. Haz clic en la luz de la siguiente etapa para continuar.
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- DETALLE INFERIOR Y CASILLAS -->
+                    <div class="detail-panel">
+                        <div class="info-header">
+                            <h2 id="displayCourseName">Curso: --</h2>
+                            <p>Propuesto por: <strong id="displayProposer" style="color: var(--text-main);">--</strong></p>
+                        </div>
+
+                        <div class="checklist-group" id="checklistContainer">
+                            <!-- Checkboxes inyectados dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- VISTA 2: DOCUMENTOS (ESTRUCTURA DE CONTEXTO) -->
+            <div id="view-documentos" class="view-panel">
+                <div class="placeholder-card">
+                    <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom: 1rem; color: var(--accent-blue);"></i>
+                    <h3>Repositorio de Documentos</h3>
+                    <p style="margin-top: 0.5rem;">Gestión centralizada de plantillas, fichas y reglamentos.</p>
+                </div>
+            </div>
+
+            <!-- VISTA 3: HERRAMIENTAS (ESTRUCTURA DE CONTEXTO) -->
+            <div id="view-herramientas" class="view-panel">
+                <div class="placeholder-card">
+                    <i class="fa-solid fa-calculator fa-3x" style="margin-bottom: 1rem; color: var(--accent-purple);"></i>
+                    <h3>Módulo de Utilidades</h3>
+                    <p style="margin-top: 0.5rem;">Calculadora de tiempos y cronograma proyectado de lanzamientos.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- MODAL PARA REGISTRAR NUEVO CURSO -->
+<div class="modal-overlay" id="addCourseModal">
+    <div class="modal-box">
+        <h3>Agregar Nuevo Curso a Procesos</h3>
         
-        <div class="input-group" id="secRegistro" style="display: none;">
-          <input type="text" id="regProfesion" class="input-field field-profesion" placeholder="Profesión" autocomplete="off">
-          <input type="text" id="regNombre" class="input-field field-nombre" placeholder="Nombre y Apellido" autocomplete="off">
-          <input type="text" id="regCelular" class="input-field field-celular" placeholder="Celular" autocomplete="off">
-          <input type="text" id="regLink" class="input-field field-link" placeholder="Link del CV (Google Drive/PDF)" autocomplete="off">
-          <button class="btn-save" onclick="guardarCandidato()">Guardar</button>
+        <div class="form-group">
+            <label for="inputCourseName">Nombre del Curso</label>
+            <input type="text" id="inputCourseName" placeholder="Ej: Excel Avanzado para Negocios">
         </div>
-      </div>
 
-      <!-- CUADROS DE RESULTADOS -->
-      <div class="content-grid" id="listaCandidatos"></div>
-    </section>
-  </main>
+        <div class="form-group">
+            <label for="inputProposer">Propuesto por</label>
+            <input type="text" id="inputProposer" placeholder="Ej: Juan Pérez">
+        </div>
 
-  <footer>
-    JARVIS System — Desarrollado por Lázaro Purizaca
-  </footer>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveCourse()">Guardar Curso</button>
+        </div>
+    </div>
+</div>
 
-  <script>
-    // RELOJ DIGITAL Y SALUDO SEGÚN HORA LOCAL
-    function updateClock() {
-      var now = new Date();
-      var hours = now.getHours();
-      var minutes = String(now.getMinutes()).padStart(2, '0');
-      var seconds = String(now.getSeconds()).padStart(2, '0');
+<!-- ==========================================================================
+     LÓGICA JAVASCRIPT DEL SISTEMA
+     ========================================================================== -->
+<script>
+    // ESTADO BASE DE DATOS LOCAL
+    let courses = [
+        {
+            id: 101,
+            name: "Diseño e Implementación de IA",
+            proposer: "Carlos Mendoza",
+            currentStage: 1,
+            unlockedStage: 1,
+            tasksStage1: { idea: false, excel: false, fichaCorta: false }
+        }
+    ];
 
-      document.getElementById('clock').textContent = String(hours).padStart(2, '0') + ":" + minutes + ":" + seconds;
+    let activeCourseId = null;
 
-      var options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-      document.getElementById('date').textContent = now.toLocaleDateString('es-ES', options).toUpperCase();
+    // NAVEGACIÓN ENTRE SECCIONES PRINCIPALES
+    function switchMainTab(tabId, element) {
+        document.querySelectorAll('.nav-item button').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
 
-      var saludo = "¡Bienvenido!";
-      if (hours >= 6 && hours < 12) {
-        saludo = "¡Buenos días, Bienvenido!";
-      } else if (hours >= 12 && hours < 19) {
-        saludo = "¡Buenas tardes, Bienvenido!";
-      } else {
-        saludo = "¡Buenas noches, Bienvenido!";
-      }
-      
-      var elemSaludo = document.getElementById('saludoHorario');
-      if (elemSaludo) {
-        elemSaludo.textContent = saludo;
-      }
-    }
-    setInterval(updateClock, 1000);
+        document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+        document.getElementById(`view-${tabId}`).classList.add('active');
 
-    // BASE DE DATOS LOCAL
-    var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
-
-    function mostrarInicio() {
-      document.getElementById('vistaHome').style.display = 'flex';
-      document.getElementById('vistaBuscador').style.display = 'none';
-      
-      document.getElementById('btnInicio').classList.add('active');
-      document.getElementById('btnBuscador').classList.remove('active');
+        const titleMap = {
+            'procesos': 'Gestión de Procesos y Cursos',
+            'documentos': 'Repositorio de Documentos',
+            'herramientas': 'Módulo de Herramientas'
+        };
+        document.getElementById('pageTitle').innerText = titleMap[tabId];
     }
 
-    function mostrarBuscador() {
-      document.getElementById('vistaHome').style.display = 'none';
-      document.getElementById('vistaBuscador').style.display = 'block';
-
-      document.getElementById('btnInicio').classList.remove('active');
-      document.getElementById('btnBuscador').classList.add('active');
-
-      document.getElementById('buscarInput').focus();
-      renderizarCandidatos();
+    // NAVEGACIÓN INTERNA EN PROCESOS
+    function backToCoursesList() {
+        document.getElementById('subview-course-detail').style.display = 'none';
+        document.getElementById('subview-courses-list').style.display = 'block';
+        renderCourses();
     }
 
-    function toggleRegistro() {
-      var sec = document.getElementById('secRegistro');
-      sec.style.display = (sec.style.display === 'none') ? 'flex' : 'none';
+    // RENDERIZAR TARJETAS DE CURSOS
+    function renderCourses() {
+        const grid = document.getElementById('coursesGrid');
+        grid.innerHTML = '';
+
+        courses.forEach(c => {
+            grid.innerHTML += `
+                <div class="course-card" onclick="openCourseDetail(${c.id})">
+                    <h3>${c.name}</h3>
+                    <p><i class="fa-solid fa-user"></i> ${c.proposer}</p>
+                    <div class="course-card-footer">
+                        <span class="badge-stage">Etapa Actual: ${c.currentStage}</span>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-chevron-right"></i></span>
+                    </div>
+                </div>
+            `;
+        });
     }
 
-    function guardarCandidato() {
-      var profesion = document.getElementById('regProfesion').value.trim();
-      var nombre = document.getElementById('regNombre').value.trim();
-      var celular = document.getElementById('regCelular').value.trim();
-      var link = document.getElementById('regLink').value.trim();
-
-      if (profesion === "" && nombre === "" && celular === "" && link === "") {
-        alert("Por favor ingresa al menos uno de los campos para guardar.");
-        return;
-      }
-
-      candidatosDB.push({
-        profesion: profesion || "Sin Especificar",
-        nombre: nombre || "Sin Nombre",
-        celular: celular || "Sin Celular",
-        link: link || ""
-      });
-
-      localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
-
-      document.getElementById('regProfesion').value = "";
-      document.getElementById('regNombre').value = "";
-      document.getElementById('regCelular').value = "";
-      document.getElementById('regLink').value = "";
-
-      renderizarCandidatos();
+    // MODAL HANDLERS
+    function openModal() {
+        document.getElementById('addCourseModal').style.display = 'flex';
     }
 
-    function eliminarCandidato(index) {
-      if (confirm("¿Deseas eliminar este registro de la base de datos?")) {
-        candidatosDB.splice(index, 1);
-        localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
-        renderizarCandidatos();
-      }
+    function closeModal() {
+        document.getElementById('addCourseModal').style.display = 'none';
     }
 
-    function filtrarYRedirigir(carrera, urlDrive) {
-      mostrarBuscador();
-      document.getElementById('buscarInput').value = carrera;
-      renderizarCandidatos();
-      window.open(urlDrive, '_blank');
+    function saveCourse() {
+        const nameInput = document.getElementById('inputCourseName');
+        const proposerInput = document.getElementById('inputProposer');
+
+        if (!nameInput.value.trim() || !proposerInput.value.trim()) {
+            alert("Por favor completa todos los campos.");
+            return;
+        }
+
+        const newCourse = {
+            id: Date.now(),
+            name: nameInput.value.trim(),
+            proposer: proposerInput.value.trim(),
+            currentStage: 1,
+            unlockedStage: 1,
+            tasksStage1: { idea: false, excel: false, fichaCorta: false }
+        };
+
+        courses.push(newCourse);
+        nameInput.value = '';
+        proposerInput.value = '';
+        closeModal();
+        renderCourses();
     }
 
-    function renderizarCandidatos() {
-      var filtro = document.getElementById('buscarInput').value.toLowerCase().trim();
-      var contenedor = document.getElementById('listaCandidatos');
-      contenedor.innerHTML = "";
+    // DETALLE DEL CURSO Y LÍNEA DE TIEMPO
+    function openCourseDetail(id) {
+        activeCourseId = id;
+        const course = courses.find(c => c.id === id);
 
-      if (filtro === "") {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B; text-align: center; padding: 20px;">Ingresa una profesión, nombre o celular en la barra superior para buscar candidatos.</p>';
-        return;
-      }
+        document.getElementById('displayCourseName').innerText = `Curso: ${course.name}`;
+        document.getElementById('displayProposer').innerText = course.proposer;
 
-      var filtrados = candidatosDB.filter(function(item) {
-        return item.profesion.toLowerCase().includes(filtro) ||
-               item.nombre.toLowerCase().includes(filtro) ||
-               item.celular.toLowerCase().includes(filtro);
-      });
+        document.getElementById('subview-courses-list').style.display = 'none';
+        document.getElementById('subview-course-detail').style.display = 'block';
 
-      if (filtrados.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #64748B; text-align: center; padding: 20px;">No se encontraron registros que coincidan con "' + filtro + '".</p>';
-        return;
-      }
-
-      filtrados.forEach(function(item, idx) {
-        var card = document.createElement('div');
-        card.className = 'resource-card';
-
-        var enlaceWs = item.celular !== "Sin Celular" 
-          ? `<a href="https://wa.me/51${item.celular.replace(/\s+/g, '')}" target="_blank" class="btn-action">📱 Contactar WhatsApp ↗</a>`
-          : `<span class="btn-action" style="background:#CBD5E1; cursor:default;">Sin Teléfono</span>`;
-
-        var enlaceCv = item.link !== "" 
-          ? `<a href="${item.link}" target="_blank" class="btn-cv">📄 Ver CV en Drive ↗</a>`
-          : `<span class="btn-cv" style="background:#CBD5E1; cursor:default;">Sin CV Adjunto</span>`;
-
-        card.innerHTML = `
-          <button class="btn-delete" onclick="eliminarCandidato(${idx})" title="Eliminar">✕</button>
-          <div class="badge-profesion">${item.profesion}</div>
-          <div class="card-nombre">${item.nombre}</div>
-          <div class="card-celular">📞 ${item.celular}</div>
-          <div class="card-actions">
-            ${enlaceWs}
-            ${enlaceCv}
-          </div>
-        `;
-        contenedor.appendChild(card);
-      });
+        renderStage(course.currentStage);
     }
 
-    window.onload = function() {
-      updateClock();
-      mostrarInicio();
-    };
-  </script>
+    // RENDERIZAR ETAPAS Y CASILLAS
+    function renderStage(stageNumber) {
+        const course = courses.find(c => c.id === activeCourseId);
+        course.currentStage = stageNumber;
+
+        // Actualización de la barra y luces
+        const totalStages = 4;
+        const progressPercentage = ((course.unlockedStage - 1) / (totalStages - 1)) * 100;
+        document.getElementById('timelineProgress').style.width = `${progressPercentage}%`;
+
+        for (let i = 1; i <= totalStages; i++) {
+            const stepNode = document.getElementById(`step-node-${i}`);
+            stepNode.className = 'timeline-step';
+
+            if (i < course.unlockedStage) {
+                stepNode.classList.add('completed');
+            } else if (i === course.unlockedStage) {
+                stepNode.classList.add('active');
+            }
+        }
+
+        // Renderizar Casillas según la etapa
+        const container = document.getElementById('checklistContainer');
+        if (stageNumber === 1) {
+            const t = course.tasksStage1;
+            container.innerHTML = `
+                <label class="check-item">
+                    <input type="checkbox" ${t.idea ? 'checked' : ''} onchange="toggleTask('idea', this.checked)">
+                    <span>Idea</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" ${t.excel ? 'checked' : ''} onchange="toggleTask('excel', this.checked)">
+                    <span>Puesto en Excel matriz</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" ${t.fichaCorta ? 'checked' : ''} onchange="toggleTask('fichaCorta', this.checked)">
+                    <span>Ficha Corta</span>
+                </label>
+            `;
+        } else {
+            container.innerHTML = `<p style="color: var(--text-muted); padding: 1rem 0;">Opciones de la Etapa ${stageNumber} (Listas para configurar cuando avances).</p>`;
+        }
+
+        checkStageCompletion();
+    }
+
+    // SELECCIONAR LUZ / PASO DE LA LÍNEA TEMPORAL
+    function selectStage(stageNumber) {
+        const course = courses.find(c => c.id === activeCourseId);
+        if (stageNumber <= course.unlockedStage) {
+            renderStage(stageNumber);
+        } else {
+            alert("Completa los requerimientos de la etapa actual para habilitar este paso.");
+        }
+    }
+
+    // ACTUALIZAR ESTADO DE CASILLAS
+    function toggleTask(taskKey, isChecked) {
+        const course = courses.find(c => c.id === activeCourseId);
+        course.tasksStage1[taskKey] = isChecked;
+        checkStageCompletion();
+    }
+
+    // COMUNICADO DE AVANCE DE ETAPA
+    function checkStageCompletion() {
+        const course = courses.find(c => c.id === activeCourseId);
+        const alertBanner = document.getElementById('stageAlert');
+
+        if (course.currentStage === 1) {
+            const { idea, excel, fichaCorta } = course.tasksStage1;
+            if (idea && excel && fichaCorta) {
+                if (course.unlockedStage === 1) {
+                    course.unlockedStage = 2; // Enciende la luz de la Etapa 2
+                }
+                alertBanner.style.display = 'flex';
+            } else {
+                alertBanner.style.display = 'none';
+            }
+        } else {
+            alertBanner.style.display = 'none';
+        }
+    }
+
+    // INICIALIZACIÓN
+    renderCourses();
+</script>
 </body>
 </html>
