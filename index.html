@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JARVIS - Gestión Continua</title>
   
-  <!-- FAVICON -->
+  <!-- FAVICON Y FUENTES -->
   <link rel="icon" type="image/jpeg" href="CONTINENTAL.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -65,13 +65,25 @@
       font-size: 1.1rem;
       font-weight: 700;
       color: #FFF;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
     }
 
-    .brand img.logo-continua {
-      height: 32px;
-      width: auto;
+    .brand-logo-wrapper {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .brand-logo-wrapper img {
+      width: 100%;
+      height: 100%;
       object-fit: contain;
     }
 
@@ -84,6 +96,7 @@
       gap: 16px;
       font-size: 0.85rem;
       color: #94A3B8;
+      align-items: center;
     }
 
     /* NAVEGACIÓN Y MENÚS */
@@ -108,6 +121,7 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s;
+      text-decoration: none;
     }
 
     .tab-btn:hover, .tab-btn.active {
@@ -115,6 +129,13 @@
       color: #FFF;
     }
 
+    .btn-admin-access {
+      background: rgba(249, 115, 22, 0.2);
+      border: 1px solid var(--accent-orange);
+      color: #FFEDD5;
+    }
+
+    /* MENÚ DESPLEGABLE EXCEL MATRIZ */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -126,19 +147,23 @@
       top: 100%;
       left: 0;
       background-color: #1E293B;
-      min-width: 180px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      min-width: 220px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
       border-radius: 6px;
-      z-index: 1;
+      z-index: 10;
       padding: 6px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .dropdown-content a {
       color: #94A3B8;
-      padding: 8px 16px;
+      padding: 10px 16px;
       text-decoration: none;
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 0.85rem;
+      transition: background 0.2s, color 0.2s;
     }
 
     .dropdown-content a:hover {
@@ -155,13 +180,13 @@
       flex: 1;
       max-width: 1200px;
       width: 100%;
-      margin: 120px auto 40px auto;
+      margin: 125px auto 40px auto;
       padding: 0 20px;
       display: flex;
       flex-direction: column;
     }
 
-    /* VISTA DE INICIO (HOME CENTRADO) */
+    /* VISTAS */
     .home-view {
       flex: 1;
       display: flex;
@@ -192,16 +217,11 @@
       color: var(--text-muted);
     }
 
-    /* BUSCADOR DE CV */
-    .search-view {
-      display: none;
-    }
+    .search-view, .procesos-view, .admin-view { display: none; }
 
-    .page-title-section {
-      margin-bottom: 20px;
-    }
+    .page-title-section { margin-bottom: 20px; }
 
-    .search-panel {
+    .search-panel, .admin-panel {
       background: var(--card-bg);
       padding: 24px;
       border-radius: var(--radius-md);
@@ -217,7 +237,7 @@
       margin-bottom: 8px;
     }
 
-    .filter-box-main input {
+    .filter-box-main input, .input-field {
       width: 100%;
       padding: 10px 14px;
       border-radius: 6px;
@@ -240,14 +260,6 @@
       flex-wrap: wrap;
     }
 
-    .input-field {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      flex: 1;
-      min-width: 150px;
-    }
-
     .btn-save {
       background: var(--primary-blue);
       color: #FFF;
@@ -258,35 +270,31 @@
       font-weight: 600;
     }
 
-    .content-grid {
+    .btn-danger {
+      background: #EF4444;
+      color: #FFF;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .content-grid, .courses-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 16px;
     }
 
-    .candidate-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      padding: 16px;
-      border-radius: var(--radius-md);
-    }
-
-    /* MÓDULO PROCESOS DE CURSOS */
-    .procesos-view {
-      display: none;
-    }
-
-    .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .course-card {
+    .candidate-card, .course-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       padding: 20px;
       border-radius: var(--radius-md);
+    }
+
+    .course-card {
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
@@ -296,12 +304,12 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    /* LÍNEA HORIZONTAL CON LUCES */
+    /* LÍNEA HORIZONTAL CON LUZ PARPADEANTE INTENSA */
     .timeline-panel {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 30px 20px;
+      padding: 35px 20px;
       margin-bottom: 24px;
     }
 
@@ -316,7 +324,7 @@
 
     .timeline-line-base {
       position: absolute;
-      top: 20px;
+      top: 22px;
       left: 0;
       right: 0;
       height: 4px;
@@ -326,13 +334,14 @@
 
     .timeline-line-progress {
       position: absolute;
-      top: 20px;
+      top: 22px;
       left: 0;
       height: 4px;
       background: var(--accent-orange);
       z-index: 1;
       width: 0%;
       transition: width 0.4s ease;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
     }
 
     .timeline-step {
@@ -346,8 +355,8 @@
     }
 
     .step-node {
-      width: 42px;
-      height: 42px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       background: #FFF;
       border: 2px solid var(--text-muted);
@@ -363,13 +372,30 @@
       background: var(--success-green);
       border-color: var(--success-green);
       color: #FFF;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
     }
 
+    /* EFECTO DE LUZ PARPADEANTE POTENCIADO */
     .timeline-step.active .step-node {
       background: #FFF;
       border-color: var(--accent-orange);
       color: var(--accent-orange);
-      box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+      animation: neonPulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes neonPulse {
+      0% {
+        box-shadow: 0 0 5px #F97316, 0 0 10px #F97316, inset 0 0 5px #F97316;
+        border-color: #F97316;
+      }
+      50% {
+        box-shadow: 0 0 20px #F97316, 0 0 35px #F97316, 0 0 50px #F97316, inset 0 0 10px #F97316;
+        border-color: #FFEDD5;
+      }
+      100% {
+        box-shadow: 0 0 5px #F97316, 0 0 10px #F97316, inset 0 0 5px #F97316;
+        border-color: #F97316;
+      }
     }
 
     .step-label {
@@ -394,13 +420,20 @@
     .check-item {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
       background: var(--bg-body);
-      padding: 12px;
+      padding: 12px 16px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
       margin-top: 10px;
+    }
+
+    .check-item-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       cursor: pointer;
+      width: 100%;
     }
 
     .alert-banner {
@@ -415,7 +448,7 @@
       gap: 10px;
     }
 
-    /* MODAL */
+    /* MODALES */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -434,7 +467,6 @@
       max-width: 400px;
     }
 
-    /* FOOTER */
     footer {
       text-align: center;
       padding: 20px;
@@ -450,15 +482,19 @@
   <header class="top-bar">
     <div class="header-info">
       <div class="brand" onclick="mostrarInicio()">
-        <img src="CONTINUA LOGO.png" alt="Logo Continua" class="logo-continua" onerror="this.style.display='none'">
+        <div class="brand-logo-wrapper">
+          <img src="CONTINUA LOGO.png" alt="Logo" onerror="this.style.display='none'">
+        </div>
         JARVIS <span class="line-accent">|</span> GESTIÓN CONTINUA
       </div>
       <div class="time-info">
         <span id="date">--/--/----</span>
         <span id="clock">00:00:00</span>
+        <button class="tab-btn btn-admin-access" onclick="abrirModalLogin()"><i class="fa-solid fa-user-gear"></i> Usuario</button>
       </div>
     </div>
 
+    <!-- NAVEGACIÓN PRINCIPAL -->
     <nav class="nav-tabs">
       <button class="tab-btn active" id="btnInicio" onclick="mostrarInicio()">🏠 Inicio</button>
       <button class="tab-btn" id="btnProcesos" onclick="mostrarProcesos()">⚙️ PROCESOS</button>
@@ -467,9 +503,13 @@
       <div class="dropdown">
         <button class="tab-btn">📊 EXCEL MATRIZ ▼</button>
         <div class="dropdown-content">
-          <a href="#" onclick="alert('Sección de Excel Matriz')">Documentos Base</a>
+          <a href="#" onclick="alert('Abriendo Matriz Principal de Cursos')">📁 Matriz Principal de Cursos</a>
+          <a href="#" onclick="alert('Abriendo Base de Datos de Docentes')">📄 Registro de Docentes / Expertos</a>
+          <a href="#" onclick="alert('Abriendo Control de Entregables')">📈 Control de Entregables</a>
         </div>
       </div>
+
+      <button class="tab-btn" id="btnAdmin" style="display: none; background: #334155; color: #38BDF8;" onclick="mostrarAdmin()">👨‍💻 PANEL PROGRAMADOR</button>
     </nav>
   </header>
 
@@ -498,7 +538,7 @@
       <div id="subvistaDetalleCurso" style="display: none;">
         <button class="tab-btn" style="background: #E2E8F0; color: #1E293B; margin-bottom: 20px;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
         
-        <!-- LÍNEA TEMPORAL -->
+        <!-- LÍNEA TEMPORAL CON PARPADEO -->
         <div class="timeline-panel">
           <div class="timeline-track">
             <div class="timeline-line-base"></div>
@@ -526,7 +566,7 @@
         <div class="alert-banner" id="stageAlert">
           <i class="fa-solid fa-circle-check fa-lg"></i>
           <div>
-            <strong>Proceso pasa a la siguiente etapa.</strong> Haz clic en la luz que ha encendido para ver las opciones.
+            <strong>Proceso pasa a la siguiente etapa.</strong> Haz clic en la luz que ha encendido para ver los siguientes requerimientos.
           </div>
         </div>
 
@@ -564,14 +604,55 @@
 
       <div class="content-grid" id="listaCandidatos"></div>
     </section>
+
+    <!-- VISTA 4: PANEL DE PROGRAMADOR (SOLO LAZAROPURI) -->
+    <section class="admin-view" id="vistaAdmin">
+      <div class="page-title-section">
+        <h1 style="color: var(--accent-orange);">🛠️ Panel de Configuración de Requerimientos</h1>
+        <p>Agrega o elimina opciones de las listas para que los usuarios solo tengan que marcar el check.</p>
+      </div>
+
+      <div class="admin-panel">
+        <div style="margin-bottom: 20px;">
+          <label style="font-weight: 600; margin-bottom: 8px; display: block;">Seleccionar Etapa a Modificar:</label>
+          <select id="selectEtapaAdmin" class="input-field" onchange="renderizarConfigEtapas()">
+            <option value="1">Etapa 1: Idea</option>
+            <option value="2">Etapa 2: Mercado</option>
+            <option value="3">Etapa 3: Testing</option>
+            <option value="4">Etapa 4: Comercial</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+          <input type="text" id="nuevoRequerimientoInput" class="input-field" placeholder="Escribe el nombre del nuevo paso u opción...">
+          <button class="btn-save" onclick="agregarOpcionEtapa()">➕ Agregar Opcion</button>
+        </div>
+
+        <h3 style="margin-bottom: 12px;">Requerimientos Actuales de esta Etapa:</h3>
+        <div id="listaOpcionesAdmin"></div>
+      </div>
+    </section>
   </main>
+
+  <!-- MODAL INICIO SESIÓN PROGRAMADOR -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--primary-blue);">Acceso Programador</h3>
+      <input type="text" id="adminUser" class="input-field" style="margin-bottom: 10px;" placeholder="Usuario">
+      <input type="password" id="adminPass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña">
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="cerrarModalLogin()">Cancelar</button>
+        <button class="btn-save" onclick="validarCredenciales()">Ingresar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL AGREGAR CURSO -->
   <div class="modal-overlay" id="addModal">
     <div class="modal-box">
       <h3 style="margin-bottom: 12px;">Agregar Nuevo Curso</h3>
-      <input type="text" id="inputCourseName" class="input-field" style="width:100%; margin-bottom:10px;" placeholder="Nombre del Curso">
-      <input type="text" id="inputProposer" class="input-field" style="width:100%; margin-bottom:16px;" placeholder="Propuesto por">
+      <input type="text" id="inputCourseName" class="input-field" style="margin-bottom: 10px;" placeholder="Nombre del Curso">
+      <input type="text" id="inputProposer" class="input-field" style="margin-bottom: 16px;" placeholder="Propuesto por">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tab-btn" style="background:#E2E8F0; color:#1E293B;" onclick="closeModal()">Cancelar</button>
         <button class="btn-save" onclick="saveCourse()">Guardar</button>
@@ -584,7 +665,7 @@
   </footer>
 
   <script>
-    // RELOJ DIGITAL Y SALUDO
+    // RELOJ Y SALUDO
     function updateClock() {
       var now = new Date();
       var hours = now.getHours();
@@ -596,13 +677,9 @@
       document.getElementById('date').textContent = now.toLocaleDateString('es-ES', options).toUpperCase();
 
       var saludo = "¡Bienvenido!";
-      if (hours >= 6 && hours < 12) {
-        saludo = "¡Buenos días, Bienvenido!";
-      } else if (hours >= 12 && hours < 19) {
-        saludo = "¡Buenas tardes, Bienvenido!";
-      } else {
-        saludo = "¡Buenas noches, Bienvenido!";
-      }
+      if (hours >= 6 && hours < 12) saludo = "¡Buenos días, Bienvenido!";
+      else if (hours >= 12 && hours < 19) saludo = "¡Buenas tardes, Bienvenido!";
+      else saludo = "¡Buenas noches, Bienvenido!";
       
       var elemSaludo = document.getElementById('saludoHorario');
       if (elemSaludo) elemSaludo.textContent = saludo;
@@ -610,21 +687,51 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // BASE DE DATOS LOCAL Y NAVEGACIÓN
+    // ESTRUCTURA MAESTRA DE ETAPAS CONFIGURABLE POR EL PROGRAMADOR
+    var esquemaEtapasMaster = JSON.parse(localStorage.getItem('esquemaJarvisEtapas')) || {
+      1: [{ id: 'idea', label: 'Idea' }, { id: 'excel', label: 'Puesto en Excel matriz' }, { id: 'fichaCorta', label: 'Ficha Corta' }],
+      2: [{ id: 'estudio', label: 'Estudio de Mercado' }, { id: 'segmento', label: 'Validación de Segmento' }],
+      3: [{ id: 'testingAds', label: 'Testing de Anuncios' }, { id: 'leads', label: 'Captación de Prospectos' }],
+      4: [{ id: 'fichaLarga', label: 'Ficha Larga' }, { id: 'webinar', label: 'Presentación de Webinar' }, { id: 'comercial', label: 'Cierre de Matrículas' }]
+    };
+
     var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
-    var courses = [
-      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasksStage1: { idea: false, excel: false, fichaCorta: false } }
+    var courses = JSON.parse(localStorage.getItem('cursosJarvisDB')) || [
+      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {} }
     ];
     var activeCourseId = null;
+    var esProgramador = false;
 
+    // LOGIN DE PROGRAMADOR
+    function abrirModalLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+    function cerrarModalLogin() { document.getElementById('loginModal').style.display = 'none'; }
+
+    function validarCredenciales() {
+      var u = document.getElementById('adminUser').value.trim();
+      var p = document.getElementById('adminPass').value.trim();
+
+      if (u === 'Lazaropuri' && p === 'L@zaro0697') {
+        esProgramador = true;
+        document.getElementById('btnAdmin').style.display = 'inline-flex';
+        cerrarModalLogin();
+        alert('Sesión de Programador iniciada correctamente.');
+        mostrarAdmin();
+      } else {
+        alert('Credenciales incorrectas');
+      }
+    }
+
+    // NAVEGACIÓN
     function resetTabs() {
       document.getElementById('btnInicio').classList.remove('active');
       document.getElementById('btnProcesos').classList.remove('active');
       document.getElementById('btnBuscador').classList.remove('active');
+      document.getElementById('btnAdmin').classList.remove('active');
       
       document.getElementById('vistaHome').style.display = 'none';
       document.getElementById('vistaProcesos').style.display = 'none';
       document.getElementById('vistaBuscador').style.display = 'none';
+      document.getElementById('vistaAdmin').style.display = 'none';
     }
 
     function mostrarInicio() {
@@ -648,7 +755,53 @@
       renderizarCandidatos();
     }
 
-    // BUSCADOR DE CVs
+    function mostrarAdmin() {
+      if (!esProgramador) return;
+      resetTabs();
+      document.getElementById('vistaAdmin').style.display = 'block';
+      document.getElementById('btnAdmin').classList.add('active');
+      renderizarConfigEtapas();
+    }
+
+    // GESTIÓN DE CONFIGURACIÓN DE ETAPAS (SOLO PROGRAMADOR)
+    function renderizarConfigEtapas() {
+      var numEtapa = document.getElementById('selectEtapaAdmin').value;
+      var contenedor = document.getElementById('listaOpcionesAdmin');
+      contenedor.innerHTML = '';
+
+      var lista = esquemaEtapasMaster[numEtapa] || [];
+      lista.forEach(function(item, idx) {
+        contenedor.innerHTML += `
+          <div class="check-item">
+            <span>📌 ${item.label}</span>
+            <button class="btn-danger" onclick="eliminarOpcionEtapa(${numEtapa}, ${idx})">❌ Eliminar</button>
+          </div>
+        `;
+      });
+    }
+
+    function agregarOpcionEtapa() {
+      var numEtapa = document.getElementById('selectEtapaAdmin').value;
+      var input = document.getElementById('nuevoRequerimientoInput');
+      var txt = input.value.trim();
+
+      if (!txt) return alert('Escribe el nombre de la opción.');
+
+      var newKey = 'item_' + Date.now();
+      esquemaEtapasMaster[numEtapa].push({ id: newKey, label: txt });
+      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
+
+      input.value = '';
+      renderizarConfigEtapas();
+    }
+
+    function eliminarOpcionEtapa(numEtapa, index) {
+      esquemaEtapasMaster[numEtapa].splice(index, 1);
+      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
+      renderizarConfigEtapas();
+    }
+
+    // BUSCADOR DE CV
     function toggleRegistro() {
       var sec = document.getElementById('secRegistro');
       sec.style.display = (sec.style.display === 'none') ? 'flex' : 'none';
@@ -703,7 +856,7 @@
       });
     }
 
-    // LÓGICA DE PROCESOS
+    // PROCESOS Y CHECKLIST
     function renderCourses() {
       var grid = document.getElementById('gridCursos');
       grid.innerHTML = '';
@@ -720,7 +873,8 @@
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
 
-      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasksStage1: { idea: false, excel: false, fichaCorta: false } });
+      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {} });
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       closeModal();
       document.getElementById('inputCourseName').value = '';
       document.getElementById('inputProposer').value = '';
@@ -758,13 +912,24 @@
       }
 
       var container = document.getElementById('checklistContainer');
-      if(stageNumber === 1) {
-        var t = course.tasksStage1;
-        container.innerHTML = '<label class="check-item"><input type="checkbox" ' + (t.idea ? 'checked' : '') + ' onchange="toggleTask(\'idea\', this.checked)"><span>Idea</span></label>' +
-                              '<label class="check-item"><input type="checkbox" ' + (t.excel ? 'checked' : '') + ' onchange="toggleTask(\'excel\', this.checked)"><span>Puesto en Excel matriz</span></label>' +
-                              '<label class="check-item"><input type="checkbox" ' + (t.fichaCorta ? 'checked' : '') + ' onchange="toggleTask(\'fichaCorta\', this.checked)"><span>Ficha Corta</span></label>';
+      container.innerHTML = '';
+
+      var opcionesRequeridas = esquemaEtapasMaster[stageNumber] || [];
+
+      if (opcionesRequeridas.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); padding: 10px 0;">No hay requerimientos configurados para esta etapa.</p>';
       } else {
-        container.innerHTML = '<p style="color: var(--text-muted); padding: 10px 0;">Opciones de la Etapa ' + stageNumber + ' (Disponibles para configurar).</p>';
+        opcionesRequeridas.forEach(function(item) {
+          var isChecked = course.tasks[item.id] || false;
+          container.innerHTML += `
+            <div class="check-item">
+              <label class="check-item-label">
+                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleTask('${item.id}', this.checked)">
+                <span>${item.label}</span>
+              </label>
+            </div>
+          `;
+        });
       }
 
       checkStageCompletion();
@@ -773,26 +938,39 @@
     function selectStage(stageNumber) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if(stageNumber <= course.unlockedStage) renderStage(stageNumber);
-      else alert('Completa los requerimientos previas para avanzar.');
+      else alert('Completa los requerimientos previos para habilitar este paso.');
     }
 
     function toggleTask(taskKey, isChecked) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
-      course.tasksStage1[taskKey] = isChecked;
+      if (!course.tasks) course.tasks = {};
+      course.tasks[taskKey] = isChecked;
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       checkStageCompletion();
     }
 
     function checkStageCompletion() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       var alertBanner = document.getElementById('stageAlert');
+      var reqs = esquemaEtapasMaster[course.currentStage] || [];
 
-      if(course.currentStage === 1) {
-        var t = course.tasksStage1;
-        if(t.idea && t.excel && t.fichaCorta) {
-          if(course.unlockedStage === 1) course.unlockedStage = 2;
+      if (reqs.length > 0) {
+        var todocompletado = reqs.every(function(r) {
+          return course.tasks && course.tasks[r.id] === true;
+        });
+
+        if (todocompletado) {
+          if (course.unlockedStage === course.currentStage && course.unlockedStage < 4) {
+            course.unlockedStage = course.currentStage + 1;
+            localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+          }
           alertBanner.style.display = 'flex';
-        } else alertBanner.style.display = 'none';
-      } else alertBanner.style.display = 'none';
+        } else {
+          alertBanner.style.display = 'none';
+        }
+      } else {
+        alertBanner.style.display = 'none';
+      }
     }
 
     window.onload = function() {
