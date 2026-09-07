@@ -105,7 +105,7 @@
       gap: 8px;
       padding: 8px 24px;
       background: #1E293B;
-      overflow-x: auto;
+      overflow-x: visible;
       align-items: center;
     }
 
@@ -137,7 +137,11 @@
       color: #FFEDD5;
     }
 
-    .dropdown { position: relative; display: inline-block; }
+    /* MENÚ DESPLEGABLE CORREGIDO PARA HOVER */
+    .dropdown { 
+      position: relative; 
+      display: inline-block; 
+    }
 
     .dropdown-content {
       display: none;
@@ -146,9 +150,9 @@
       left: 0;
       background-color: #1E293B;
       min-width: 260px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
       border-radius: 6px;
-      z-index: 10;
+      z-index: 2000;
       padding: 6px 0;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -170,7 +174,10 @@
       color: #FFF;
     }
 
-    .dropdown:hover .dropdown-content { display: block; }
+    /* CORRECCIÓN HOVER */
+    .dropdown:hover .dropdown-content { 
+      display: block !important; 
+    }
 
     /* ÁREA PRINCIPAL */
     main {
@@ -511,7 +518,7 @@
       background: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
-      z-index: 2000;
+      z-index: 3000;
     }
 
     .modal-box {
@@ -555,15 +562,15 @@
       <button class="tab-btn" id="btnProcesos" onclick="mostrarProcesos()">⚙️ PROCESOS</button>
       <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
-      <!-- MENÚ DESPLEGABLE SIMPLIFICADO: "Excel" -->
+      <!-- MENÚ DESPLEGABLE "Excel" CON HOVER CORREGIDO -->
       <div class="dropdown">
         <button class="tab-btn">📊 Excel ▼</button>
         <div class="dropdown-content" id="excelDropdownContent">
-          <!-- Links inyectados por JavaScript -->
+          <!-- Links inyectados dinámicamente -->
         </div>
       </div>
 
-      <!-- Opciones extra creadas dinámicamente -->
+      <!-- Opciones extra de la barra superior -->
       <div id="customNavTabsContainer" style="display: flex; gap: 8px;"></div>
 
       <button class="tab-btn" id="btnAdmin" style="display: none; background: #334155; color: #38BDF8;" onclick="mostrarAdmin()">👨‍💻 PANEL PROGRAMADOR</button>
@@ -781,7 +788,7 @@
       { id: 1, label: '📊 Excel de Seguimiento', link: 'https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?gid=1634387007#gid=1634387007' }
     ];
 
-    // DATOS DE PESTAÑAS PERSONALIZADAS EN LA BARRA SUPERIOR
+    // DATOS DE PESTAÑAS PERSONALIZADAS
     var customTabsMaster = JSON.parse(localStorage.getItem('customTabsJarvis')) || [];
 
     // ETAPAS Y REQUERIMIENTOS
@@ -813,16 +820,17 @@
       container.innerHTML = '';
 
       if (excelLinksMaster.length === 0) {
-        container.innerHTML = '<span style="padding:10px; color:#94A3B8; font-size:0.8rem;">Sin hojas de cálculo agregadas</span>';
+        container.innerHTML = '<span style="padding:10px; color:#94A3B8; font-size:0.8rem; display:block;">Sin opciones guardadas</span>';
         return;
       }
 
       excelLinksMaster.forEach(function(item) {
-        container.innerHTML += `
-          <a onclick="abrirLinkWeb('${item.link}')">
-            ${item.label}
-          </a>
-        `;
+        var linkElement = document.createElement('a');
+        linkElement.innerHTML = item.label;
+        linkElement.onclick = function() {
+          abrirLinkWeb(item.link);
+        };
+        container.appendChild(linkElement);
       });
     }
 
@@ -944,6 +952,7 @@
 
       renderizarAdminExcel();
       renderizarDropdownExcel();
+      alert('Excel guardado y desplegado correctamente.');
     }
 
     function eliminarExcelLink(idx) {
@@ -953,7 +962,7 @@
       renderizarDropdownExcel();
     }
 
-    // GESTIÓN DE PESTAÑAS EXTRA EN LA BARRA SUPERIOR
+    // GESTIÓN DE PESTAÑAS EXTRA
     function renderizarAdminCustomTabs() {
       var container = document.getElementById('listaPestañasAdminContainer');
       container.innerHTML = '';
