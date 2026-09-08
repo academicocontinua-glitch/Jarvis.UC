@@ -243,7 +243,7 @@
       color: var(--primary-purple);
     }
 
-    .filter-box-main input, .input-field {
+    .filter-box-main input, .input-field, .textarea-field {
       width: 100%;
       padding: 10px 14px;
       border-radius: 6px;
@@ -251,7 +251,13 @@
       outline: none;
     }
 
-    .filter-box-main input:focus, .input-field:focus {
+    .textarea-field {
+      resize: vertical;
+      min-height: 80px;
+      font-size: 0.85rem;
+    }
+
+    .filter-box-main input:focus, .input-field:focus, .textarea-field:focus {
       border-color: var(--primary-purple);
       box-shadow: 0 0 0 3px rgba(107, 0, 215, 0.1);
     }
@@ -915,7 +921,7 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>Buscador Dinámico de CVs & Personal</h1>
-          <p>Ingresa una profesión, nombre o número de celular para realizar la búsqueda.</p>
+          <p>Ingresa una profesión, especialidad, nombre, celular o palabras clave de la descripción.</p>
         </div>
         <button class="btn-pdf" onclick="exportarCandidatosPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Copia de Seguridad CVs (PDF)</button>
       </div>
@@ -923,17 +929,23 @@
       <div class="search-panel">
         <div class="filter-box-main">
           <label for="buscarInput">🔍 Búsqueda Dinámica:</label>
-          <input type="text" id="buscarInput" placeholder="Escribe la profesión (ej. Derecho), nombre o celular..." oninput="renderizarCandidatos()">
+          <input type="text" id="buscarInput" placeholder="Escribe profesión, especialidad, palabra clave, nombre o celular..." oninput="renderizarCandidatos()">
         </div>
 
-        <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (4 Campos)</span>
+        <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (6 Campos)</span>
         
-        <div class="input-group" id="secRegistro" style="display: none;">
-          <input type="text" id="regProfesion" class="input-field" placeholder="Profesión" autocomplete="off">
-          <input type="text" id="regNombre" class="input-field" placeholder="Nombre y Apellido" autocomplete="off">
-          <input type="text" id="regCelular" class="input-field" placeholder="Celular" autocomplete="off">
+        <div class="input-group" id="secRegistro" style="display: none; flex-direction: column;">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="regProfesion" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Profesión" autocomplete="off">
+            <input type="text" id="regEspecialidad" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Especialidad (ej. Derecho Laboral, Excel Avanzado)" autocomplete="off">
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="regNombre" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Nombre y Apellido" autocomplete="off">
+            <input type="text" id="regCelular" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Celular" autocomplete="off">
+          </div>
           <input type="text" id="regLink" class="input-field" placeholder="Link del CV (Google Drive/PDF)" autocomplete="off">
-          <button class="btn-save" onclick="guardarCandidato()">Guardar</button>
+          <textarea id="regDescripcion" class="textarea-field" placeholder="Breve descripción del perfil o experiencia (palabras clave)..."></textarea>
+          <button class="btn-save" style="align-self: flex-start;" onclick="guardarCandidato()">Guardar Candidato</button>
         </div>
       </div>
 
@@ -1197,7 +1209,7 @@
     function exportarCandidatosPDF() {
       if (candidatosDB.length === 0) return alert('No hay candidatos guardados para exportar.');
 
-      var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Copia de Seguridad - Registro de Candidates/CVs</h2>';
+      var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Copia de Seguridad - Registro de Candidatos / CVs</h2>';
       
       candidatosDB.forEach(function(c, i) {
         html += `
@@ -1205,8 +1217,10 @@
             <h3>${i + 1}. ${c.nombre}</h3>
             <ul>
               <li><strong>Profesión:</strong> ${c.profesion || 'N/A'}</li>
+              <li><strong>Especialidad:</strong> ${c.especialidad || 'N/A'}</li>
               <li><strong>Celular:</strong> ${c.celular || 'N/A'}</li>
               <li><strong>Enlace al CV / Drive:</strong> ${c.link ? `<a href="${c.link}" target="_blank">${c.link}</a>` : 'Sin enlace registrado'}</li>
+              <li><strong>Breve descripción:</strong> ${c.descripcion || 'Sin descripción'}</li>
             </ul>
           </div>
         `;
@@ -1842,19 +1856,23 @@
 
     function guardarCandidato() {
       var prof = document.getElementById('regProfesion').value.trim();
+      var esp = document.getElementById('regEspecialidad').value.trim();
       var nom = document.getElementById('regNombre').value.trim();
       var cel = document.getElementById('regCelular').value.trim();
       var link = document.getElementById('regLink').value.trim();
+      var desc = document.getElementById('regDescripcion').value.trim();
 
       if (!prof || !nom) return alert('Ingresa profesión y nombre');
 
-      candidatosDB.push({ profesion: prof, nombre: nom, celular: cel, link: link });
+      candidatosDB.push({ profesion: prof, especialidad: esp, nombre: nom, celular: cel, link: link, descripcion: desc });
       localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
 
       document.getElementById('regProfesion').value = "";
+      document.getElementById('regEspecialidad').value = "";
       document.getElementById('regNombre').value = "";
       document.getElementById('regCelular').value = "";
       document.getElementById('regLink').value = "";
+      document.getElementById('regDescripcion').value = "";
       toggleRegistro();
       renderizarCandidatos();
       calcularAlmacenamientoUsado();
@@ -1866,15 +1884,23 @@
       contenedor.innerHTML = "";
 
       if (filtro === "") {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #625871; text-align: center; padding: 20px;">Ingresa una profesión, nombre o celular para buscar candidatos.</p>';
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #625871; text-align: center; padding: 20px;">Ingresa profesión, especialidad, palabra clave, nombre o celular para buscar candidatos.</p>';
         return;
       }
 
       var filtrados = [];
       candidatosDB.forEach(function(item, realIndex) {
-        if (item.profesion.toLowerCase().includes(filtro) ||
-            item.nombre.toLowerCase().includes(filtro) ||
-            item.celular.toLowerCase().includes(filtro)) {
+        var prof = (item.profesion || '').toLowerCase();
+        var esp = (item.especialidad || '').toLowerCase();
+        var nom = (item.nombre || '').toLowerCase();
+        var cel = (item.celular || '').toLowerCase();
+        var desc = (item.descripcion || '').toLowerCase();
+
+        if (prof.includes(filtro) ||
+            esp.includes(filtro) ||
+            nom.includes(filtro) ||
+            cel.includes(filtro) ||
+            desc.includes(filtro)) {
           filtrados.push({ candidato: item, index: realIndex });
         }
       });
@@ -1894,7 +1920,9 @@
           <button class="candidate-card-delete-btn" onclick="solicitarEliminarCandidato(${idx}, event)">🗑️ Eliminar</button>
           <h3 style="color:var(--primary-purple); padding-right: 70px;">${c.nombre}</h3>
           <p><strong>Profesión:</strong> ${c.profesion}</p>
+          ${c.especialidad ? `<p><strong>Especialidad:</strong> ${c.especialidad}</p>` : ''}
           <p><strong>Celular:</strong> ${c.celular || 'N/A'}</p>
+          ${c.descripcion ? `<p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; margin-bottom:8px;"><strong>Descripción:</strong> ${c.descripcion}</p>` : ''}
           ${c.link ? `<a href="${c.link}" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>` : ''}
         `;
         contenedor.appendChild(card);
