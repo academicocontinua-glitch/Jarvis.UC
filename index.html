@@ -306,22 +306,7 @@
       position: relative;
     }
 
-    .course-card {
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .course-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 18px rgba(107, 0, 215, 0.1);
-      border-color: var(--primary-purple);
-    }
-
-    .course-card h3 {
-      color: var(--primary-purple);
-    }
-
-    .course-card-delete-btn {
+    .candidate-card-delete-btn, .course-card-delete-btn {
       position: absolute;
       top: 12px;
       right: 12px;
@@ -335,9 +320,24 @@
       font-weight: 600;
     }
 
-    .course-card-delete-btn:hover {
+    .candidate-card-delete-btn:hover, .course-card-delete-btn:hover {
       background: var(--danger-red);
       color: #FFF;
+    }
+
+    .course-card {
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .course-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(107, 0, 215, 0.1);
+      border-color: var(--primary-purple);
+    }
+
+    .course-card h3 {
+      color: var(--primary-purple);
     }
 
     .course-card-progress-info {
@@ -498,14 +498,48 @@
 
     .check-item {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
       background: var(--bg-body);
-      padding: 12px 16px;
+      padding: 14px 18px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
-      margin-top: 10px;
+      margin-top: 12px;
+      gap: 12px;
+    }
+
+    .check-item-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 16px;
+      width: 100%;
+    }
+
+    .check-item-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-color);
+      background: rgba(255, 255, 255, 0.5);
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .check-item-meta label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .check-item-meta input {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
     }
 
     .check-item-label {
@@ -883,7 +917,34 @@
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
         <h1 style="color: var(--primary-purple);">🛠️ Panel de Control Total (Programador)</h1>
-        <p>Gestiona los accesos a los Excel, la barra superior y los requerimientos por etapa.</p>
+        <p>Gestiona el almacenamiento, los accesos a Excel, la barra superior y requerimientos.</p>
+      </div>
+
+      <!-- SECCIÓN 0: MONITOR DE ALMACENAMIENTO -->
+      <div class="admin-panel" style="background: linear-gradient(135deg, #FFF, #F3E8FF); border: 2px solid var(--border-color);">
+        <h3 style="color: var(--primary-purple);"><i class="fa-solid fa-database"></i> Estado de Almacenamiento JARVIS</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Capacidad del navegador y proyección de registros disponibles antes de llegar al límite.</p>
+        
+        <div style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.88rem; margin-bottom: 4px;">
+            <span id="storageUsedText">Uso de Memoria: 0 KB / 5000 KB</span>
+            <span id="storagePercentText" style="color: var(--primary-purple);">0%</span>
+          </div>
+          <div class="progress-bar-bg" style="height: 12px; background: #E2E8F0;">
+            <div class="progress-bar-fill" id="storageBarFill" style="width: 0%; background: var(--primary-purple);"></div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px;">
+          <div style="background:#FFF; padding:12px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
+            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Capacidad Est. de CVs Restantes:</span>
+            <strong id="cvCapacityEst" style="font-size:1.2rem; color:var(--primary-purple);">~ 25,000 CVs</strong>
+          </div>
+          <div style="background:#FFF; padding:12px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
+            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Capacidad Est. de Cursos Restantes:</span>
+            <strong id="courseCapacityEst" style="font-size:1.2rem; color:var(--primary-purple);">~ 1,000 Cursos</strong>
+          </div>
+        </div>
       </div>
 
       <!-- SECCIÓN A: ADMINISTRAR EXCEL -->
@@ -975,6 +1036,19 @@
     </div>
   </div>
 
+  <!-- MODAL ELIMINAR CANDIDATO CON CLAVE -->
+  <div class="modal-overlay" id="deleteCandidateModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--danger-red);">Autorizar Eliminación de Candidato</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña para confirmar la eliminación.</p>
+      <input type="password" id="deleteCandidatePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalEliminarCandidato()">Cancelar</button>
+        <button class="btn-danger" onclick="confirmarEliminarCandidato()">Eliminar Definitivamente</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL AGREGAR CURSO -->
   <div class="modal-overlay" id="addModal">
     <div class="modal-box">
@@ -1038,11 +1112,37 @@
 
     var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
     var courses = JSON.parse(localStorage.getItem('cursosJarvisDB')) || [
-      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, bitacoraNotes: {} }
+      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {} }
     ];
     var activeCourseId = null;
     var courseToDeleteId = null;
+    var candidateToDeleteIndex = null;
     var esProgramador = false;
+
+    // MONITOR DE ALMACENAMIENTO (5MB)
+    function calcularAlmacenamientoUsado() {
+      var totalBytes = 0;
+      for (var key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          totalBytes += ((localStorage[key].length + key.length) * 2);
+        }
+      }
+      
+      var totalKB = (totalBytes / 1024).toFixed(1);
+      var maxKB = 5000;
+      var pct = Math.min(100, ((totalKB / maxKB) * 100)).toFixed(1);
+
+      document.getElementById('storageUsedText').innerText = `Uso de Memoria: ${totalKB} KB / ${maxKB} KB`;
+      document.getElementById('storagePercentText').innerText = `${pct}%`;
+      document.getElementById('storageBarFill').style.width = `${pct}%`;
+
+      var kbLibres = Math.max(0, maxKB - totalKB);
+      var estCVs = Math.floor((kbLibres * 1024) / 200);
+      var estCursos = Math.floor((kbLibres * 1024) / 5000);
+
+      document.getElementById('cvCapacityEst').innerText = `~ ${estCVs.toLocaleString()} CVs`;
+      document.getElementById('courseCapacityEst').innerText = `~ ${estCursos.toLocaleString()} Cursos`;
+    }
 
     // RENDERIZAR MENÚS
     function renderizarDropdownExcel() {
@@ -1144,6 +1244,7 @@
       resetTabs();
       document.getElementById('vistaAdmin').style.display = 'block';
       document.getElementById('btnAdmin').classList.add('active');
+      calcularAlmacenamientoUsado();
       renderizarAdminExcel();
       renderizarAdminCustomTabs();
       renderizarAdminEtapasGlobales();
@@ -1226,6 +1327,7 @@
         } else {
           reqs.forEach(function(r) {
             var val = course.tasks ? course.tasks[r.id] : null;
+            var meta = (course.taskMeta && course.taskMeta[r.id]) || { responsable: 'N/A', fecha: 'N/A' };
             var estadoBadge = '<span style="color:var(--danger-red);">❌ Pendiente</span>';
 
             if (r.type === 'CHECK' && val === true) {
@@ -1238,9 +1340,14 @@
             }
 
             reqsListHtml += `
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--border-color); font-size:0.88rem;">
-                <span>📌 ${r.label}</span>
-                <div>${estadoBadge}</div>
+              <div style="padding:8px 0; border-bottom:1px dashed var(--border-color); font-size:0.88rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>📌 <strong>${r.label}</strong></span>
+                  <div>${estadoBadge}</div>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">
+                  👤 <strong>Responsable:</strong> ${meta.responsable || 'Sin registrar'} | 📅 <strong>Fecha:</strong> ${meta.fecha || 'Sin registrar'}
+                </div>
               </div>
             `;
           });
@@ -1330,6 +1437,7 @@
       localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
       nameInput.value = ''; linkInput.value = '';
       renderizarAdminExcel(); renderizarDropdownExcel();
+      calcularAlmacenamientoUsado();
       alert('Excel guardado y desplegado correctamente.');
     }
 
@@ -1337,6 +1445,7 @@
       excelLinksMaster.splice(idx, 1);
       localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
       renderizarAdminExcel(); renderizarDropdownExcel();
+      calcularAlmacenamientoUsado();
     }
 
     function renderizarAdminCustomTabs() {
@@ -1366,14 +1475,17 @@
       localStorage.setItem('customTabsJarvis', JSON.stringify(customTabsMaster));
       nameInput.value = ''; linkInput.value = '';
       renderizarAdminCustomTabs(); renderizarCustomNavTabs();
+      calcularAlmacenamientoUsado();
     }
 
     function eliminarPestañaBarra(idx) {
       customTabsMaster.splice(idx, 1);
       localStorage.setItem('customTabsJarvis', JSON.stringify(customTabsMaster));
       renderizarAdminCustomTabs(); renderizarCustomNavTabs();
+      calcularAlmacenamientoUsado();
     }
 
+    /* ELIMINAR CURSOS */
     function solicitarEliminarCurso(idCurso, event) {
       event.stopPropagation();
       courseToDeleteId = idCurso;
@@ -1393,7 +1505,37 @@
         localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
         cerrarModalEliminarCurso();
         renderCourses();
+        calcularAlmacenamientoUsado();
         alert('Curso eliminado exitosamente.');
+      } else {
+        alert('Contraseña de autorización incorrecta.');
+      }
+    }
+
+    /* ELIMINAR CANDIDATOS / CVS */
+    function solicitarEliminarCandidato(indexInDB, event) {
+      if (event) event.stopPropagation();
+      candidateToDeleteIndex = indexInDB;
+      document.getElementById('deleteCandidateModal').style.display = 'flex';
+    }
+
+    function cerrarModalEliminarCandidato() {
+      document.getElementById('deleteCandidateModal').style.display = 'none';
+      document.getElementById('deleteCandidatePass').value = '';
+      candidateToDeleteIndex = null;
+    }
+
+    function confirmarEliminarCandidato() {
+      var pass = document.getElementById('deleteCandidatePass').value.trim();
+      if (pass === 'L@zaro0697') {
+        if (candidateToDeleteIndex !== null && candidateToDeleteIndex >= 0) {
+          candidatosDB.splice(candidateToDeleteIndex, 1);
+          localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
+          cerrarModalEliminarCandidato();
+          renderizarCandidatos();
+          calcularAlmacenamientoUsado();
+          alert('Candidato eliminado exitosamente.');
+        }
       } else {
         alert('Contraseña de autorización incorrecta.');
       }
@@ -1429,6 +1571,7 @@
 
       input.value = '';
       renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
+      calcularAlmacenamientoUsado();
     }
 
     function eliminarEtapaMaster(idEtapa) {
@@ -1440,6 +1583,7 @@
       localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
 
       renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
+      calcularAlmacenamientoUsado();
     }
 
     function renderizarConfigEtapas() {
@@ -1481,12 +1625,14 @@
       localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
       input.value = '';
       renderizarConfigEtapas();
+      calcularAlmacenamientoUsado();
     }
 
     function eliminarOpcionEtapa(numEtapa, index) {
       esquemaEtapasMaster[numEtapa].splice(index, 1);
       localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
       renderizarConfigEtapas();
+      calcularAlmacenamientoUsado();
     }
 
     // BUSCADOR DE CV
@@ -1512,6 +1658,7 @@
       document.getElementById('regLink').value = "";
       toggleRegistro();
       renderizarCandidatos();
+      calcularAlmacenamientoUsado();
     }
 
     function renderizarCandidatos() {
@@ -1524,10 +1671,13 @@
         return;
       }
 
-      var filtrados = candidatosDB.filter(function(item) {
-        return item.profesion.toLowerCase().includes(filtro) ||
-               item.nombre.toLowerCase().includes(filtro) ||
-               item.celular.toLowerCase().includes(filtro);
+      var filtrados = [];
+      candidatosDB.forEach(function(item, realIndex) {
+        if (item.profesion.toLowerCase().includes(filtro) ||
+            item.nombre.toLowerCase().includes(filtro) ||
+            item.celular.toLowerCase().includes(filtro)) {
+          filtrados.push({ candidato: item, index: realIndex });
+        }
       });
 
       if (filtrados.length === 0) {
@@ -1535,11 +1685,19 @@
         return;
       }
 
-      filtrados.forEach(function(c) {
+      filtrados.forEach(function(obj) {
+        var c = obj.candidato;
+        var idx = obj.index;
+
         var card = document.createElement('div');
         card.className = 'candidate-card';
-        card.innerHTML = '<h3 style="color:var(--primary-purple);">' + c.nombre + '</h3><p><strong>Profesión:</strong> ' + c.profesion + '</p><p><strong>Celular:</strong> ' + (c.celular || 'N/A') + '</p>' +
-                         (c.link ? '<a href="' + c.link + '" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>' : '');
+        card.innerHTML = `
+          <button class="candidate-card-delete-btn" onclick="solicitarEliminarCandidato(${idx}, event)">🗑️ Eliminar</button>
+          <h3 style="color:var(--primary-purple); padding-right: 70px;">${c.nombre}</h3>
+          <p><strong>Profesión:</strong> ${c.profesion}</p>
+          <p><strong>Celular:</strong> ${c.celular || 'N/A'}</p>
+          ${c.link ? `<a href="${c.link}" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>` : ''}
+        `;
         contenedor.appendChild(card);
       });
     }
@@ -1572,12 +1730,13 @@
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
 
-      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, bitacoraNotes: {} });
+      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {} });
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       closeModal();
       document.getElementById('inputCourseName').value = '';
       document.getElementById('inputProposer').value = '';
       renderCourses();
+      calcularAlmacenamientoUsado();
     }
 
     function openCourseDetail(id) {
@@ -1648,33 +1807,54 @@
       } else {
         opcionesRequeridas.forEach(function(item) {
           var val = course.tasks ? course.tasks[item.id] : '';
+          var meta = (course.taskMeta && course.taskMeta[item.id]) || { responsable: '', fecha: '' };
+
+          var metaFieldsHtml = `
+            <div class="check-item-meta">
+              <label>👤 Responsable:
+                <input type="text" id="resp_${item.id}" placeholder="Nombre..." value="${meta.responsable || ''}" onchange="guardarMetaTarea('${item.id}')">
+              </label>
+              <label>📅 Fecha:
+                <input type="date" id="fecha_${item.id}" value="${meta.fecha || ''}" onchange="guardarMetaTarea('${item.id}')">
+              </label>
+            </div>
+          `;
 
           if (item.type === 'TEXT') {
             container.innerHTML += `
               <div class="check-item">
-                <span class="check-item-label">📝 ${item.label}</span>
-                <input type="text" class="input-text-item" placeholder="Ej: 50 ventas / detalle..." value="${val || ''}" onchange="guardarTareaEntrada('${item.id}', this.value)">
+                <div class="check-item-main">
+                  <span class="check-item-label">📝 ${item.label}</span>
+                  <input type="text" class="input-text-item" placeholder="Ej: 50 ventas..." value="${val || ''}" onchange="guardarTareaEntrada('${item.id}', this.value, '${item.type}')">
+                </div>
+                ${metaFieldsHtml}
               </div>
             `;
           } else if (item.type === 'STATUS') {
             container.innerHTML += `
               <div class="check-item">
-                <span class="check-item-label">🚦 ${item.label}</span>
-                <select class="select-status-item status-${val || 'NINGUNO'}" onchange="guardarTareaEntrada('${item.id}', this.value)">
-                  <option value="">-- Seleccionar Estado --</option>
-                  <option value="BUENO" ${val === 'BUENO' ? 'selected' : ''}>🟢 BUENO</option>
-                  <option value="REGULAR" ${val === 'REGULAR' ? 'selected' : ''}>🟡 REGULAR</option>
-                  <option value="MALO" ${val === 'MALO' ? 'selected' : ''}>🔴 MALO</option>
-                </select>
+                <div class="check-item-main">
+                  <span class="check-item-label">🚦 ${item.label}</span>
+                  <select class="select-status-item status-${val || 'NINGUNO'}" onchange="guardarTareaEntrada('${item.id}', this.value, '${item.type}')">
+                    <option value="">-- Seleccionar Estado --</option>
+                    <option value="BUENO" ${val === 'BUENO' ? 'selected' : ''}>🟢 BUENO</option>
+                    <option value="REGULAR" ${val === 'REGULAR' ? 'selected' : ''}>🟡 REGULAR</option>
+                    <option value="MALO" ${val === 'MALO' ? 'selected' : ''}>🔴 MALO</option>
+                  </select>
+                </div>
+                ${metaFieldsHtml}
               </div>
             `;
           } else {
             container.innerHTML += `
               <div class="check-item">
-                <label class="check-item-label">
-                  <input type="checkbox" ${val === true ? 'checked' : ''} onchange="guardarTareaEntrada('${item.id}', this.checked)">
-                  <span>${item.label}</span>
-                </label>
+                <div class="check-item-main">
+                  <label class="check-item-label">
+                    <input type="checkbox" ${val === true ? 'checked' : ''} onchange="guardarTareaEntrada('${item.id}', this.checked, '${item.type}')">
+                    <span>${item.label}</span>
+                  </label>
+                </div>
+                ${metaFieldsHtml}
               </div>
             `;
           }
@@ -1690,8 +1870,44 @@
       else alert('Completa el 100% de la etapa previa para habilitar esta luz.');
     }
 
-    function guardarTareaEntrada(taskKey, valor) {
+    function guardarMetaTarea(taskKey) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course.taskMeta) course.taskMeta = {};
+
+      var respInput = document.getElementById('resp_' + taskKey);
+      var fechaInput = document.getElementById('fecha_' + taskKey);
+
+      course.taskMeta[taskKey] = {
+        responsable: respInput ? respInput.value.trim() : '',
+        fecha: fechaInput ? fechaInput.value.trim() : ''
+      };
+
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      calcularAlmacenamientoUsado();
+    }
+
+    function guardarTareaEntrada(taskKey, valor, tipo) {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      
+      // VALIDAR CAMPOS OBLIGATORIOS (RESPONSABLE Y FECHA)
+      var meta = (course.taskMeta && course.taskMeta[taskKey]) || {};
+      var respInput = document.getElementById('resp_' + taskKey);
+      var fechaInput = document.getElementById('fecha_' + taskKey);
+      
+      var responsableVal = respInput ? respInput.value.trim() : (meta.responsable || '');
+      var fechaVal = fechaInput ? fechaInput.value.trim() : (meta.fecha || '');
+
+      // Si intentan completar la tarea pero faltan responsable o fecha
+      var esCompletando = (tipo === 'CHECK' && valor === true) || 
+                          (tipo === 'TEXT' && String(valor).trim() !== '') || 
+                          (tipo === 'STATUS' && valor !== '');
+
+      if (esCompletando && (!responsableVal || !fechaVal)) {
+        alert('⚠️ ATENCIÓN: Debes llenar obligatoriamente el NOMBRE DEL RESPONSABLE y la FECHA para guardar el avance de este ítem.');
+        renderStage(course.currentStage); // Revertir interfaz
+        return;
+      }
+
       if (!course.tasks) course.tasks = {};
       course.tasks[taskKey] = valor;
 
@@ -1703,6 +1919,7 @@
 
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       renderStage(course.currentStage);
+      calcularAlmacenamientoUsado();
     }
 
     function checkStageCompletion() {
@@ -1725,6 +1942,7 @@
     window.onload = function() {
       renderizarDropdownExcel();
       renderizarCustomNavTabs();
+      calcularAlmacenamientoUsado();
       mostrarInicio();
     };
   </script>
