@@ -305,6 +305,25 @@
       background: #DC2626;
     }
 
+    .btn-edit {
+      background: #381267;
+      color: #D8B4FE;
+      border: 1px solid #6B00D7;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-edit:hover {
+      background: var(--primary-purple);
+      color: #FFF;
+    }
+
     .btn-danger {
       background: var(--danger-red);
       color: #FFF;
@@ -330,10 +349,15 @@
       position: relative;
     }
 
-    .candidate-card-delete-btn, .course-card-delete-btn {
+    .candidate-card-actions, .course-card-delete-btn {
       position: absolute;
       top: 12px;
       right: 12px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .candidate-card-delete-btn, .course-card-delete-btn {
       background: rgba(239, 68, 68, 0.1);
       color: var(--danger-red);
       border: 1px solid rgba(239, 68, 68, 0.3);
@@ -346,6 +370,22 @@
 
     .candidate-card-delete-btn:hover, .course-card-delete-btn:hover {
       background: var(--danger-red);
+      color: #FFF;
+    }
+
+    .candidate-card-edit-btn {
+      background: rgba(107, 0, 215, 0.1);
+      color: var(--primary-purple);
+      border: 1px solid rgba(107, 0, 215, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .candidate-card-edit-btn:hover {
+      background: var(--primary-purple);
       color: #FFF;
     }
 
@@ -762,7 +802,9 @@
       padding: 24px;
       border-radius: var(--radius-lg);
       width: 100%;
-      max-width: 400px;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     footer {
@@ -843,7 +885,10 @@
       <div id="subvistaDetalleCurso" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
           <button class="tab-btn" style="background: #E2D9F3; color: var(--primary-purple); font-weight: 600;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
-          <button class="btn-pdf" onclick="exportarBitacoraIndividualPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácora de este Curso (PDF)</button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-edit" id="btnEditarProcesoCurso" style="display: none;" onclick="abrirModalPersonalizarCursoProceso()"><i class="fa-solid fa-sliders"></i> Personalizar Proceso de este Curso</button>
+            <button class="btn-pdf" onclick="exportarBitacoraIndividualPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácora de este Curso (PDF)</button>
+          </div>
         </div>
         
         <!-- SUBNAVEGACIÓN INTERNA -->
@@ -921,7 +966,7 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>Buscador Dinámico de CVs & Personal</h1>
-          <p>Ingresa una profesión, especialidad, nombre, celular o palabras clave de la descripción.</p>
+          <p>Ingresa una profesión, especialidad, ciudad, nombre, celular o palabras clave de la descripción.</p>
         </div>
         <button class="btn-pdf" onclick="exportarCandidatosPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Copia de Seguridad CVs (PDF)</button>
       </div>
@@ -929,10 +974,10 @@
       <div class="search-panel">
         <div class="filter-box-main">
           <label for="buscarInput">🔍 Búsqueda Dinámica:</label>
-          <input type="text" id="buscarInput" placeholder="Escribe profesión, especialidad, palabra clave, nombre o celular..." oninput="renderizarCandidatos()">
+          <input type="text" id="buscarInput" placeholder="Escribe profesión, especialidad, ciudad, palabra clave, nombre o celular..." oninput="renderizarCandidatos()">
         </div>
 
-        <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (6 Campos)</span>
+        <span class="accordion-toggle" onclick="toggleRegistro()">➕ Registrar Nuevo Candidato (7 Campos)</span>
         
         <div class="input-group" id="secRegistro" style="display: none; flex-direction: column;">
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -940,8 +985,9 @@
             <input type="text" id="regEspecialidad" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Especialidad (ej. Derecho Laboral, Excel Avanzado)" autocomplete="off">
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="regCiudad" class="input-field" style="flex: 1; min-width: 180px;" placeholder="Ciudad (ej. Piura, Lima, Arequipa)" autocomplete="off">
             <input type="text" id="regNombre" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Nombre y Apellido" autocomplete="off">
-            <input type="text" id="regCelular" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Celular" autocomplete="off">
+            <input type="text" id="regCelular" class="input-field" style="flex: 1; min-width: 150px;" placeholder="Celular" autocomplete="off">
           </div>
           <input type="text" id="regLink" class="input-field" placeholder="Link del CV (Google Drive/PDF)" autocomplete="off">
           <textarea id="regDescripcion" class="textarea-field" placeholder="Breve descripción del perfil o experiencia (palabras clave)..."></textarea>
@@ -1016,12 +1062,12 @@
 
       <!-- SECCIÓN C: ETAPAS GLOBALES -->
       <div class="admin-panel">
-        <h3 style="color: var(--primary-purple);">3. Configuración de Etapas y Requerimientos</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea más etapas para la línea horizontal o agrega requerimientos.</p>
+        <h3 style="color: var(--primary-purple);">3. Configuración General de Etapas y Requerimientos (Plantilla Global)</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea más etapas globales o agrega requerimientos por defecto para nuevos cursos.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
           <input type="text" id="nuevaEtapaNombreInput" class="input-field" placeholder="Nombre de la nueva etapa (ej: Lanzamiento)">
-          <button class="btn-save" onclick="crearNuevaEtapaMaster()">➕ Crear Etapa</button>
+          <button class="btn-save" onclick="crearNuevaEtapaMaster()">➕ Crear Etapa Global</button>
         </div>
 
         <div id="listaEtapasEliminarContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;"></div>
@@ -1058,6 +1104,69 @@
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalLogin()">Cancelar</button>
         <button class="btn-save" onclick="validarCredenciales()">Ingresar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AUTORIZAR EDICIÓN DE CANDIDATO CON CLAVE -->
+  <div class="modal-overlay" id="authEditCandidateModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Autorizar Edición de Candidato</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de programador para modificar este registro.</p>
+      <input type="password" id="authEditCandidatePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalAuthEditCandidato()">Cancelar</button>
+        <button class="btn-save" onclick="confirmarAuthEditCandidato()">Autorizar Edición</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR CANDIDATO -->
+  <div class="modal-overlay" id="editCandidateModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Editar Datos del Candidato</h3>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="text" id="editProfesion" class="input-field" placeholder="Profesión">
+        <input type="text" id="editEspecialidad" class="input-field" placeholder="Especialidad">
+        <input type="text" id="editCiudad" class="input-field" placeholder="Ciudad">
+        <input type="text" id="editNombre" class="input-field" placeholder="Nombre y Apellido">
+        <input type="text" id="editCelular" class="input-field" placeholder="Celular">
+        <input type="text" id="editLink" class="input-field" placeholder="Link del CV (Google Drive/PDF)">
+        <textarea id="editDescripcion" class="textarea-field" placeholder="Breve descripción..."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalEditarCandidato()">Cancelar</button>
+        <button class="btn-save" onclick="guardarEdicionCandidato()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PERSONALIZAR PROCESO DE UN CURSO ESPECÍFICO -->
+  <div class="modal-overlay" id="customCourseProcessModal">
+    <div class="modal-box" style="max-width: 550px;">
+      <h3 style="margin-bottom: 8px; color: var(--primary-purple);">⚙️ Editar Línea de Proceso del Curso</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Personaliza requerimientos exclusivos para este curso. (Modo Programador)</p>
+      
+      <div style="margin-bottom: 14px;">
+        <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; display: block;">Seleccionar Etapa a Modificar:</label>
+        <select id="selectCourseStageCustom" class="input-field" onchange="renderizarConfigRequerimientosCursoActual()"></select>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+        <input type="text" id="inputCustomReqName" class="input-field" style="flex: 2; min-width: 180px;" placeholder="Nombre del requerimiento...">
+        <select id="selectCustomReqType" class="input-field" style="flex: 1; min-width: 140px;">
+          <option value="CHECK">Casilla (Check)</option>
+          <option value="TEXT">📝 Texto / Número</option>
+          <option value="STATUS">🚦 Estado</option>
+        </select>
+        <button class="btn-save" onclick="agregarRequerimientoPersonalizadoCurso()">➕ Agregar</button>
+      </div>
+
+      <h4 style="margin-bottom: 8px; color: var(--primary-purple); font-size: 0.9rem;">Requerimientos de esta etapa:</h4>
+      <div id="listaCustomCourseReqs" style="max-height: 220px; overflow-y: auto;"></div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+        <button class="btn-save" onclick="cerrarModalPersonalizarCursoProceso()">Listo / Cerrar</button>
       </div>
     </div>
   </div>
@@ -1151,12 +1260,22 @@
 
     var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
     var courses = JSON.parse(localStorage.getItem('cursosJarvisDB')) || [
-      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {} }
+      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null }
     ];
+
     var activeCourseId = null;
     var courseToDeleteId = null;
     var candidateToDeleteIndex = null;
+    var candidateToEditIndex = null;
     var esProgramador = false;
+
+    // OBTENER ESQUEMA DE ETAPAS DE UN CURSO (PLANTILLA PROPIA O GLOBAL)
+    function obtenerEsquemaCurso(course) {
+      if (course && course.customEsquema) {
+        return course.customEsquema;
+      }
+      return esquemaEtapasMaster;
+    }
 
     // GENERACIÓN DE DOCUMENTOS PDF MEDIANTE IMPRESIÓN FORMATADA
     function generarImpresionPDF(titulo, htmlContenido) {
@@ -1218,6 +1337,7 @@
             <ul>
               <li><strong>Profesión:</strong> ${c.profesion || 'N/A'}</li>
               <li><strong>Especialidad:</strong> ${c.especialidad || 'N/A'}</li>
+              <li><strong>Ciudad:</strong> ${c.ciudad || 'N/A'}</li>
               <li><strong>Celular:</strong> ${c.celular || 'N/A'}</li>
               <li><strong>Enlace al CV / Drive:</strong> ${c.link ? `<a href="${c.link}" target="_blank">${c.link}</a>` : 'Sin enlace registrado'}</li>
               <li><strong>Breve descripción:</strong> ${c.descripcion || 'Sin descripción'}</li>
@@ -1233,6 +1353,7 @@
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
+      var esquema = obtenerEsquemaCurso(course);
       var pctGlobal = calcularPorcentajeTotalCurso(course);
       var html = `
         <div style="margin-bottom: 20px; background:#E2D9F3; padding:12px; border-radius:8px;">
@@ -1242,7 +1363,7 @@
       `;
 
       nombresEtapasMaster.forEach(function(e) {
-        var reqs = esquemaEtapasMaster[e.id] || [];
+        var reqs = esquema[e.id] || [];
         var stagePct = calcularPorcentajeEtapa(course, e.id);
         var obsEtapa = (course.bitacoraNotes && course.bitacoraNotes[e.id]) || 'Sin observaciones guardadas';
 
@@ -1290,6 +1411,7 @@
       var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Reporte General de Bitácoras de Cursos</h2>';
 
       courses.forEach(function(course) {
+        var esquema = obtenerEsquemaCurso(course);
         var pctGlobal = calcularPorcentajeTotalCurso(course);
         html += `
           <div style="border: 2px solid #6B00D7; border-radius: 10px; padding: 16px; margin-bottom: 24px; background:#FFF;">
@@ -1298,7 +1420,7 @@
         `;
 
         nombresEtapasMaster.forEach(function(e) {
-          var reqs = esquemaEtapasMaster[e.id] || [];
+          var reqs = esquema[e.id] || [];
           var stagePct = calcularPorcentajeEtapa(course, e.id);
 
           html += `
@@ -1400,6 +1522,7 @@
       if (u === 'Continua' && p === 'L@zaro0697') {
         esProgramador = true;
         document.getElementById('btnAdmin').style.display = 'inline-flex';
+        document.getElementById('btnEditarProcesoCurso').style.display = 'inline-flex';
         cerrarModalLogin();
         alert('Sesión de Programador iniciada.');
         mostrarAdmin();
@@ -1487,7 +1610,8 @@
 
     // CÁLCULO DE PORCENTAJES
     function calcularPorcentajeEtapa(course, stageNumber) {
-      var reqs = esquemaEtapasMaster[stageNumber] || [];
+      var esquema = obtenerEsquemaCurso(course);
+      var reqs = esquema[stageNumber] || [];
       if (reqs.length === 0) return 100;
 
       var completados = 0;
@@ -1502,11 +1626,12 @@
     }
 
     function calcularPorcentajeTotalCurso(course) {
+      var esquema = obtenerEsquemaCurso(course);
       var totalOpciones = 0;
       var totalCompletados = 0;
 
       nombresEtapasMaster.forEach(function(e) {
-        var reqs = esquemaEtapasMaster[e.id] || [];
+        var reqs = esquema[e.id] || [];
         reqs.forEach(function(r) {
           totalOpciones++;
           var val = course.tasks ? course.tasks[r.id] : null;
@@ -1521,6 +1646,7 @@
 
     function renderizarBitacoraProgreso() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      var esquema = obtenerEsquemaCurso(course);
       document.getElementById('bitacoraCourseName').innerText = "Progreso de: " + course.name;
 
       var globalPct = calcularPorcentajeTotalCurso(course);
@@ -1531,7 +1657,7 @@
       container.innerHTML = '';
 
       nombresEtapasMaster.forEach(function(e) {
-        var reqs = esquemaEtapasMaster[e.id] || [];
+        var reqs = esquema[e.id] || [];
         var stagePct = calcularPorcentajeEtapa(course, e.id);
 
         var reqsListHtml = '';
@@ -1725,7 +1851,83 @@
       }
     }
 
-    /* ELIMINAR CANDIDATOS / CVS */
+    /* EDICIÓN Y ELIMINACIÓN DE CANDIDATOS / CVS */
+    function solicitarEditarCandidato(indexInDB, event) {
+      if (event) event.stopPropagation();
+      candidateToEditIndex = indexInDB;
+
+      if (esProgramador) {
+        abrirModalEditarCandidato();
+      } else {
+        document.getElementById('authEditCandidateModal').style.display = 'flex';
+      }
+    }
+
+    function cerrarModalAuthEditCandidato() {
+      document.getElementById('authEditCandidateModal').style.display = 'none';
+      document.getElementById('authEditCandidatePass').value = '';
+    }
+
+    function confirmarAuthEditCandidato() {
+      var pass = document.getElementById('authEditCandidatePass').value.trim();
+      if (pass === 'L@zaro0697') {
+        cerrarModalAuthEditCandidato();
+        abrirModalEditarCandidato();
+      } else {
+        alert('Contraseña de autorización incorrecta.');
+      }
+    }
+
+    function abrirModalEditarCandidato() {
+      var c = candidatosDB[candidateToEditIndex];
+      if (!c) return;
+
+      document.getElementById('editProfesion').value = c.profesion || '';
+      document.getElementById('editEspecialidad').value = c.especialidad || '';
+      document.getElementById('editCiudad').value = c.ciudad || '';
+      document.getElementById('editNombre').value = c.nombre || '';
+      document.getElementById('editCelular').value = c.celular || '';
+      document.getElementById('editLink').value = c.link || '';
+      document.getElementById('editDescripcion').value = c.descripcion || '';
+
+      document.getElementById('editCandidateModal').style.display = 'flex';
+    }
+
+    function cerrarModalEditarCandidato() {
+      document.getElementById('editCandidateModal').style.display = 'none';
+      candidateToEditIndex = null;
+    }
+
+    function guardarEdicionCandidato() {
+      if (candidateToEditIndex === null) return;
+
+      var prof = document.getElementById('editProfesion').value.trim();
+      var esp = document.getElementById('editEspecialidad').value.trim();
+      var ciu = document.getElementById('editCiudad').value.trim();
+      var nom = document.getElementById('editNombre').value.trim();
+      var cel = document.getElementById('editCelular').value.trim();
+      var link = document.getElementById('editLink').value.trim();
+      var desc = document.getElementById('editDescripcion').value.trim();
+
+      if (!prof || !nom) return alert('La profesión y el nombre son obligatorios.');
+
+      candidatosDB[candidateToEditIndex] = {
+        profesion: prof,
+        especialidad: esp,
+        ciudad: ciu,
+        nombre: nom,
+        celular: cel,
+        link: link,
+        descripcion: desc
+      };
+
+      localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
+      cerrarModalEditarCandidato();
+      renderizarCandidatos();
+      calcularAlmacenamientoUsado();
+      alert('Datos del candidato actualizados con éxito.');
+    }
+
     function solicitarEliminarCandidato(indexInDB, event) {
       if (event) event.stopPropagation();
       candidateToDeleteIndex = indexInDB;
@@ -1788,7 +1990,7 @@
     }
 
     function eliminarEtapaMaster(idEtapa) {
-      if (!confirm('¿Eliminar esta etapa de la línea temporal?')) return;
+      if (!confirm('¿Eliminar esta etapa de la plantilla global?')) return;
       nombresEtapasMaster = nombresEtapasMaster.filter(function(e){ return e.id !== idEtapa; });
       delete esquemaEtapasMaster[idEtapa];
 
@@ -1848,6 +2050,99 @@
       calcularAlmacenamientoUsado();
     }
 
+    /* PERSONALIZACIÓN DE PROCESO DE UN CURSO INDIVIDUAL */
+    function abrirModalPersonalizarCursoProceso() {
+      if (!esProgramador) return alert('Acceso restringido únicamente para modo desarrollador/programador.');
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      // Si el curso no tiene plantilla personalizada, clonar la global
+      if (!course.customEsquema) {
+        course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
+      }
+
+      var selectStage = document.getElementById('selectCourseStageCustom');
+      selectStage.innerHTML = '';
+      nombresEtapasMaster.forEach(function(e) {
+        selectStage.innerHTML += `<option value="${e.id}">Etapa ${e.id}: ${e.name}</option>`;
+      });
+
+      document.getElementById('customCourseProcessModal').style.display = 'flex';
+      renderizarConfigRequerimientosCursoActual();
+    }
+
+    function cerrarModalPersonalizarCursoProceso() {
+      document.getElementById('customCourseProcessModal').style.display = 'none';
+      if (activeCourseId) {
+        renderStage(courses.find(function(c){ return c.id === activeCourseId; }).currentStage);
+      }
+    }
+
+    function renderizarConfigRequerimientosCursoActual() {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      var numEtapa = document.getElementById('selectCourseStageCustom').value;
+      var container = document.getElementById('listaCustomCourseReqs');
+      container.innerHTML = '';
+
+      var esquema = obtenerEsquemaCurso(course);
+      var lista = esquema[numEtapa] || [];
+
+      if (lista.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem; padding:8px 0;">Sin requerimientos en esta etapa para este curso.</p>';
+        return;
+      }
+
+      lista.forEach(function(item, idx) {
+        var tipoTag = item.type === 'TEXT' ? '📝 Texto/Número' : (item.type === 'STATUS' ? '🚦 Estado' : 'Casilla Check');
+        container.innerHTML += `
+          <div class="check-item" style="padding:10px 14px; margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div><strong>📌 ${item.label}</strong> <span style="font-size:0.75rem; background:#E2D9F3; color:var(--primary-purple); padding:2px 6px; border-radius:4px;">${tipoTag}</span></div>
+              <button class="btn-danger" style="padding:3px 8px;" onclick="eliminarRequerimientoPersonalizadoCurso(${numEtapa}, ${idx})">❌</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function agregarRequerimientoPersonalizadoCurso() {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      var numEtapa = document.getElementById('selectCourseStageCustom').value;
+      var inputName = document.getElementById('inputCustomReqName');
+      var selectType = document.getElementById('selectCustomReqType');
+      var txt = inputName.value.trim();
+
+      if (!txt) return alert('Escribe el nombre del requerimiento.');
+
+      if (!course.customEsquema) {
+        course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
+      }
+
+      if (!course.customEsquema[numEtapa]) course.customEsquema[numEtapa] = [];
+
+      var newKey = 'item_c_' + Date.now();
+      course.customEsquema[numEtapa].push({ id: newKey, label: txt, type: selectType.value });
+
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      inputName.value = '';
+      renderizarConfigRequerimientosCursoActual();
+      calcularAlmacenamientoUsado();
+    }
+
+    function eliminarRequerimientoPersonalizadoCurso(numEtapa, index) {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course || !course.customEsquema || !course.customEsquema[numEtapa]) return;
+
+      course.customEsquema[numEtapa].splice(index, 1);
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      renderizarConfigRequerimientosCursoActual();
+      calcularAlmacenamientoUsado();
+    }
+
     // BUSCADOR DE CV
     function toggleRegistro() {
       var sec = document.getElementById('secRegistro');
@@ -1857,6 +2152,7 @@
     function guardarCandidato() {
       var prof = document.getElementById('regProfesion').value.trim();
       var esp = document.getElementById('regEspecialidad').value.trim();
+      var ciu = document.getElementById('regCiudad').value.trim();
       var nom = document.getElementById('regNombre').value.trim();
       var cel = document.getElementById('regCelular').value.trim();
       var link = document.getElementById('regLink').value.trim();
@@ -1864,11 +2160,12 @@
 
       if (!prof || !nom) return alert('Ingresa profesión y nombre');
 
-      candidatosDB.push({ profesion: prof, especialidad: esp, nombre: nom, celular: cel, link: link, descripcion: desc });
+      candidatosDB.push({ profesion: prof, especialidad: esp, ciudad: ciu, nombre: nom, celular: cel, link: link, descripcion: desc });
       localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
 
       document.getElementById('regProfesion').value = "";
       document.getElementById('regEspecialidad').value = "";
+      document.getElementById('regCiudad').value = "";
       document.getElementById('regNombre').value = "";
       document.getElementById('regCelular').value = "";
       document.getElementById('regLink').value = "";
@@ -1884,7 +2181,7 @@
       contenedor.innerHTML = "";
 
       if (filtro === "") {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #625871; text-align: center; padding: 20px;">Ingresa profesión, especialidad, palabra clave, nombre o celular para buscar candidatos.</p>';
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; color: #625871; text-align: center; padding: 20px;">Ingresa profesión, especialidad, ciudad, palabra clave, nombre o celular para buscar candidatos.</p>';
         return;
       }
 
@@ -1892,12 +2189,14 @@
       candidatosDB.forEach(function(item, realIndex) {
         var prof = (item.profesion || '').toLowerCase();
         var esp = (item.especialidad || '').toLowerCase();
+        var ciu = (item.ciudad || '').toLowerCase();
         var nom = (item.nombre || '').toLowerCase();
         var cel = (item.celular || '').toLowerCase();
         var desc = (item.descripcion || '').toLowerCase();
 
         if (prof.includes(filtro) ||
             esp.includes(filtro) ||
+            ciu.includes(filtro) ||
             nom.includes(filtro) ||
             cel.includes(filtro) ||
             desc.includes(filtro)) {
@@ -1917,10 +2216,14 @@
         var card = document.createElement('div');
         card.className = 'candidate-card';
         card.innerHTML = `
-          <button class="candidate-card-delete-btn" onclick="solicitarEliminarCandidato(${idx}, event)">🗑️ Eliminar</button>
-          <h3 style="color:var(--primary-purple); padding-right: 70px;">${c.nombre}</h3>
+          <div class="candidate-card-actions">
+            <button class="candidate-card-edit-btn" onclick="solicitarEditarCandidato(${idx}, event)">✏️ Editar</button>
+            <button class="candidate-card-delete-btn" onclick="solicitarEliminarCandidato(${idx}, event)">🗑️ Eliminar</button>
+          </div>
+          <h3 style="color:var(--primary-purple); padding-right: 140px;">${c.nombre}</h3>
           <p><strong>Profesión:</strong> ${c.profesion}</p>
           ${c.especialidad ? `<p><strong>Especialidad:</strong> ${c.especialidad}</p>` : ''}
+          ${c.ciudad ? `<p><strong>Ciudad:</strong> ${c.ciudad}</p>` : ''}
           <p><strong>Celular:</strong> ${c.celular || 'N/A'}</p>
           ${c.descripcion ? `<p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; margin-bottom:8px;"><strong>Descripción:</strong> ${c.descripcion}</p>` : ''}
           ${c.link ? `<a href="${c.link}" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>` : ''}
@@ -1957,7 +2260,7 @@
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
 
-      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {} });
+      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null });
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       closeModal();
       document.getElementById('inputCourseName').value = '';
@@ -1973,6 +2276,12 @@
       document.getElementById('displayProposer').innerText = course.proposer;
       document.getElementById('subvistaListaCursos').style.display = 'none';
       document.getElementById('subvistaDetalleCurso').style.display = 'block';
+
+      if (esProgramador) {
+        document.getElementById('btnEditarProcesoCurso').style.display = 'inline-flex';
+      } else {
+        document.getElementById('btnEditarProcesoCurso').style.display = 'none';
+      }
 
       cambiarModoDetalle('CHECKLIST');
       renderTimelineTrackHTML();
@@ -2027,7 +2336,8 @@
       var container = document.getElementById('checklistContainer');
       container.innerHTML = '';
 
-      var opcionesRequeridas = esquemaEtapasMaster[stageNumber] || [];
+      var esquema = obtenerEsquemaCurso(course);
+      var opcionesRequeridas = esquema[stageNumber] || [];
 
       if (opcionesRequeridas.length === 0) {
         container.innerHTML = '<p style="color: var(--text-muted); padding: 10px 0;">No hay requerimientos configurados para esta etapa.</p>';
