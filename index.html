@@ -1347,6 +1347,71 @@
       return esquemaEtapasMaster;
     }
 
+    // FUNCIÓN AUXILIAR PARA REORGANIZAR Y RENUMERAR LAS ETAPAS DE 1 A N
+    function reindexarEtapasCurso(course) {
+      var etapas = obtenerEtapasCurso(course);
+      var esquema = obtenerEsquemaCurso(course);
+      var notas = course.bitacoraNotes || {};
+
+      var nuevasEtapas = [];
+      var nuevoEsquema = {};
+      var nuevasNotas = {};
+
+      etapas.forEach(function(etapaOriginal, index) {
+        var nuevoId = index + 1;
+        nuevasEtapas.push({
+          id: nuevoId,
+          name: etapaOriginal.name
+        });
+
+        if (esquema[etapaOriginal.id]) {
+          nuevoEsquema[nuevoId] = esquema[etapaOriginal.id];
+        } else {
+          nuevoEsquema[nuevoId] = [];
+        }
+
+        if (notas[etapaOriginal.id]) {
+          nuevasNotas[nuevoId] = notas[etapaOriginal.id];
+        }
+      });
+
+      course.customEtapas = nuevasEtapas;
+      course.customEsquema = nuevoEsquema;
+      course.bitacoraNotes = nuevasNotas;
+
+      if (course.currentStage > nuevasEtapas.length) {
+        course.currentStage = nuevasEtapas.length > 0 ? 1 : 1;
+      }
+      if (course.unlockedStage > nuevasEtapas.length) {
+        course.unlockedStage = nuevasEtapas.length > 0 ? 1 : 1;
+      }
+    }
+
+    function reindexarEtapasMaster() {
+      var nuevasEtapas = [];
+      var nuevoEsquema = {};
+
+      nombresEtapasMaster.forEach(function(etapaOriginal, index) {
+        var nuevoId = index + 1;
+        nuevasEtapas.push({
+          id: nuevoId,
+          name: etapaOriginal.name
+        });
+
+        if (esquemaEtapasMaster[etapaOriginal.id]) {
+          nuevoEsquema[nuevoId] = esquemaEtapasMaster[etapaOriginal.id];
+        } else {
+          nuevoEsquema[nuevoId] = [];
+        }
+      });
+
+      nombresEtapasMaster = nuevasEtapas;
+      esquemaEtapasMaster = nuevoEsquema;
+
+      localStorage.setItem('nombresJarvisEtapas', JSON.stringify(nombresEtapasMaster));
+      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
+    }
+
     // GENERACIÓN DE DOCUMENTOS PDF MEDIANTE IMPRESIÓN FORMATADA
     function generarImpresionPDF(titulo, htmlContenido) {
       var win = window.open('', '_blank');
@@ -2053,12 +2118,11 @@
       var nombre = input.value.trim();
       if (!nombre) return alert('Ingresa un nombre para la nueva etapa.');
 
-      var nextId = nombresEtapasMaster.length > 0 ? nombresEtapasMaster[nombresEtapasMaster.length - 1].id + 1 : 1;
+      var nextId = nombresEtapasMaster.length + 1;
       nombresEtapasMaster.push({ id: nextId, name: nombre });
       esquemaEtapasMaster[nextId] = [];
 
-      localStorage.setItem('nombresJarvisEtapas', JSON.stringify(nombresEtapasMaster));
-      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
+      reindexarEtapasMaster();
 
       input.value = '';
       renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
@@ -2070,8 +2134,7 @@
       nombresEtapasMaster = nombresEtapasMaster.filter(function(e){ return e.id !== idEtapa; });
       delete esquemaEtapasMaster[idEtapa];
 
-      localStorage.setItem('nombresJarvisEtapas', JSON.stringify(nombresEtapasMaster));
-      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
+      reindexarEtapasMaster();
 
       renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
       calcularAlmacenamientoUsado();
@@ -2161,6 +2224,9 @@
         course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
       }
 
+      reindexarEtapasCurso(course);
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+
       renderizarEtapasPersonalizadasCurso();
       renderizarSelectEtapasCursoModal();
       document.getElementById('customCourseProcessModal').style.display = 'flex';
@@ -2173,9 +2239,8 @@
         var course = courses.find(function(c){ return c.id === activeCourseId; });
         var etapas = obtenerEtapasCurso(course);
         
-        // Validar que la etapa actual exista en el curso
         if (!etapas.some(function(e){ return e.id === course.currentStage; })) {
-          course.currentStage = etapas.length > 0 ? etapas[0].id : 1;
+          course.currentStage = etapas.length > 0 ? 1 : 1;
         }
         
         renderTimelineTrackHTML();
@@ -2225,15 +2290,10 @@
       if (!nombre) return alert('Escribe el nombre de la nueva etapa.');
 
       var etapas = obtenerEtapasCurso(course);
-      var nextId = etapas.length > 0 ? Math.max(...etapas.map(e => e.id)) + 1 : 1;
-
-      etapas.push({ id: nextId, name: nombre });
+      etapas.push({ id: Date.now(), name: nombre });
       course.customEtapas = etapas;
 
-      if (!course.customEsquema) {
-        course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
-      }
-      course.customEsquema[nextId] = [];
+      reindexarEtapasCurso(course);
 
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       input.value = '';
@@ -2256,6 +2316,8 @@
       if (course.customEsquema && course.customEsquema[idEtapa]) {
         delete course.customEsquema[idEtapa];
       }
+
+      reindexarEtapasCurso(course);
 
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
 
