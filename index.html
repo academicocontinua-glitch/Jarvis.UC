@@ -1124,8 +1124,8 @@
   <!-- MODAL AUTORIZAR PERSONALIZACIÓN DE PROCESO DE CURSO CON CLAVE -->
   <div class="modal-overlay" id="authCourseProcessModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Autorizar Edición de Proceso</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de autorización para editar los procesos de este curso.</p>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Autorizar Personalización del Curso</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de autorización para editar etapas o requerimientos de este curso.</p>
       <input type="password" id="authCourseProcessPass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalAuthCourseProcess()">Cancelar</button>
@@ -1154,14 +1154,25 @@
     </div>
   </div>
 
-  <!-- MODAL PERSONALIZAR PROCESO DE UN CURSO ESPECÍFICO -->
+  <!-- MODAL PERSONALIZAR PROCESO Y ETAPAS DE UN CURSO ESPECÍFICO -->
   <div class="modal-overlay" id="customCourseProcessModal">
-    <div class="modal-box" style="max-width: 550px;">
-      <h3 style="margin-bottom: 8px; color: var(--primary-purple);">⚙️ Editar Línea de Proceso del Curso</h3>
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Personaliza requerimientos exclusivos para este curso.</p>
+    <div class="modal-box" style="max-width: 600px;">
+      <h3 style="margin-bottom: 8px; color: var(--primary-purple);">⚙️ Personalizar Proceso de este Curso</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Agrega o elimina etapas y ajusta los requerimientos de forma exclusiva para este curso.</p>
       
+      <!-- GESTIÓN DE ETAPAS DEL CURSO -->
+      <div style="background: var(--bg-body); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+        <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--primary-purple);">1. Administrar Etapas del Curso:</label>
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <input type="text" id="inputCustomCourseStageName" class="input-field" placeholder="Nombre de nueva etapa (ej: Evaluación)">
+          <button class="btn-save" style="padding: 6px 12px; white-space: nowrap;" onclick="agregarEtapaPersonalizadaCurso()">➕ Agregar Etapa</button>
+        </div>
+        <div id="listaEtapasPersonalizadasCurso" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+      </div>
+
+      <!-- GESTIÓN DE REQUERIMIENTOS DEL CURSO -->
       <div style="margin-bottom: 14px;">
-        <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; display: block;">Seleccionar Etapa a Modificar:</label>
+        <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; display: block; color: var(--primary-purple);">2. Seleccionar Etapa para Modificar Requerimientos:</label>
         <select id="selectCourseStageCustom" class="input-field" onchange="renderizarConfigRequerimientosCursoActual()"></select>
       </div>
 
@@ -1175,8 +1186,8 @@
         <button class="btn-save" onclick="agregarRequerimientoPersonalizadoCurso()">➕ Agregar</button>
       </div>
 
-      <h4 style="margin-bottom: 8px; color: var(--primary-purple); font-size: 0.9rem;">Requerimientos de esta etapa:</h4>
-      <div id="listaCustomCourseReqs" style="max-height: 220px; overflow-y: auto;"></div>
+      <h4 style="margin-bottom: 8px; color: var(--primary-purple); font-size: 0.9rem;">Requerimientos de la etapa seleccionada:</h4>
+      <div id="listaCustomCourseReqs" style="max-height: 180px; overflow-y: auto;"></div>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
         <button class="btn-save" onclick="cerrarModalPersonalizarCursoProceso()">Listo / Cerrar</button>
@@ -1281,6 +1292,11 @@
       document.getElementById("inputCustomReqName").addEventListener("keydown", function(e) {
         if (e.key === "Enter") { e.preventDefault(); agregarRequerimientoPersonalizadoCurso(); }
       });
+
+      // Agregar etapa personalizada rápido con Enter
+      document.getElementById("inputCustomCourseStageName").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); agregarEtapaPersonalizadaCurso(); }
+      });
     });
 
     // DATOS MAESTROS
@@ -1306,7 +1322,7 @@
 
     var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
     var courses = JSON.parse(localStorage.getItem('cursosJarvisDB')) || [
-      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null }
+      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null }
     ];
 
     var activeCourseId = null;
@@ -1315,7 +1331,15 @@
     var candidateToEditIndex = null;
     var esProgramador = false;
 
-    // OBTENER ESQUEMA DE ETAPAS DE UN CURSO (PLANTILLA PROPIA O GLOBAL)
+    // OBTENER ETAPAS DE UN CURSO (PROPIAS O GLOBALES)
+    function obtenerEtapasCurso(course) {
+      if (course && course.customEtapas && course.customEtapas.length > 0) {
+        return course.customEtapas;
+      }
+      return nombresEtapasMaster;
+    }
+
+    // OBTENER ESQUEMA DE REQUERIMIENTOS DE UN CURSO
     function obtenerEsquemaCurso(course) {
       if (course && course.customEsquema) {
         return course.customEsquema;
@@ -1399,6 +1423,7 @@
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
+      var etapas = obtenerEtapasCurso(course);
       var esquema = obtenerEsquemaCurso(course);
       var pctGlobal = calcularPorcentajeTotalCurso(course);
       var html = `
@@ -1408,7 +1433,7 @@
         </div>
       `;
 
-      nombresEtapasMaster.forEach(function(e) {
+      etapas.forEach(function(e) {
         var reqs = esquema[e.id] || [];
         var stagePct = calcularPorcentajeEtapa(course, e.id);
         var obsEtapa = (course.bitacoraNotes && course.bitacoraNotes[e.id]) || 'Sin observaciones guardadas';
@@ -1457,6 +1482,7 @@
       var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Reporte General de Bitácoras de Cursos</h2>';
 
       courses.forEach(function(course) {
+        var etapas = obtenerEtapasCurso(course);
         var esquema = obtenerEsquemaCurso(course);
         var pctGlobal = calcularPorcentajeTotalCurso(course);
         html += `
@@ -1465,7 +1491,7 @@
             <p style="margin:4px 0 12px 0; font-size:12px; color:#625871;">Propuesto por: ${course.proposer} | Avance: ${pctGlobal}%</p>
         `;
 
-        nombresEtapasMaster.forEach(function(e) {
+        etapas.forEach(function(e) {
           var reqs = esquema[e.id] || [];
           var stagePct = calcularPorcentajeEtapa(course, e.id);
 
@@ -1674,11 +1700,12 @@
     }
 
     function calcularPorcentajeTotalCurso(course) {
+      var etapas = obtenerEtapasCurso(course);
       var esquema = obtenerEsquemaCurso(course);
       var totalOpciones = 0;
       var totalCompletados = 0;
 
-      nombresEtapasMaster.forEach(function(e) {
+      etapas.forEach(function(e) {
         var reqs = esquema[e.id] || [];
         reqs.forEach(function(r) {
           totalOpciones++;
@@ -1694,6 +1721,7 @@
 
     function renderizarBitacoraProgreso() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      var etapas = obtenerEtapasCurso(course);
       var esquema = obtenerEsquemaCurso(course);
       document.getElementById('bitacoraCourseName').innerText = "Progreso de: " + course.name;
 
@@ -1704,7 +1732,7 @@
       var container = document.getElementById('bitacoraStagesContainer');
       container.innerHTML = '';
 
-      nombresEtapasMaster.forEach(function(e) {
+      etapas.forEach(function(e) {
         var reqs = esquema[e.id] || [];
         var stagePct = calcularPorcentajeEtapa(course, e.id);
 
@@ -2098,7 +2126,7 @@
       calcularAlmacenamientoUsado();
     }
 
-    /* PERSONALIZACIÓN DE PROCESO DE UN CURSO INDIVIDUAL CON CLAVE */
+    /* PERSONALIZACIÓN DE PROCESO Y ETAPAS DE UN CURSO INDIVIDUAL CON CLAVE */
     function solicitarPersonalizarProcesoCurso() {
       if (esProgramador) {
         abrirModalPersonalizarCursoProceso();
@@ -2126,16 +2154,15 @@
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
+      if (!course.customEtapas) {
+        course.customEtapas = JSON.parse(JSON.stringify(nombresEtapasMaster));
+      }
       if (!course.customEsquema) {
         course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
       }
 
-      var selectStage = document.getElementById('selectCourseStageCustom');
-      selectStage.innerHTML = '';
-      nombresEtapasMaster.forEach(function(e) {
-        selectStage.innerHTML += `<option value="${e.id}">Etapa ${e.id}: ${e.name}</option>`;
-      });
-
+      renderizarEtapasPersonalizadasCurso();
+      renderizarSelectEtapasCursoModal();
       document.getElementById('customCourseProcessModal').style.display = 'flex';
       renderizarConfigRequerimientosCursoActual();
     }
@@ -2143,15 +2170,109 @@
     function cerrarModalPersonalizarCursoProceso() {
       document.getElementById('customCourseProcessModal').style.display = 'none';
       if (activeCourseId) {
-        renderStage(courses.find(function(c){ return c.id === activeCourseId; }).currentStage);
+        var course = courses.find(function(c){ return c.id === activeCourseId; });
+        var etapas = obtenerEtapasCurso(course);
+        
+        // Validar que la etapa actual exista en el curso
+        if (!etapas.some(function(e){ return e.id === course.currentStage; })) {
+          course.currentStage = etapas.length > 0 ? etapas[0].id : 1;
+        }
+        
+        renderTimelineTrackHTML();
+        renderStage(course.currentStage);
       }
+    }
+
+    function renderizarEtapasPersonalizadasCurso() {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      var container = document.getElementById('listaEtapasPersonalizadasCurso');
+      container.innerHTML = '';
+
+      var etapas = obtenerEtapasCurso(course);
+
+      etapas.forEach(function(e) {
+        container.innerHTML += `
+          <div style="background: #FFF; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">
+            <span><strong>Etapa ${e.id}:</strong> ${e.name}</span>
+            ${etapas.length > 1 ? `<button class="btn-danger" style="padding: 1px 5px; font-size: 0.75rem;" onclick="eliminarEtapaPersonalizadaCurso(${e.id})">🗑️</button>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function renderizarSelectEtapasCursoModal() {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      var selectStage = document.getElementById('selectCourseStageCustom');
+      selectStage.innerHTML = '';
+      var etapas = obtenerEtapasCurso(course);
+
+      etapas.forEach(function(e) {
+        selectStage.innerHTML += `<option value="${e.id}">Etapa ${e.id}: ${e.name}</option>`;
+      });
+    }
+
+    function agregarEtapaPersonalizadaCurso() {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      var input = document.getElementById('inputCustomCourseStageName');
+      var nombre = input.value.trim();
+
+      if (!nombre) return alert('Escribe el nombre de la nueva etapa.');
+
+      var etapas = obtenerEtapasCurso(course);
+      var nextId = etapas.length > 0 ? Math.max(...etapas.map(e => e.id)) + 1 : 1;
+
+      etapas.push({ id: nextId, name: nombre });
+      course.customEtapas = etapas;
+
+      if (!course.customEsquema) {
+        course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
+      }
+      course.customEsquema[nextId] = [];
+
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      input.value = '';
+
+      renderizarEtapasPersonalizadasCurso();
+      renderizarSelectEtapasCursoModal();
+      renderizarConfigRequerimientosCursoActual();
+      calcularAlmacenamientoUsado();
+    }
+
+    function eliminarEtapaPersonalizadaCurso(idEtapa) {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
+      if (!confirm('¿Eliminar esta etapa de este curso?')) return;
+
+      var etapas = obtenerEtapasCurso(course);
+      course.customEtapas = etapas.filter(function(e){ return e.id !== idEtapa; });
+
+      if (course.customEsquema && course.customEsquema[idEtapa]) {
+        delete course.customEsquema[idEtapa];
+      }
+
+      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+
+      renderizarEtapasPersonalizadasCurso();
+      renderizarSelectEtapasCursoModal();
+      renderizarConfigRequerimientosCursoActual();
+      calcularAlmacenamientoUsado();
     }
 
     function renderizarConfigRequerimientosCursoActual() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
-      var numEtapa = document.getElementById('selectCourseStageCustom').value;
+      var select = document.getElementById('selectCourseStageCustom');
+      if (!select.value) return;
+
+      var numEtapa = select.value;
       var container = document.getElementById('listaCustomCourseReqs');
       container.innerHTML = '';
 
@@ -2180,7 +2301,10 @@
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
-      var numEtapa = document.getElementById('selectCourseStageCustom').value;
+      var select = document.getElementById('selectCourseStageCustom');
+      if (!select.value) return alert('Selecciona una etapa válida.');
+
+      var numEtapa = select.value;
       var inputName = document.getElementById('inputCustomReqName');
       var selectType = document.getElementById('selectCustomReqType');
       var txt = inputName.value.trim();
@@ -2329,7 +2453,7 @@
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
 
-      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null });
+      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null });
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       closeModal();
       document.getElementById('inputCourseName').value = '';
@@ -2358,10 +2482,13 @@
     }
 
     function renderTimelineTrackHTML() {
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      var etapas = obtenerEtapasCurso(course);
+
       var container = document.getElementById('timelineTrackContainer');
       var html = '<div class="timeline-line-base"></div><div class="timeline-line-progress" id="timelineProgress"></div>';
 
-      nombresEtapasMaster.forEach(function(e) {
+      etapas.forEach(function(e) {
         html += `
           <div class="timeline-step" id="step-node-${e.id}" onclick="selectStage(${e.id})">
             <span class="step-percent-badge" id="step-percent-${e.id}">0%</span>
@@ -2376,13 +2503,18 @@
 
     function renderStage(stageNumber) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      var etapas = obtenerEtapasCurso(course);
+
       course.currentStage = stageNumber;
 
-      var totalEtapas = nombresEtapasMaster.length;
-      var progress = totalEtapas > 1 ? ((course.unlockedStage - 1) / (totalEtapas - 1)) * 100 : 0;
+      var totalEtapas = etapas.length;
+      var indexEtapaDesbloqueada = etapas.findIndex(e => e.id === course.unlockedStage);
+      if (indexEtapaDesbloqueada === -1) indexEtapaDesbloqueada = 0;
+
+      var progress = totalEtapas > 1 ? (indexEtapaDesbloqueada / (totalEtapas - 1)) * 100 : 0;
       document.getElementById('timelineProgress').style.width = progress + '%';
 
-      nombresEtapasMaster.forEach(function(e) {
+      etapas.forEach(function(e) {
         var node = document.getElementById('step-node-' + e.id);
         var badge = document.getElementById('step-percent-' + e.id);
         var porcentajeEtapa = calcularPorcentajeEtapa(course, e.id);
@@ -2523,12 +2655,14 @@
 
     function checkStageCompletion() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      var etapas = obtenerEtapasCurso(course);
       var alertBanner = document.getElementById('stageAlert');
       var pctActual = calcularPorcentajeEtapa(course, course.currentStage);
 
       if (pctActual === 100) {
-        if (course.unlockedStage === course.currentStage && course.unlockedStage < nombresEtapasMaster.length) {
-          course.unlockedStage = course.currentStage + 1;
+        var indexActual = etapas.findIndex(e => e.id === course.currentStage);
+        if (course.unlockedStage === course.currentStage && indexActual < etapas.length - 1) {
+          course.unlockedStage = etapas[indexActual + 1].id;
           localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
           renderStage(course.currentStage);
         }
