@@ -886,7 +886,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
           <button class="tab-btn" style="background: #E2D9F3; color: var(--primary-purple); font-weight: 600;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
           <div style="display: flex; gap: 8px;">
-            <button class="btn-edit" id="btnEditarProcesoCurso" style="display: none;" onclick="abrirModalPersonalizarCursoProceso()"><i class="fa-solid fa-sliders"></i> Personalizar Proceso de este Curso</button>
+            <button class="btn-edit" id="btnEditarProcesoCurso" style="display: inline-flex;" onclick="solicitarPersonalizarProcesoCurso()"><i class="fa-solid fa-sliders"></i> Personalizar Proceso de este Curso</button>
             <button class="btn-pdf" onclick="exportarBitacoraIndividualPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácora de este Curso (PDF)</button>
           </div>
         </div>
@@ -1121,6 +1121,19 @@
     </div>
   </div>
 
+  <!-- MODAL AUTORIZAR PERSONALIZACIÓN DE PROCESO DE CURSO CON CLAVE -->
+  <div class="modal-overlay" id="authCourseProcessModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Autorizar Edición de Proceso</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de autorización para editar los procesos de este curso.</p>
+      <input type="password" id="authCourseProcessPass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalAuthCourseProcess()">Cancelar</button>
+        <button class="btn-save" onclick="confirmarAuthCourseProcess()">Autorizar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL EDITAR CANDIDATO -->
   <div class="modal-overlay" id="editCandidateModal">
     <div class="modal-box">
@@ -1145,7 +1158,7 @@
   <div class="modal-overlay" id="customCourseProcessModal">
     <div class="modal-box" style="max-width: 550px;">
       <h3 style="margin-bottom: 8px; color: var(--primary-purple);">⚙️ Editar Línea de Proceso del Curso</h3>
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Personaliza requerimientos exclusivos para este curso. (Modo Programador)</p>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Personaliza requerimientos exclusivos para este curso.</p>
       
       <div style="margin-bottom: 14px;">
         <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; display: block;">Seleccionar Etapa a Modificar:</label>
@@ -1236,6 +1249,39 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
+
+    // LISTENERS PARA ACEPTAR CLAVES Y REQUERIMIENTOS CON TECLA ENTER
+    document.addEventListener("DOMContentLoaded", function() {
+      // Login Admin / Programador con Enter
+      document.getElementById("adminPass").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); validarCredenciales(); }
+      });
+
+      // Confirmación de edición de candidato con Enter
+      document.getElementById("authEditCandidatePass").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); confirmarAuthEditCandidato(); }
+      });
+
+      // Confirmación de edición de proceso con Enter
+      document.getElementById("authCourseProcessPass").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); confirmarAuthCourseProcess(); }
+      });
+
+      // Confirmación de eliminación de curso con Enter
+      document.getElementById("deleteCoursePass").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); confirmarEliminarCurso(); }
+      });
+
+      // Confirmación de eliminación de candidato con Enter
+      document.getElementById("deleteCandidatePass").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); confirmarEliminarCandidato(); }
+      });
+
+      // Agregar requerimiento personalizado rápido con Enter
+      document.getElementById("inputCustomReqName").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); agregarRequerimientoPersonalizadoCurso(); }
+      });
+    });
 
     // DATOS MAESTROS
     var excelLinksMaster = JSON.parse(localStorage.getItem('excelLinksJarvis')) || [
@@ -1513,7 +1559,10 @@
 
     // LOGIN PROGRAMADOR
     function abrirModalLogin() { document.getElementById('loginModal').style.display = 'flex'; }
-    function cerrarModalLogin() { document.getElementById('loginModal').style.display = 'none'; }
+    function cerrarModalLogin() { 
+      document.getElementById('loginModal').style.display = 'none'; 
+      document.getElementById('adminPass').value = '';
+    }
 
     function validarCredenciales() {
       var u = document.getElementById('adminUser').value.trim();
@@ -1522,7 +1571,6 @@
       if (u === 'Continua' && p === 'L@zaro0697') {
         esProgramador = true;
         document.getElementById('btnAdmin').style.display = 'inline-flex';
-        document.getElementById('btnEditarProcesoCurso').style.display = 'inline-flex';
         cerrarModalLogin();
         alert('Sesión de Programador iniciada.');
         mostrarAdmin();
@@ -2050,13 +2098,34 @@
       calcularAlmacenamientoUsado();
     }
 
-    /* PERSONALIZACIÓN DE PROCESO DE UN CURSO INDIVIDUAL */
+    /* PERSONALIZACIÓN DE PROCESO DE UN CURSO INDIVIDUAL CON CLAVE */
+    function solicitarPersonalizarProcesoCurso() {
+      if (esProgramador) {
+        abrirModalPersonalizarCursoProceso();
+      } else {
+        document.getElementById('authCourseProcessModal').style.display = 'flex';
+      }
+    }
+
+    function cerrarModalAuthCourseProcess() {
+      document.getElementById('authCourseProcessModal').style.display = 'none';
+      document.getElementById('authCourseProcessPass').value = '';
+    }
+
+    function confirmarAuthCourseProcess() {
+      var pass = document.getElementById('authCourseProcessPass').value.trim();
+      if (pass === 'L@zaro0697') {
+        cerrarModalAuthCourseProcess();
+        abrirModalPersonalizarCursoProceso();
+      } else {
+        alert('Contraseña de autorización incorrecta.');
+      }
+    }
+
     function abrirModalPersonalizarCursoProceso() {
-      if (!esProgramador) return alert('Acceso restringido únicamente para modo desarrollador/programador.');
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
-      // Si el curso no tiene plantilla personalizada, clonar la global
       if (!course.customEsquema) {
         course.customEsquema = JSON.parse(JSON.stringify(esquemaEtapasMaster));
       }
@@ -2276,12 +2345,6 @@
       document.getElementById('displayProposer').innerText = course.proposer;
       document.getElementById('subvistaListaCursos').style.display = 'none';
       document.getElementById('subvistaDetalleCurso').style.display = 'block';
-
-      if (esProgramador) {
-        document.getElementById('btnEditarProcesoCurso').style.display = 'inline-flex';
-      } else {
-        document.getElementById('btnEditarProcesoCurso').style.display = 'none';
-      }
 
       cambiarModoDetalle('CHECKLIST');
       renderTimelineTrackHTML();
