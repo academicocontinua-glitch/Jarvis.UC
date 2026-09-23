@@ -494,293 +494,7 @@
       font-weight: 600;
     }
 
-    /* LÍNEA HORIZONTAL CON PORCENTAJE */
-    .timeline-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 45px 20px 30px 20px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-    }
-
-    .timeline-track {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      min-width: 600px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .timeline-line-base {
-      position: absolute;
-      top: 32px;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--border-color);
-      z-index: 1;
-    }
-
-    .timeline-line-progress {
-      position: absolute;
-      top: 32px;
-      left: 0;
-      height: 4px;
-      background: var(--primary-purple);
-      z-index: 1;
-      width: 0%;
-      transition: width 0.4s ease;
-      box-shadow: 0 0 10px rgba(107, 0, 215, 0.5);
-    }
-
-    .timeline-step {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .step-percent-badge {
-      position: absolute;
-      top: -28px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-      background: #E2E8F0;
-      color: var(--text-muted);
-      border: 1px solid var(--border-color);
-      transition: all 0.3s ease;
-    }
-
-    .timeline-step.completed .step-percent-badge {
-      background: #DCFCE7;
-      color: #15803D;
-      border-color: var(--success-green);
-    }
-
-    .timeline-step.active .step-percent-badge {
-      background: #F3E8FF;
-      color: var(--primary-purple);
-      border-color: var(--primary-purple);
-    }
-
-    .step-node {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      background: #FFF;
-      border: 2px solid var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: var(--text-muted);
-      transition: all 0.3s;
-    }
-
-    .timeline-step.completed .step-node {
-      background: var(--success-green);
-      border-color: var(--success-green);
-      color: #FFF;
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
-    }
-
-    .timeline-step.active .step-node {
-      background: #FFF;
-      border-color: var(--primary-purple);
-      color: var(--primary-purple);
-      animation: neonPulse 1s infinite alternate;
-    }
-
-    @keyframes neonPulse {
-      0% {
-        box-shadow: 0 0 4px #6B00D7, 0 0 8px #6B00D7, inset 0 0 4px #6B00D7;
-        border-color: #6B00D7;
-        transform: scale(1);
-      }
-      100% {
-        box-shadow: 0 0 18px #6B00D7, 0 0 28px #6B00D7, 0 0 40px #6B00D7, inset 0 0 8px #6B00D7;
-        border-color: #FFF;
-        transform: scale(1.08);
-      }
-    }
-
-    .step-label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      text-align: center;
-    }
-
-    .timeline-step.active .step-label,
-    .timeline-step.completed .step-label {
-      color: var(--primary-purple);
-      font-weight: 600;
-    }
-
-    .checklist-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-    }
-
-    .check-item {
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-body);
-      padding: 14px 18px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      margin-top: 12px;
-      gap: 12px;
-    }
-
-    .check-item-main {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      width: 100%;
-    }
-
-    .check-item-meta {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding-top: 8px;
-      border-top: 1px dashed var(--border-color);
-      background: rgba(255, 255, 255, 0.5);
-      padding: 8px 12px;
-      border-radius: 6px;
-    }
-
-    .check-item-meta label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .check-item-meta input {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      border-radius: 4px;
-      border: 1px solid var(--border-color);
-    }
-
-    .check-item-label {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      font-weight: 500;
-      flex: 1;
-    }
-
-    .input-text-item {
-      max-width: 250px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      font-size: 0.85rem;
-    }
-
-    .select-status-item {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .select-status-item.status-BUENO { background: #DCFCE7; color: #15803D; border-color: var(--success-green); }
-    .select-status-item.status-REGULAR { background: #FEF9C3; color: #854D0E; border-color: var(--warning-yellow); }
-    .select-status-item.status-MALO { background: #FEE2E2; color: #991B1B; border-color: var(--danger-red); }
-
-    .alert-banner {
-      display: none;
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid var(--success-green);
-      color: #15803D;
-      padding: 14px 18px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* ESTILOS DE BITÁCORA */
-    .subview-nav {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 10px;
-    }
-
-    .subview-btn {
-      background: transparent;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 8px 16px;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-
-    .subview-btn.active {
-      background: var(--primary-purple);
-      color: #FFF;
-    }
-
-    .bitacora-stage-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .bitacora-stage-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 8px;
-    }
-
-    .bitacora-stage-header h3 { color: var(--primary-purple); }
-
-    .progress-bar-bg {
-      width: 100%;
-      height: 10px;
-      background: #E2E8F0;
-      border-radius: 5px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--primary-purple);
-      transition: width 0.3s ease;
-    }
-
-    /* ESTILOS DEL CALENDARIO DE HORARIOS */
+    /* ESTILOS DEL CALENDARIO DE HORARIOS (TAMAÑO DE COLUMNA FIJO) */
     .calendar-navigation-bar {
       display: flex;
       justify-content: space-between;
@@ -829,23 +543,31 @@
       border: 2px dashed var(--primary-purple);
     }
 
+    /* TABLA CON TAMAÑO FIJO RIGIDO PARA QUE NO SE ANCHE CON NINGÚN TEXTO */
     .calendar-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 850px;
+      table-layout: fixed;
+      min-width: 900px;
     }
 
     .calendar-table th, .calendar-table td {
       border: 1px solid var(--border-color);
       text-align: center;
       font-size: 0.82rem;
+      overflow: hidden;
     }
 
     .calendar-table th {
       background: var(--primary-purple);
       color: #FFF;
-      padding: 10px 6px;
+      padding: 10px 4px;
       font-weight: 600;
+      width: 13%;
+    }
+
+    .calendar-table th.time-col {
+      width: 90px !important;
     }
 
     .th-day-date {
@@ -865,10 +587,12 @@
     }
 
     .calendar-cell {
-      height: 48px;
+      height: 52px;
       position: relative;
       cursor: default;
       transition: background 0.15s;
+      vertical-align: top;
+      padding: 2px;
     }
 
     .calendar-container.selecting-mode .calendar-cell {
@@ -898,16 +622,18 @@
 
     .schedule-block {
       border-radius: 6px;
-      padding: 4px 6px;
-      font-size: 0.75rem;
+      padding: 3px 5px;
+      font-size: 0.72rem;
       font-weight: 600;
       text-align: left;
       box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-      margin: 2px;
+      margin: 1px 0;
       cursor: pointer;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      width: 100%;
+      display: block;
     }
 
     .schedule-block.class-type {
@@ -1107,7 +833,7 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>🗓️ Control de Horarios Docentes</h1>
-          <p>Busca un docente para ver su disponibilidad histórica y futura completa, o selecciona celdas para guardar y editar independientemente hora por hora.</p>
+          <p>Edita nombres, notas y estados de forma individual. Las columnas mantienen un tamaño fijo estandarizado.</p>
         </div>
         <button class="btn-save" id="btnToggleModoSeleccion" onclick="activarModoSeleccionHorario()"><i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente</button>
       </div>
@@ -1133,7 +859,7 @@
         </div>
       </div>
 
-      <!-- PANEL VISTA DETALLADA GLOBAL DE UN DOCENTE EN FILAS (HISTÓRICO Y FUTURO) -->
+      <!-- PANEL VISTA DETALLADA GLOBAL DE UN DOCENTE EN FILAS -->
       <div class="docente-detail-panel" id="docenteDetailPanel">
         <div class="docente-detail-header">
           <div>
@@ -1431,7 +1157,7 @@
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Asignatura / Detalle Extra (Opcional):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Asignatura / Nota Opcional:</label>
           <input type="text" id="scheduleCursoInput" class="input-field" placeholder="Ej. Gestión de Proyectos / Aula 201">
         </div>
       </div>
@@ -1443,15 +1169,39 @@
     </div>
   </div>
 
-  <!-- MODAL DETALLE / EDITAR Y ELIMINAR BLOQUE DE HORARIO (EXCLUSIVO CELDA INDEPENDIENTE) -->
+  <!-- MODAL EDITAR Y MODIFICAR CELDA INDEPENDIENTE (NOMBRE, NOTA Y ESTADO) -->
   <div class="modal-overlay" id="viewScheduleBlockModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--primary-purple);" id="viewBlockTitle">Detalle de Horario</h3>
-      <div id="viewBlockBody" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;"></div>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);" id="viewBlockTitle">⚙️ Modificar Celda Seleccionada</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Nombre del Docente:</label>
+          <input type="text" id="editBlockDocenteInput" class="input-field" placeholder="Nombre y apellido del docente">
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Estado del Horario:</label>
+          <select id="editBlockTipoSelect" class="input-field">
+            <option value="CLASS">📕 Dictado de Clase (Ocupado)</option>
+            <option value="AVAILABLE">🟢 Horario Disponible (Libre)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Asignatura / Nota u Observación Opcional:</label>
+          <input type="text" id="editBlockCursoInput" class="input-field" placeholder="Ej. Aula 102 / Clase Virtual / Reemplazo">
+        </div>
+
+        <div id="viewBlockBodyInfo" style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg-body); padding: 8px 12px; border-radius: 6px;"></div>
+      </div>
+
       <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-        <button class="btn-edit" onclick="cambiarEstadoBloqueActual()"><i class="fa-solid fa-rotate"></i> Cambiar Estado (Únicamente a esta celda)</button>
         <button class="btn-danger" onclick="eliminarBloqueHorarioActual()"><i class="fa-solid fa-trash"></i> Eliminar Celda</button>
-        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerBloque()">Cerrar</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerBloque()">Cancelar</button>
+          <button class="btn-save" onclick="guardarEdicionBloqueActual()"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1858,6 +1608,7 @@
             
             var icono = b.tipo === 'CLASS' ? '📕' : '🟢';
             blockDiv.innerHTML = `${icono} <strong>${b.docente}</strong> ${b.curso ? `(${b.curso})` : ''}`;
+            blockDiv.title = `${b.docente} ${b.curso ? `- ${b.curso}` : ''}`;
             
             blockDiv.onclick = function(e) {
               e.stopPropagation();
@@ -1910,7 +1661,7 @@
       renderizarTablaCalendario();
     }
 
-    // VISTA ESPECIFICADA GLOBAL Y COMPLETA PARA UN DOCENTE (HISTÓRICO Y FUTURO DE TODOS SUS REGISTROS)
+    // VISTA ESPECIFICADA GLOBAL Y COMPLETA PARA UN DOCENTE (FILAS Y TURNOS)
     function mostrarDetalleDocenteEnFilas(nombreDocente) {
       docenteSeleccionadoActual = nombreDocente;
       var panel = document.getElementById('docenteDetailPanel');
@@ -1920,7 +1671,6 @@
       title.innerHTML = `👨‍🏫 Horario Especificado Global: ${nombreDocente}`;
       panel.style.display = 'block';
 
-      // Obtener todos los bloques guardados de este docente
       var bloquesDocente = horariosDB.filter(function(b) {
         return b.docente && b.docente.toLowerCase() === nombreDocente.toLowerCase();
       });
@@ -1931,7 +1681,6 @@
         return;
       }
 
-      // Agrupar por Fecha ISO
       var fechasMap = new Map();
       bloquesDocente.forEach(function(b) {
         var keyFecha = b.fechaIso || 'FECHA_GENERAL';
@@ -1941,7 +1690,6 @@
         fechasMap.get(keyFecha).push(b);
       });
 
-      // Ordenar fechas cronológicamente
       var fechasOrdenadas = Array.from(fechasMap.keys()).sort();
 
       var html = `
@@ -1985,7 +1733,6 @@
             return '<span style="color:var(--text-muted); font-size:0.8rem;">Sin asignación</span>';
           }
 
-          // Ordenar bloques por hora
           filtrados.sort((a,b) => a.horaInicio - b.horaInicio);
 
           return filtrados.map(function(b) {
@@ -2051,7 +1798,6 @@
       document.getElementById('addScheduleModal').style.display = 'none';
     }
 
-    // GUARDAR CELDAS EN BLOQUES INDEPENDIENTES HORA POR HORA
     function guardarHorarioDocenteMultiple() {
       var docente = document.getElementById('scheduleDocenteInput').value.trim();
       var tipo = document.getElementById('scheduleTipoSelect').value;
@@ -2060,7 +1806,6 @@
       if (!docente) return alert('Por favor ingresa el nombre del docente.');
 
       celdasSeleccionadasSet.forEach(function(item) {
-        // Desglosar hora por hora para garantizar independencia individual por celda
         for (var h = item.horaInicio; h < item.horaFin; h++) {
           horariosDB.push({
             id: Date.now() + Math.random(),
@@ -2087,34 +1832,41 @@
       alert('Horarios docentes guardados independientemente por celda.');
     }
 
+    // ABRIR MODAL CON CAMPOS EDITABLES DE NOMBRE, NOTA Y ESTADO
     function verDetalleBloque(idBloque) {
       var b = horariosDB.find(function(item){ return item.id === idBloque; });
       if (!b) return;
 
       activeBlockIdToDelete = idBloque;
-      var tipoTxt = b.tipo === 'CLASS' ? '📕 Dictado de Clase (Ocupado)' : '🟢 Horario Disponible (Libre)';
-      
-      document.getElementById('viewBlockTitle').innerText = `Horario: ${b.docente}`;
-      document.getElementById('viewBlockBody').innerHTML = `
-        <strong>Docente:</strong> ${b.docente}<br>
-        <strong>Día:</strong> ${b.dia} (${b.fechaIso || 'Fecha general'})<br>
-        <strong>Hora de la celda:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00<br>
-        <strong>Estado Actual:</strong> ${tipoTxt}<br>
-        ${b.curso ? `<strong>Asignatura/Detalle:</strong> ${b.curso}` : ''}
+
+      document.getElementById('editBlockDocenteInput').value = b.docente || '';
+      document.getElementById('editBlockTipoSelect').value = b.tipo || 'CLASS';
+      document.getElementById('editBlockCursoInput').value = b.curso || '';
+
+      document.getElementById('viewBlockBodyInfo').innerHTML = `
+        <strong>Día:</strong> ${b.dia} (${b.fechaIso || 'Fecha general'}) | 
+        <strong>Hora de la celda:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00
       `;
 
       document.getElementById('viewScheduleBlockModal').style.display = 'flex';
     }
 
-    // CAMBIO DE ESTADO EXCLUSIVO E INDEPENDIENTE PARA ESTA CELDA
-    function cambiarEstadoBloqueActual() {
+    // GUARDAR MODIFICACIONES DE NOMBRE, NOTA Y ESTADO
+    function guardarEdicionBloqueActual() {
       if (!activeBlockIdToDelete) return;
 
       var b = horariosDB.find(function(item){ return item.id === activeBlockIdToDelete; });
       if (!b) return;
 
-      // Conmutar estado de forma completamente independiente
-      b.tipo = (b.tipo === 'CLASS') ? 'AVAILABLE' : 'CLASS';
+      var nuevoNombre = document.getElementById('editBlockDocenteInput').value.trim();
+      var nuevoTipo = document.getElementById('editBlockTipoSelect').value;
+      var nuevaNota = document.getElementById('editBlockCursoInput').value.trim();
+
+      if (!nuevoNombre) return alert('El nombre del docente es obligatorio.');
+
+      b.docente = nuevoNombre;
+      b.tipo = nuevoTipo;
+      b.curso = nuevaNota;
 
       localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
       cerrarModalVerBloque();
@@ -2122,7 +1874,7 @@
       if (docenteSeleccionadoActual) {
         mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
       }
-      alert(`El estado de esta celda (${String(b.horaInicio).padStart(2,'0')}:00) cambió a: ${b.tipo === 'CLASS' ? 'Dictado de Clase (Ocupado)' : 'Horario Disponible (Libre)'}`);
+      alert('Información de la celda modificada correctamente.');
     }
 
     function cerrarModalVerBloque() {
@@ -2132,7 +1884,7 @@
 
     function eliminarBloqueHorarioActual() {
       if (!activeBlockIdToDelete) return;
-      if (!confirm('¿Seguro que deseas eliminar esta celda de horario de forma independiente?')) return;
+      if (!confirm('¿Seguro que deseas eliminar esta celda de horario?')) return;
 
       horariosDB = horariosDB.filter(function(b){ return b.id !== activeBlockIdToDelete; });
       localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
