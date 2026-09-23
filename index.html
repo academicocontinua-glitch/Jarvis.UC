@@ -221,7 +221,7 @@
 
     .home-subtext { font-size: 1rem; color: var(--text-muted); }
 
-    .search-view, .procesos-view, .admin-view, .diagrama-view { display: none; }
+    .search-view, .procesos-view, .admin-view, .diagrama-view, .horarios-view { display: none; }
 
     .page-title-section { margin-bottom: 20px; }
     .page-title-section h1 { color: var(--primary-purple); }
@@ -708,6 +708,100 @@
       transition: width 0.3s ease;
     }
 
+    /* ESTILOS DEL CALENDARIO DE HORARIOS */
+    .calendar-container {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      box-shadow: 0 4px 12px rgba(107, 0, 215, 0.04);
+    }
+
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    .calendar-table th, .calendar-table td {
+      border: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.82rem;
+    }
+
+    .calendar-table th {
+      background: var(--primary-purple);
+      color: #FFF;
+      padding: 12px 8px;
+      font-weight: 600;
+    }
+
+    .time-col {
+      background: #F8F5FC;
+      color: var(--primary-purple-dark);
+      font-weight: 700;
+      width: 90px;
+      padding: 8px;
+    }
+
+    .calendar-cell {
+      height: 48px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .calendar-cell:hover {
+      background: #F3E8FF;
+    }
+
+    .schedule-block {
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: left;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      margin: 2px;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .schedule-block.class-type {
+      background-color: #FEE2E2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+    }
+
+    .schedule-block.available-type {
+      background-color: #DCFCE7;
+      border: 1px solid #86EFAC;
+      color: #166534;
+    }
+
+    .legend-box {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
     /* VISOR DIAGRAMA DE FLUJO */
     .viewer-toolbar {
       display: flex;
@@ -838,6 +932,7 @@
     <nav class="nav-tabs" id="mainNavContainer">
       <button class="tab-btn active" id="btnInicio" onclick="mostrarInicio()">🏠 Inicio</button>
       <button class="tab-btn" id="btnProcesos" onclick="mostrarProcesos()">⚙️ PROCESOS</button>
+      <button class="tab-btn" id="btnHorarios" onclick="mostrarHorarios()">🗓️ HORARIOS</button>
       <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
       <div class="dropdown">
@@ -863,7 +958,54 @@
     <section class="home-view" id="vistaHome">
       <img src="CONTINUA LOGO.png" alt="Logo Continua" class="home-logo" onerror="this.style.display='none'">
       <h1 class="home-greeting" id="saludoHorario">¡Bienvenido!</h1>
-      <p class="home-subtext">Selecciona una opción de la barra superior para gestionar tus documentos o buscar candidatos.</p>
+      <p class="home-subtext">Selecciona una opción de la barra superior para gestionar tus documentos, horarios o buscar candidatos.</p>
+    </section>
+
+    <!-- VISTA HORARIOS DOCENTES -->
+    <section class="horarios-view" id="vistaHorarios">
+      <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h1>🗓️ Control de Horarios Docentes</h1>
+          <p>Consulta la disponibilidad semanal o asigna bloques de dictado de clase e intervalos disponibles.</p>
+        </div>
+        <button class="btn-save" onclick="abrirModalAgregarHorario()"><i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente</button>
+      </div>
+
+      <div class="search-panel">
+        <div class="filter-box-main">
+          <label for="buscarDocenteHorarioInput">🔍 Búsqueda Dinámica por Nombre de Docente:</label>
+          <input type="text" id="buscarDocenteHorarioInput" placeholder="Escribe el nombre del docente..." oninput="filtrarHorarioDocente()">
+        </div>
+
+        <div class="legend-box">
+          <div class="legend-item">
+            <div class="legend-color" style="background:#FEE2E2; border:1px solid #FCA5A5;"></div>
+            <span>Dictado de Clase (Ocupado)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background:#DCFCE7; border:1px solid #86EFAC;"></div>
+            <span>Horario Disponible (Libre)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="calendar-container">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th class="time-col">HORA</th>
+              <th>LUNES</th>
+              <th>MARTES</th>
+              <th>MIÉRCOLES</th>
+              <th>JUEVES</th>
+              <th>VIERNES</th>
+              <th>SÁBADO</th>
+              <th>DOMINGO</th>
+            </tr>
+          </thead>
+          <tbody id="calendarTbody"></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- VISTA PROCESOS -->
@@ -1095,6 +1237,75 @@
     </section>
   </main>
 
+  <!-- MODAL AGREGAR / EDITAR HORARIO DOCENTE -->
+  <div class="modal-overlay" id="addScheduleModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">➕ Agregar Horario Docente</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Nombre del Docente:</label>
+          <input type="text" id="scheduleDocenteInput" class="input-field" list="listDocentesDatalist" placeholder="Escribe o selecciona docente...">
+          <datalist id="listDocentesDatalist"></datalist>
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Día de la Semana:</label>
+          <select id="scheduleDiaSelect" class="input-field">
+            <option value="LUNES">Lunes</option>
+            <option value="MARTES">Martes</option>
+            <option value="MIÉRCOLES">Miércoles</option>
+            <option value="JUEVES">Jueves</option>
+            <option value="VIERNES">Viernes</option>
+            <option value="SÁBADO">Sábado</option>
+            <option value="DOMINGO">Domingo</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Hora Inicio:</label>
+            <select id="scheduleHoraInicioSelect" class="input-field"></select>
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Hora Fin:</label>
+            <select id="scheduleHoraFinSelect" class="input-field"></select>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Tipo de Horario:</label>
+          <select id="scheduleTipoSelect" class="input-field">
+            <option value="CLASS">📕 Dictado de Clase (Ocupado - Rojo Claro)</option>
+            <option value="AVAILABLE">🟢 Horario Disponible (Libre - Verde Claro)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Asignatura / Detalle Extra (Opcional):</label>
+          <input type="text" id="scheduleCursoInput" class="input-field" placeholder="Ej. Gestión de Proyectos / Aula 201">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalAgregarHorario()">Cancelar</button>
+        <button class="btn-save" onclick="guardarHorarioDocente()">Guardar Bloque</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE / ELIMINAR BLOQUE DE HORARIO -->
+  <div class="modal-overlay" id="viewScheduleBlockModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);" id="viewBlockTitle">Detalle de Horario</h3>
+      <div id="viewBlockBody" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;"></div>
+      <div style="display: flex; justify-content: space-between; gap: 8px;">
+        <button class="btn-danger" onclick="eliminarBloqueHorarioActual()">🗑️ Eliminar Bloque</button>
+        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerBloque()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL LOGIN PROGRAMADOR -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
@@ -1325,11 +1536,181 @@
       { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null }
     ];
 
+    var horariosDB = JSON.parse(localStorage.getItem('horariosJarvisDB')) || [];
+
     var activeCourseId = null;
     var courseToDeleteId = null;
     var candidateToDeleteIndex = null;
     var candidateToEditIndex = null;
+    var activeBlockIdToDelete = null;
     var esProgramador = false;
+
+    var DIAS_SEMANA = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+    var HORAS_JORNADA = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+
+    // LÓGICA DE HORARIOS DOCENTES
+    function inicializarSelectsHorasModal() {
+      var selInicio = document.getElementById('scheduleHoraInicioSelect');
+      var selFin = document.getElementById('scheduleHoraFinSelect');
+      selInicio.innerHTML = '';
+      selFin.innerHTML = '';
+
+      HORAS_JORNADA.forEach(function(h) {
+        var strIni = String(h).padStart(2, '0') + ':00';
+        var strFin = String(h + 1).padStart(2, '0') + ':00';
+        selInicio.innerHTML += `<option value="${h}">${strIni}</option>`;
+        selFin.innerHTML += `<option value="${h + 1}">${strFin}</option>`;
+      });
+
+      // Cargar datalist de docentes
+      var datalist = document.getElementById('listDocentesDatalist');
+      datalist.innerHTML = '';
+      var nombresUnicos = new Set();
+      candidatosDB.forEach(function(c) { if(c.nombre) nombresUnicos.add(c.nombre); });
+      horariosDB.forEach(function(h) { if(h.docente) nombresUnicos.add(h.docente); });
+
+      nombresUnicos.forEach(function(nom) {
+        datalist.innerHTML += `<option value="${nom}">`;
+      });
+    }
+
+    function renderizarTablaCalendario() {
+      var tbody = document.getElementById('calendarTbody');
+      tbody.innerHTML = '';
+
+      var filtroDocente = document.getElementById('buscarDocenteHorarioInput').value.toLowerCase().trim();
+
+      HORAS_JORNADA.forEach(function(hora) {
+        var horaLabel = String(hora).padStart(2, '0') + ':00';
+        var tr = document.createElement('tr');
+        
+        var tdHora = document.createElement('td');
+        tdHora.className = 'time-col';
+        tdHora.innerText = horaLabel;
+        tr.appendChild(tdHora);
+
+        DIAS_SEMANA.forEach(function(dia) {
+          var tdCell = document.createElement('td');
+          tdCell.className = 'calendar-cell';
+          tdCell.onclick = function() {
+            abrirModalAgregarHorario(dia, hora);
+          };
+
+          // Buscar bloques guardados
+          var bloques = horariosDB.filter(function(b) {
+            var coicidedia = b.dia === dia;
+            var coincideHora = hora >= b.horaInicio && hora < b.horaFin;
+            var coincideDocente = filtroDocente === '' || (b.docente && b.docente.toLowerCase().includes(filtroDocente));
+            return coicidedia && coincideHora && coincideDocente;
+          });
+
+          bloques.forEach(function(b) {
+            var blockDiv = document.createElement('div');
+            var claseTipo = b.tipo === 'CLASS' ? 'class-type' : 'available-type';
+            blockDiv.className = `schedule-block ${claseTipo}`;
+            
+            var icono = b.tipo === 'CLASS' ? '📕' : '🟢';
+            blockDiv.innerHTML = `${icono} <strong>${b.docente}</strong> ${b.curso ? `(${b.curso})` : ''}`;
+            
+            blockDiv.onclick = function(e) {
+              e.stopPropagation();
+              verDetalleBloque(b.id);
+            };
+
+            tdCell.appendChild(blockDiv);
+          });
+
+          tr.appendChild(tdCell);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function abrirModalAgregarHorario(diaDefecto, horaDefecto) {
+      inicializarSelectsHorasModal();
+      
+      if (diaDefecto) document.getElementById('scheduleDiaSelect').value = diaDefecto;
+      if (horaDefecto) {
+        document.getElementById('scheduleHoraInicioSelect').value = horaDefecto;
+        document.getElementById('scheduleHoraFinSelect').value = horaDefecto + 1;
+      }
+
+      document.getElementById('scheduleDocenteInput').value = document.getElementById('buscarDocenteHorarioInput').value.trim();
+      document.getElementById('scheduleCursoInput').value = '';
+      document.getElementById('addScheduleModal').style.display = 'flex';
+    }
+
+    function cerrarModalAgregarHorario() {
+      document.getElementById('addScheduleModal').style.display = 'none';
+    }
+
+    function guardarHorarioDocente() {
+      var docente = document.getElementById('scheduleDocenteInput').value.trim();
+      var dia = document.getElementById('scheduleDiaSelect').value;
+      var horaInicio = parseInt(document.getElementById('scheduleHoraInicioSelect').value);
+      var horaFin = parseInt(document.getElementById('scheduleHoraFinSelect').value);
+      var tipo = document.getElementById('scheduleTipoSelect').value;
+      var curso = document.getElementById('scheduleCursoInput').value.trim();
+
+      if (!docente) return alert('Por favor ingresa el nombre del docente.');
+      if (horaFin <= horaInicio) return alert('La hora final debe ser posterior a la hora de inicio.');
+
+      horariosDB.push({
+        id: Date.now(),
+        docente: docente,
+        dia: dia,
+        horaInicio: horaInicio,
+        horaFin: horaFin,
+        tipo: tipo,
+        curso: curso
+      });
+
+      localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
+      cerrarModalAgregarHorario();
+      renderizarTablaCalendario();
+      calcularAlmacenamientoUsado();
+      alert('Bloque de horario registrado correctamente.');
+    }
+
+    function filtrarHorarioDocente() {
+      renderizarTablaCalendario();
+    }
+
+    function verDetalleBloque(idBloque) {
+      var b = horariosDB.find(function(item){ return item.id === idBloque; });
+      if (!b) return;
+
+      activeBlockIdToDelete = idBloque;
+      var tipoTxt = b.tipo === 'CLASS' ? '📕 Dictado de Clase (Ocupado)' : '🟢 Horario Disponible (Libre)';
+      
+      document.getElementById('viewBlockTitle').innerText = `Horario: ${b.docente}`;
+      document.getElementById('viewBlockBody').innerHTML = `
+        <strong>Docente:</strong> ${b.docente}<br>
+        <strong>Día:</strong> ${b.dia}<br>
+        <strong>Horario:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00<br>
+        <strong>Estado:</strong> ${tipoTxt}<br>
+        ${b.curso ? `<strong>Asignatura/Detalle:</strong> ${b.curso}` : ''}
+      `;
+
+      document.getElementById('viewScheduleBlockModal').style.display = 'flex';
+    }
+
+    function cerrarModalVerBloque() {
+      document.getElementById('viewScheduleBlockModal').style.display = 'none';
+      activeBlockIdToDelete = null;
+    }
+
+    function eliminarBloqueHorarioActual() {
+      if (!activeBlockIdToDelete) return;
+      if (!confirm('¿Seguro que deseas eliminar este bloque de horario?')) return;
+
+      horariosDB = horariosDB.filter(function(b){ return b.id !== activeBlockIdToDelete; });
+      localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
+      cerrarModalVerBloque();
+      renderizarTablaCalendario();
+      calcularAlmacenamientoUsado();
+    }
 
     // OBTENER ETAPAS DE UN CURSO (PROPIAS O GLOBALES)
     function obtenerEtapasCurso(course) {
@@ -1674,6 +2055,7 @@
     function resetTabs() {
       document.getElementById('btnInicio').classList.remove('active');
       document.getElementById('btnProcesos').classList.remove('active');
+      document.getElementById('btnHorarios').classList.remove('active');
       document.getElementById('btnBuscador').classList.remove('active');
       document.getElementById('btnAdmin').classList.remove('active');
       var btnInfo = document.getElementById('btnInformacion');
@@ -1681,6 +2063,7 @@
 
       document.getElementById('vistaHome').style.display = 'none';
       document.getElementById('vistaProcesos').style.display = 'none';
+      document.getElementById('vistaHorarios').style.display = 'none';
       document.getElementById('vistaBuscador').style.display = 'none';
       document.getElementById('vistaAdmin').style.display = 'none';
       document.getElementById('vistaDiagrama').style.display = 'none';
@@ -1697,6 +2080,13 @@
       document.getElementById('vistaProcesos').style.display = 'block';
       document.getElementById('btnProcesos').classList.add('active');
       renderCourses();
+    }
+
+    function mostrarHorarios() {
+      resetTabs();
+      document.getElementById('vistaHorarios').style.display = 'block';
+      document.getElementById('btnHorarios').classList.add('active');
+      renderizarTablaCalendario();
     }
 
     function mostrarBuscador() {
