@@ -494,19 +494,6 @@
       font-weight: 600;
     }
 
-    .turno-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-right: 6px;
-    }
-
-    .turno-manana { background: #FEF9C3; color: #854D0E; border: 1px solid #FDE047; }
-    .turno-tarde { background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
-    .turno-noche { background: #F3E8FF; color: #6B00D7; border: 1px solid #D8B4FE; }
-
     /* LÍNEA HORIZONTAL CON PORCENTAJE */
     .timeline-panel {
       background: var(--card-bg);
@@ -1120,7 +1107,7 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>🗓️ Control de Horarios Docentes</h1>
-          <p>Busca un docente para ver sus turnos detallados en filas o haz clic en "Agregar Horario" para guardar múltiples celdas.</p>
+          <p>Busca un docente para ver su disponibilidad histórica y futura completa, o selecciona celdas para guardar y editar independientemente hora por hora.</p>
         </div>
         <button class="btn-save" id="btnToggleModoSeleccion" onclick="activarModoSeleccionHorario()"><i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente</button>
       </div>
@@ -1146,12 +1133,12 @@
         </div>
       </div>
 
-      <!-- PANEL VISTA DETALLADA EN FILAS POR DOCENTE -->
+      <!-- PANEL VISTA DETALLADA GLOBAL DE UN DOCENTE EN FILAS (HISTÓRICO Y FUTURO) -->
       <div class="docente-detail-panel" id="docenteDetailPanel">
         <div class="docente-detail-header">
           <div>
-            <h2 id="docenteDetailTitle">👨‍🏫 Horario Detallado: --</h2>
-            <p style="font-size:0.85rem; color:var(--text-muted);" id="docenteDetailSubtitle">Detalle de disponibilidad por mes, días y turnos de la semana activa.</p>
+            <h2 id="docenteDetailTitle">👨‍🏫 Horario Especificado Global: --</h2>
+            <p style="font-size:0.85rem; color:var(--text-muted);" id="docenteDetailSubtitle">Desglose ordenado por año, mes y turnos registrados para este docente.</p>
           </div>
           <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple); font-weight:600;" onclick="cerrarVistaDetalladaDocente()">❌ Cerrar Vista Especificada</button>
         </div>
@@ -1456,14 +1443,14 @@
     </div>
   </div>
 
-  <!-- MODAL DETALLE / EDITAR Y ELIMINAR BLOQUE DE HORARIO -->
+  <!-- MODAL DETALLE / EDITAR Y ELIMINAR BLOQUE DE HORARIO (EXCLUSIVO CELDA INDEPENDIENTE) -->
   <div class="modal-overlay" id="viewScheduleBlockModal">
     <div class="modal-box">
       <h3 style="margin-bottom: 12px; color: var(--primary-purple);" id="viewBlockTitle">Detalle de Horario</h3>
       <div id="viewBlockBody" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;"></div>
       <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-        <button class="btn-edit" onclick="cambiarEstadoBloqueActual()"><i class="fa-solid fa-rotate"></i> Cambiar Estado (Clase / Libre)</button>
-        <button class="btn-danger" onclick="eliminarBloqueHorarioActual()"><i class="fa-solid fa-trash"></i> Eliminar</button>
+        <button class="btn-edit" onclick="cambiarEstadoBloqueActual()"><i class="fa-solid fa-rotate"></i> Cambiar Estado (Únicamente a esta celda)</button>
+        <button class="btn-danger" onclick="eliminarBloqueHorarioActual()"><i class="fa-solid fa-trash"></i> Eliminar Celda</button>
         <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerBloque()">Cerrar</button>
       </div>
     </div>
@@ -1727,9 +1714,6 @@
     function cambiarSemana(direction) {
       currentDatePivot.setDate(currentDatePivot.getDate() + (direction * 7));
       renderizarTablaCalendario();
-      if (docenteSeleccionadoActual) {
-        mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
-      }
     }
 
     function activarModoSeleccionHorario() {
@@ -1904,7 +1888,6 @@
         return;
       }
 
-      // Obtener nombres únicos de docentes
       var conjuntoDocentes = new Set();
       candidatosDB.forEach(function(c) { if(c.nombre && c.nombre.toLowerCase().includes(txt)) conjuntoDocentes.add(c.nombre); });
       horariosDB.forEach(function(h) { if(h.docente && h.docente.toLowerCase().includes(txt)) conjuntoDocentes.add(h.docente); });
@@ -1927,23 +1910,46 @@
       renderizarTablaCalendario();
     }
 
+    // VISTA ESPECIFICADA GLOBAL Y COMPLETA PARA UN DOCENTE (HISTÓRICO Y FUTURO DE TODOS SUS REGISTROS)
     function mostrarDetalleDocenteEnFilas(nombreDocente) {
       docenteSeleccionadoActual = nombreDocente;
       var panel = document.getElementById('docenteDetailPanel');
       var title = document.getElementById('docenteDetailTitle');
       var container = document.getElementById('docenteRowsContainer');
 
-      title.innerHTML = `👨‍🏫 Horario Especificado: ${nombreDocente}`;
+      title.innerHTML = `👨‍🏫 Horario Especificado Global: ${nombreDocente}`;
       panel.style.display = 'block';
 
-      var monday = getMondayOfCurrentWeek(currentDatePivot);
-      
+      // Obtener todos los bloques guardados de este docente
+      var bloquesDocente = horariosDB.filter(function(b) {
+        return b.docente && b.docente.toLowerCase() === nombreDocente.toLowerCase();
+      });
+
+      if (bloquesDocente.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); padding:10px 0;">No existen registros de horario guardados para el docente <strong>${nombreDocente}</strong>.</p>`;
+        filtrarHorarioDocente();
+        return;
+      }
+
+      // Agrupar por Fecha ISO
+      var fechasMap = new Map();
+      bloquesDocente.forEach(function(b) {
+        var keyFecha = b.fechaIso || 'FECHA_GENERAL';
+        if (!fechasMap.has(keyFecha)) {
+          fechasMap.set(keyFecha, []);
+        }
+        fechasMap.get(keyFecha).push(b);
+      });
+
+      // Ordenar fechas cronológicamente
+      var fechasOrdenadas = Array.from(fechasMap.keys()).sort();
+
       var html = `
         <table class="docente-rows-table">
           <thead>
             <tr>
               <th style="width: 15%;">MES / DÍA</th>
-              <th style="width: 20%;">FECHA</th>
+              <th style="width: 20%;">FECHA COMPLETA</th>
               <th style="width: 25%;">TURNO MAÑANA (07:00 - 13:00)</th>
               <th style="width: 20%;">TURNO TARDE (13:00 - 18:00)</th>
               <th style="width: 20%;">TURNO NOCHE (18:00 - 23:00)</th>
@@ -1952,35 +1958,35 @@
           <tbody>
       `;
 
-      DIAS_SEMANA.forEach(function(diaNombre, idx) {
-        var dayDateObj = new Date(monday);
-        dayDateObj.setDate(dayDateObj.getDate() + idx);
-        var dateIsoString = dayDateObj.toISOString().split('T')[0];
-        
-        var optionsMes = { month: 'long', day: 'numeric', year: 'numeric' };
-        var fechaCompletaStr = dayDateObj.toLocaleDateString('es-ES', optionsMes);
+      fechasOrdenadas.forEach(function(fechaKey) {
+        var listaBloques = fechasMap.get(fechaKey);
+        var diaNombre = listaBloques[0].dia || 'DÍA';
+        var fechaFormateada = fechaKey;
 
-        // Filtrar bloques del docente en ese día
-        var bloquesDia = horariosDB.filter(function(b) {
-          var coincideFecha = b.fechaIso ? b.fechaIso === dateIsoString : b.dia === diaNombre;
-          var coincideDocente = b.docente && b.docente.toLowerCase() === nombreDocente.toLowerCase();
-          return coincideFecha && coincideDocente;
-        });
+        if (fechaKey !== 'FECHA_GENERAL') {
+          var partes = fechaKey.split('-');
+          var dateObj = new Date(partes[0], partes[1] - 1, partes[2]);
+          var optionsMes = { month: 'long', day: 'numeric', year: 'numeric' };
+          fechaFormateada = dateObj.toLocaleDateString('es-ES', optionsMes).toUpperCase();
+        }
 
-        var clasificarTurno = function(horaInicio, horaFin) {
+        var clasificarTurno = function(horaInicio) {
           if (horaInicio < 13) return 'MANANA';
           if (horaInicio >= 13 && horaInicio < 18) return 'TARDE';
           return 'NOCHE';
         };
 
         var renderBloquesTurno = function(tipoTurno) {
-          var filtrados = bloquesDia.filter(function(b) {
-            return clasificarTurno(b.horaInicio, b.horaFin) === tipoTurno;
+          var filtrados = listaBloques.filter(function(b) {
+            return clasificarTurno(b.horaInicio) === tipoTurno;
           });
 
           if (filtrados.length === 0) {
             return '<span style="color:var(--text-muted); font-size:0.8rem;">Sin asignación</span>';
           }
+
+          // Ordenar bloques por hora
+          filtrados.sort((a,b) => a.horaInicio - b.horaInicio);
 
           return filtrados.map(function(b) {
             var colorBg = b.tipo === 'CLASS' ? '#FEE2E2' : '#DCFCE7';
@@ -2000,7 +2006,7 @@
         html += `
           <tr>
             <td><strong>${diaNombre}</strong></td>
-            <td>${fechaCompletaStr}</td>
+            <td>${fechaFormateada}</td>
             <td>${renderBloquesTurno('MANANA')}</td>
             <td>${renderBloquesTurno('TARDE')}</td>
             <td>${renderBloquesTurno('NOCHE')}</td>
@@ -2011,7 +2017,6 @@
       html += '</tbody></table>';
       container.innerHTML = html;
 
-      // Resaltar botón chip
       filtrarHorarioDocente();
     }
 
@@ -2046,6 +2051,7 @@
       document.getElementById('addScheduleModal').style.display = 'none';
     }
 
+    // GUARDAR CELDAS EN BLOQUES INDEPENDIENTES HORA POR HORA
     function guardarHorarioDocenteMultiple() {
       var docente = document.getElementById('scheduleDocenteInput').value.trim();
       var tipo = document.getElementById('scheduleTipoSelect').value;
@@ -2054,16 +2060,19 @@
       if (!docente) return alert('Por favor ingresa el nombre del docente.');
 
       celdasSeleccionadasSet.forEach(function(item) {
-        horariosDB.push({
-          id: Date.now() + Math.random(),
-          docente: docente,
-          dia: item.diaNombre,
-          fechaIso: item.fechaIso,
-          horaInicio: item.horaInicio,
-          horaFin: item.horaFin,
-          tipo: tipo,
-          curso: curso
-        });
+        // Desglosar hora por hora para garantizar independencia individual por celda
+        for (var h = item.horaInicio; h < item.horaFin; h++) {
+          horariosDB.push({
+            id: Date.now() + Math.random(),
+            docente: docente,
+            dia: item.diaNombre,
+            fechaIso: item.fechaIso,
+            horaInicio: h,
+            horaFin: h + 1,
+            tipo: tipo,
+            curso: curso
+          });
+        }
       });
 
       localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
@@ -2075,7 +2084,7 @@
         mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
       }
       calcularAlmacenamientoUsado();
-      alert('Horarios docentes guardados correctamente.');
+      alert('Horarios docentes guardados independientemente por celda.');
     }
 
     function verDetalleBloque(idBloque) {
@@ -2089,7 +2098,7 @@
       document.getElementById('viewBlockBody').innerHTML = `
         <strong>Docente:</strong> ${b.docente}<br>
         <strong>Día:</strong> ${b.dia} (${b.fechaIso || 'Fecha general'})<br>
-        <strong>Horario:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00<br>
+        <strong>Hora de la celda:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00<br>
         <strong>Estado Actual:</strong> ${tipoTxt}<br>
         ${b.curso ? `<strong>Asignatura/Detalle:</strong> ${b.curso}` : ''}
       `;
@@ -2097,12 +2106,14 @@
       document.getElementById('viewScheduleBlockModal').style.display = 'flex';
     }
 
+    // CAMBIO DE ESTADO EXCLUSIVO E INDEPENDIENTE PARA ESTA CELDA
     function cambiarEstadoBloqueActual() {
       if (!activeBlockIdToDelete) return;
 
       var b = horariosDB.find(function(item){ return item.id === activeBlockIdToDelete; });
       if (!b) return;
 
+      // Conmutar estado de forma completamente independiente
       b.tipo = (b.tipo === 'CLASS') ? 'AVAILABLE' : 'CLASS';
 
       localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
@@ -2111,7 +2122,7 @@
       if (docenteSeleccionadoActual) {
         mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
       }
-      alert(`Estado del bloque cambiado a: ${b.tipo === 'CLASS' ? 'Dictado de Clase (Ocupado)' : 'Horario Disponible (Libre)'}`);
+      alert(`El estado de esta celda (${String(b.horaInicio).padStart(2,'0')}:00) cambió a: ${b.tipo === 'CLASS' ? 'Dictado de Clase (Ocupado)' : 'Horario Disponible (Libre)'}`);
     }
 
     function cerrarModalVerBloque() {
@@ -2121,7 +2132,7 @@
 
     function eliminarBloqueHorarioActual() {
       if (!activeBlockIdToDelete) return;
-      if (!confirm('¿Seguro que deseas eliminar este bloque de horario?')) return;
+      if (!confirm('¿Seguro que deseas eliminar esta celda de horario de forma independiente?')) return;
 
       horariosDB = horariosDB.filter(function(b){ return b.id !== activeBlockIdToDelete; });
       localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
