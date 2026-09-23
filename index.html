@@ -709,18 +709,59 @@
     }
 
     /* ESTILOS DEL CALENDARIO DE HORARIOS */
+    .calendar-navigation-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(107, 0, 215, 0.04);
+    }
+
+    .nav-week-btn {
+      background: var(--primary-purple);
+      color: #FFF;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .nav-week-btn:hover {
+      background: var(--primary-purple-dark);
+    }
+
+    .current-week-display {
+      font-weight: 700;
+      color: var(--primary-purple);
+      font-size: 1.05rem;
+    }
+
     .calendar-container {
       background: var(--card-bg);
       border-radius: var(--radius-md);
       border: 1px solid var(--border-color);
       overflow-x: auto;
       box-shadow: 0 4px 12px rgba(107, 0, 215, 0.04);
+      user-select: none;
+    }
+
+    .calendar-container.selecting-mode {
+      border: 2px dashed var(--primary-purple);
     }
 
     .calendar-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 800px;
+      min-width: 850px;
     }
 
     .calendar-table th, .calendar-table td {
@@ -732,8 +773,16 @@
     .calendar-table th {
       background: var(--primary-purple);
       color: #FFF;
-      padding: 12px 8px;
+      padding: 10px 6px;
       font-weight: 600;
+    }
+
+    .th-day-date {
+      font-size: 0.75rem;
+      color: #E9D5FF;
+      font-weight: 400;
+      display: block;
+      margin-top: 2px;
     }
 
     .time-col {
@@ -747,12 +796,17 @@
     .calendar-cell {
       height: 48px;
       position: relative;
-      cursor: pointer;
+      cursor: default;
       transition: background 0.15s;
     }
 
-    .calendar-cell:hover {
-      background: #F3E8FF;
+    .calendar-container.selecting-mode .calendar-cell {
+      cursor: crosshair;
+    }
+
+    .calendar-cell.cell-drag-selected {
+      background: #E9D5FF !important;
+      border: 1px solid var(--primary-purple) !important;
     }
 
     .schedule-block {
@@ -966,9 +1020,9 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>🗓️ Control de Horarios Docentes</h1>
-          <p>Consulta la disponibilidad semanal o asigna bloques de dictado de clase e intervalos disponibles.</p>
+          <p>Consulta disponibilidad por semana o haz clic en "Agregar Horario" para seleccionar y arrastrar el bloque deseado.</p>
         </div>
-        <button class="btn-save" onclick="abrirModalAgregarHorario()"><i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente</button>
+        <button class="btn-save" id="btnToggleModoSeleccion" onclick="activarModoSeleccionHorario()"><i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente</button>
       </div>
 
       <div class="search-panel">
@@ -989,10 +1043,17 @@
         </div>
       </div>
 
-      <div class="calendar-container">
+      <!-- BARRA DE NAVEGACIÓN SEMANAL -->
+      <div class="calendar-navigation-bar">
+        <button class="nav-week-btn" onclick="cambiarSemana(-1)"><i class="fa-solid fa-chevron-left"></i> Semana Anterior</button>
+        <span class="current-week-display" id="currentWeekDisplayText">Semana del -- al --</span>
+        <button class="nav-week-btn" onclick="cambiarSemana(1)">Semana Siguiente <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+
+      <div class="calendar-container" id="calendarContainerDiv">
         <table class="calendar-table">
           <thead>
-            <tr>
+            <tr id="calendarTheadTr">
               <th class="time-col">HORA</th>
               <th>LUNES</th>
               <th>MARTES</th>
@@ -1237,40 +1298,17 @@
     </section>
   </main>
 
-  <!-- MODAL AGREGAR / EDITAR HORARIO DOCENTE -->
+  <!-- MODAL AGREGAR / EDITAR HORARIO DOCENTE TRAS SELECCIÓN -->
   <div class="modal-overlay" id="addScheduleModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">➕ Agregar Horario Docente</h3>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">➕ Guardar Horario Docente</h3>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;" id="selectedRangeInfoText">Bloque seleccionado: --</p>
       
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <div>
           <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Nombre del Docente:</label>
           <input type="text" id="scheduleDocenteInput" class="input-field" list="listDocentesDatalist" placeholder="Escribe o selecciona docente...">
           <datalist id="listDocentesDatalist"></datalist>
-        </div>
-
-        <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Día de la Semana:</label>
-          <select id="scheduleDiaSelect" class="input-field">
-            <option value="LUNES">Lunes</option>
-            <option value="MARTES">Martes</option>
-            <option value="MIÉRCOLES">Miércoles</option>
-            <option value="JUEVES">Jueves</option>
-            <option value="VIERNES">Viernes</option>
-            <option value="SÁBADO">Sábado</option>
-            <option value="DOMINGO">Domingo</option>
-          </select>
-        </div>
-
-        <div style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Hora Inicio:</label>
-            <select id="scheduleHoraInicioSelect" class="input-field"></select>
-          </div>
-          <div style="flex: 1;">
-            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">Hora Fin:</label>
-            <select id="scheduleHoraFinSelect" class="input-field"></select>
-          </div>
         </div>
 
         <div>
@@ -1508,6 +1546,14 @@
       document.getElementById("inputCustomCourseStageName").addEventListener("keydown", function(e) {
         if (e.key === "Enter") { e.preventDefault(); agregarEtapaPersonalizadaCurso(); }
       });
+
+      // Event listener global para soltar arrastre
+      window.addEventListener('mouseup', function() {
+        if (isDraggingSchedule) {
+          isDraggingSchedule = false;
+          finalizarSeleccionBloqueHorario();
+        }
+      });
     });
 
     // DATOS MAESTROS
@@ -1548,33 +1594,81 @@
     var DIAS_SEMANA = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
     var HORAS_JORNADA = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
 
-    // LÓGICA DE HORARIOS DOCENTES
-    function inicializarSelectsHorasModal() {
-      var selInicio = document.getElementById('scheduleHoraInicioSelect');
-      var selFin = document.getElementById('scheduleHoraFinSelect');
-      selInicio.innerHTML = '';
-      selFin.innerHTML = '';
+    // ESTADO NAVEGACIÓN SEMANAL
+    var currentDatePivot = new Date();
+    var modoSeleccionHorarioActivo = false;
+    var isDraggingSchedule = false;
+    var selectionStartCell = null;
+    var currentSelectionRange = null;
 
-      HORAS_JORNADA.forEach(function(h) {
-        var strIni = String(h).padStart(2, '0') + ':00';
-        var strFin = String(h + 1).padStart(2, '0') + ':00';
-        selInicio.innerHTML += `<option value="${h}">${strIni}</option>`;
-        selFin.innerHTML += `<option value="${h + 1}">${strFin}</option>`;
-      });
+    function getMondayOfCurrentWeek(d) {
+      var date = new Date(d);
+      var day = date.getDay();
+      var diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(date.setDate(diff));
+    }
 
-      // Cargar datalist de docentes
-      var datalist = document.getElementById('listDocentesDatalist');
-      datalist.innerHTML = '';
-      var nombresUnicos = new Set();
-      candidatosDB.forEach(function(c) { if(c.nombre) nombresUnicos.add(c.nombre); });
-      horariosDB.forEach(function(h) { if(h.docente) nombresUnicos.add(h.docente); });
+    function cambiarSemana(direction) {
+      currentDatePivot.setDate(currentDatePivot.getDate() + (direction * 7));
+      renderizarTablaCalendario();
+    }
 
-      nombresUnicos.forEach(function(nom) {
-        datalist.innerHTML += `<option value="${nom}">`;
-      });
+    function activarModoSeleccionHorario() {
+      modoSeleccionHorarioActivo = !modoSeleccionHorarioActivo;
+      var btn = document.getElementById('btnToggleModoSeleccion');
+      var container = document.getElementById('calendarContainerDiv');
+
+      if (modoSeleccionHorarioActivo) {
+        btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Selección';
+        btn.style.background = '#EF4444';
+        container.classList.add('selecting-mode');
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente';
+        btn.style.background = 'var(--primary-purple)';
+        container.classList.remove('selecting-mode');
+        limpiarEstilosSeleccion();
+      }
+    }
+
+    function limpiarEstilosSeleccion() {
+      var cells = document.querySelectorAll('.calendar-cell');
+      cells.forEach(function(c) { c.classList.remove('cell-drag-selected'); });
+      currentSelectionRange = null;
     }
 
     function renderizarTablaCalendario() {
+      var monday = getMondayOfCurrentWeek(currentDatePivot);
+      var sunday = new Date(monday);
+      sunday.setDate(sunday.getDate() + 6);
+
+      var formatFechaHeader = function(d) {
+        var dd = String(d.getDate()).padStart(2, '0');
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        return `${dd}/${mm}`;
+      };
+
+      // Actualizar cabecera de la semana
+      var mesStr = monday.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+      document.getElementById('currentWeekDisplayText').innerText = `Semana del ${formatFechaHeader(monday)} al ${formatFechaHeader(sunday)} (${mesStr.toUpperCase()})`;
+
+      // Renderizar Encabezados con sus fechas exactas
+      var theadTr = document.getElementById('calendarTheadTr');
+      theadTr.innerHTML = '<th class="time-col">HORA</th>';
+
+      var fechasDiasSemana = [];
+      DIAS_SEMANA.forEach(function(diaNombre, idx) {
+        var dayDate = new Date(monday);
+        dayDate.setDate(dayDate.getDate() + idx);
+        fechasDiasSemana.push(dayDate);
+
+        theadTr.innerHTML += `
+          <th>
+            ${diaNombre}
+            <span class="th-day-date">${formatFechaHeader(dayDate)}</span>
+          </th>
+        `;
+      });
+
       var tbody = document.getElementById('calendarTbody');
       tbody.innerHTML = '';
 
@@ -1589,19 +1683,37 @@
         tdHora.innerText = horaLabel;
         tr.appendChild(tdHora);
 
-        DIAS_SEMANA.forEach(function(dia) {
+        DIAS_SEMANA.forEach(function(diaNombre, idx) {
+          var dayDateObj = fechasDiasSemana[idx];
+          var dateIsoString = dayDateObj.toISOString().split('T')[0];
+
           var tdCell = document.createElement('td');
           tdCell.className = 'calendar-cell';
-          tdCell.onclick = function() {
-            abrirModalAgregarHorario(dia, hora);
+          tdCell.dataset.diaNombre = diaNombre;
+          tdCell.dataset.fechaIso = dateIsoString;
+          tdCell.dataset.hora = hora;
+
+          // EVENTOS DE ARRASTRE PARA SELECCIÓN DE HORARIO
+          tdCell.onmousedown = function(e) {
+            if (!modoSeleccionHorarioActivo) return;
+            e.preventDefault();
+            isDraggingSchedule = true;
+            selectionStartCell = { diaNombre: diaNombre, fechaIso: dateIsoString, hora: hora };
+            actualizarRangoArrastre(diaNombre, hora, hora);
           };
 
-          // Buscar bloques guardados
+          tdCell.onmouseenter = function() {
+            if (isDraggingSchedule && selectionStartCell && selectionStartCell.diaNombre === diaNombre) {
+              actualizarRangoArrastre(diaNombre, selectionStartCell.hora, hora);
+            }
+          };
+
+          // Buscar bloques guardados para esta fecha/semana
           var bloques = horariosDB.filter(function(b) {
-            var coicidedia = b.dia === dia;
+            var coincideFecha = b.fechaIso ? b.fechaIso === dateIsoString : b.dia === diaNombre;
             var coincideHora = hora >= b.horaInicio && hora < b.horaFin;
             var coincideDocente = filtroDocente === '' || (b.docente && b.docente.toLowerCase().includes(filtroDocente));
-            return coicidedia && coincideHora && coincideDocente;
+            return coincideFecha && coincideHora && coincideDocente;
           });
 
           bloques.forEach(function(b) {
@@ -1627,14 +1739,46 @@
       });
     }
 
-    function abrirModalAgregarHorario(diaDefecto, horaDefecto) {
-      inicializarSelectsHorasModal();
-      
-      if (diaDefecto) document.getElementById('scheduleDiaSelect').value = diaDefecto;
-      if (horaDefecto) {
-        document.getElementById('scheduleHoraInicioSelect').value = horaDefecto;
-        document.getElementById('scheduleHoraFinSelect').value = horaDefecto + 1;
-      }
+    function actualizarRangoArrastre(diaNombre, h1, h2) {
+      limpiarEstilosSeleccion();
+      var hMin = Math.min(h1, h2);
+      var hMax = Math.max(h1, h2);
+
+      currentSelectionRange = {
+        diaNombre: diaNombre,
+        fechaIso: selectionStartCell.fechaIso,
+        horaInicio: hMin,
+        horaFin: hMax + 1
+      };
+
+      var cells = document.querySelectorAll(`.calendar-cell[data-dia-nombre="${diaNombre}"]`);
+      cells.forEach(function(cell) {
+        var hCell = parseInt(cell.dataset.hora);
+        if (hCell >= hMin && hCell <= hMax) {
+          cell.classList.add('cell-drag-selected');
+        }
+      });
+    }
+
+    function finalizarSeleccionBloqueHorario() {
+      if (!currentSelectionRange) return;
+
+      var hIniStr = String(currentSelectionRange.horaInicio).padStart(2, '0') + ':00';
+      var hFinStr = String(currentSelectionRange.horaFin).padStart(2, '0') + ':00';
+
+      document.getElementById('selectedRangeInfoText').innerText = 
+        `Bloque: ${currentSelectionRange.diaNombre} (${currentSelectionRange.fechaIso}) de ${hIniStr} a ${hFinStr}`;
+
+      // Cargar datalist de docentes
+      var datalist = document.getElementById('listDocentesDatalist');
+      datalist.innerHTML = '';
+      var nombresUnicos = new Set();
+      candidatosDB.forEach(function(c) { if(c.nombre) nombresUnicos.add(c.nombre); });
+      horariosDB.forEach(function(h) { if(h.docente) nombresUnicos.add(h.docente); });
+
+      nombresUnicos.forEach(function(nom) {
+        datalist.innerHTML += `<option value="${nom}">`;
+      });
 
       document.getElementById('scheduleDocenteInput').value = document.getElementById('buscarDocenteHorarioInput').value.trim();
       document.getElementById('scheduleCursoInput').value = '';
@@ -1643,34 +1787,35 @@
 
     function cerrarModalAgregarHorario() {
       document.getElementById('addScheduleModal').style.display = 'none';
+      activarModoSeleccionHorario(); // Desactivar modo selección
     }
 
     function guardarHorarioDocente() {
       var docente = document.getElementById('scheduleDocenteInput').value.trim();
-      var dia = document.getElementById('scheduleDiaSelect').value;
-      var horaInicio = parseInt(document.getElementById('scheduleHoraInicioSelect').value);
-      var horaFin = parseInt(document.getElementById('scheduleHoraFinSelect').value);
       var tipo = document.getElementById('scheduleTipoSelect').value;
       var curso = document.getElementById('scheduleCursoInput').value.trim();
 
       if (!docente) return alert('Por favor ingresa el nombre del docente.');
-      if (horaFin <= horaInicio) return alert('La hora final debe ser posterior a la hora de inicio.');
+      if (!currentSelectionRange) return alert('No hay ningún bloque seleccionado.');
 
       horariosDB.push({
         id: Date.now(),
         docente: docente,
-        dia: dia,
-        horaInicio: horaInicio,
-        horaFin: horaFin,
+        dia: currentSelectionRange.diaNombre,
+        fechaIso: currentSelectionRange.fechaIso,
+        horaInicio: currentSelectionRange.horaInicio,
+        horaFin: currentSelectionRange.horaFin,
         tipo: tipo,
         curso: curso
       });
 
       localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
-      cerrarModalAgregarHorario();
+      
+      document.getElementById('addScheduleModal').style.display = 'none';
+      activarModoSeleccionHorario();
       renderizarTablaCalendario();
       calcularAlmacenamientoUsado();
-      alert('Bloque de horario registrado correctamente.');
+      alert('Horario docente reservado con éxito.');
     }
 
     function filtrarHorarioDocente() {
@@ -1687,7 +1832,7 @@
       document.getElementById('viewBlockTitle').innerText = `Horario: ${b.docente}`;
       document.getElementById('viewBlockBody').innerHTML = `
         <strong>Docente:</strong> ${b.docente}<br>
-        <strong>Día:</strong> ${b.dia}<br>
+        <strong>Día:</strong> ${b.dia} (${b.fechaIso || 'Fecha general'})<br>
         <strong>Horario:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00<br>
         <strong>Estado:</strong> ${tipoTxt}<br>
         ${b.curso ? `<strong>Asignatura/Detalle:</strong> ${b.curso}` : ''}
