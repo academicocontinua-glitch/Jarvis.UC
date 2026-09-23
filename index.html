@@ -700,6 +700,19 @@
       margin-bottom: 6px;
     }
 
+    .aforo-info-badge {
+      background: #E0F2FE;
+      color: #0369A1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid #BAE6FD;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .sedes-tree-container {
       border-top: 1px dashed var(--border-color);
       padding-top: 12px;
@@ -1048,7 +1061,7 @@
           </div>
         </div>
 
-        <!-- COLUMNA LATERAL DERECHA (SEDE Y AULA) -->
+        <!-- COLUMNA LATERAL DERECHA (SEDE, AULA Y AFORO) -->
         <div class="sidebar-aulas-panel">
           <div class="sidebar-filter-group">
             <label for="selectSedeAulaFiltro">Sede:</label>
@@ -1062,6 +1075,11 @@
             <select id="selectAulaFiltro" class="input-field" onchange="alCambiarAulaFiltro()">
               <option value="">-- Seleccionar Aula --</option>
             </select>
+          </div>
+
+          <!-- MUESTRA DE AFORO ABAJO DEL BUSCADOR DE AULA -->
+          <div class="aforo-info-badge" id="aforoInfoDisplay" style="display: none;">
+            <i class="fa-solid fa-users"></i> Aforo del Salón: <strong id="aforoValText">--</strong>
           </div>
 
           <div class="sedes-tree-container" id="sedesTreeContainer">
@@ -1204,7 +1222,7 @@
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
         <h1 style="color: var(--primary-purple);">🛠️ Panel de Control Total (Programador)</h1>
-        <p>Gestiona el almacenamiento, los accesos a Excel, la barra superior, requerimientos y Sedes/Aulas.</p>
+        <p>Gestiona el almacenamiento, los accesos a Excel, la barra superior, requerimientos y Sedes/Aulas con Aforo.</p>
       </div>
 
       <!-- SECCIÓN 0: MONITOR DE ALMACENAMIENTO -->
@@ -1295,10 +1313,10 @@
         <div id="listaOpcionesAdmin"></div>
       </div>
 
-      <!-- SECCIÓN D: GESTIÓN DE SEDES Y AULAS (PROGRAMADOR) -->
+      <!-- SECCIÓN D: GESTIÓN DE SEDES Y AULAS CON AFORO (PROGRAMADOR) -->
       <div class="admin-panel">
-        <h3 style="color: var(--primary-purple);">4. Gestión de Sedes y Salones / Aulas</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o elimina sedes y asigna salones para el módulo de Aulas.</p>
+        <h3 style="color: var(--primary-purple);">4. Gestión de Sedes y Salones / Aulas con Aforo</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o elimina sedes y asigna salones especificando su aforo máximo.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
           <input type="text" id="nuevaSedeNombreInput" class="input-field" style="flex: 1; min-width: 200px;" placeholder="Nombre de la Sede (ej: Sede Central / Sede Campus)">
@@ -1311,7 +1329,8 @@
           <select id="selectSedeParaAulaAdmin" class="input-field" style="flex: 1; min-width: 180px;">
             <option value="">-- Seleccionar Sede --</option>
           </select>
-          <input type="text" id="nuevaAulaNombreInput" class="input-field" style="flex: 1; min-width: 180px;" placeholder="Nombre/Número de Aula (ej: Aula 101)">
+          <input type="text" id="nuevaAulaNombreInput" class="input-field" style="flex: 1; min-width: 180px;" placeholder="Nombre de Aula (ej: Aula 101)">
+          <input type="number" id="nuevaAulaAforoInput" class="input-field" style="flex: 0.6; min-width: 120px;" placeholder="Aforo (ej: 40)">
           <button class="btn-save" onclick="agregarAulaMaster()">➕ Asignar Aula a Sede</button>
         </div>
 
@@ -1366,6 +1385,7 @@
       <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; font-size: 0.88rem; background: #F8F5FC; padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
         <p><strong>🏛️ Sede:</strong> <span id="infoAulaSede">--</span></p>
         <p><strong>🚪 Aula:</strong> <span id="infoAulaNombre">--</span></p>
+        <p><strong>👥 Aforo de Aula:</strong> <span id="infoAulaAforo">--</span></p>
         <p><strong>👤 Responsable:</strong> <span id="infoAulaResponsable">--</span></p>
         <p><strong>🎯 Tipo de Evento:</strong> <span id="infoAulaTipoEvento">--</span></p>
         <p><strong>🏢 Área:</strong> <span id="infoAulaArea">--</span></p>
@@ -1693,10 +1713,10 @@
 
     var horariosDB = JSON.parse(localStorage.getItem('horariosJarvisDB')) || [];
 
-    /* BD SEDES Y AULAS */
+    /* BD SEDES Y AULAS CON AFORO ESTRUCTURADO */
     var sedesAulasMaster = JSON.parse(localStorage.getItem('sedesAulasJarvisDB')) || [
-      { id: 1, nombre: 'Sede Central', aulas: ['Aula 101', 'Aula 102', 'Auditorio Principal'] },
-      { id: 2, nombre: 'Sede Campus Norte', aulas: ['Lab Computo 1', 'Aula Magna'] }
+      { id: 1, nombre: 'Sede Central', aulas: [{ nombre: 'Aula 101', aforo: 40 }, { nombre: 'Aula 102', aforo: 35 }, { nombre: 'Auditorio Principal', aforo: 150 }] },
+      { id: 2, nombre: 'Sede Campus Norte', aulas: [{ nombre: 'Lab Computo 1', aforo: 30 }, { nombre: 'Aula Magna', aforo: 120 }] }
     ];
 
     var reservasAulasDB = JSON.parse(localStorage.getItem('reservasAulasJarvisDB')) || [];
@@ -2172,7 +2192,7 @@
       calcularAlmacenamientoUsado();
     }
 
-    /* MÓDULO NUEVO: CONTROL Y RESERVA DE AULAS */
+    /* MÓDULO CONTROL Y RESERVA DE AULAS CON AFORO */
     function activarModoSeleccionAula() {
       modoSeleccionAulaActivo = !modoSeleccionAulaActivo;
       var btn = document.getElementById('btnToggleModoSeleccionAula');
@@ -2262,8 +2282,9 @@
       if (sedeFiltroSeleccionada) {
         var sObj = sedesAulasMaster.find(function(item){ return item.nombre === sedeFiltroSeleccionada; });
         if (sObj && sObj.aulas) {
-          sObj.aulas.forEach(function(a) {
-            selectAula.innerHTML += `<option value="${a}">${a}</option>`;
+          sObj.aulas.forEach(function(aItem) {
+            var nomAula = typeof aItem === 'object' ? aItem.nombre : aItem;
+            selectAula.innerHTML += `<option value="${nomAula}">${nomAula}</option>`;
           });
         }
       }
@@ -2274,13 +2295,34 @@
         aulaFiltroSeleccionada = null;
       }
 
-      renderizarArbolSedesAulas();
-      renderizarTablaCalendarioAulas();
+      alCambiarAulaFiltro();
     }
 
     function alCambiarAulaFiltro() {
       var selectAula = document.getElementById('selectAulaFiltro');
       aulaFiltroSeleccionada = selectAula.value;
+
+      var aforoDisplay = document.getElementById('aforoInfoDisplay');
+      var aforoValText = document.getElementById('aforoValText');
+
+      if (sedeFiltroSeleccionada && aulaFiltroSeleccionada) {
+        var sObj = sedesAulasMaster.find(s => s.nombre === sedeFiltroSeleccionada);
+        if (sObj && sObj.aulas) {
+          var aObj = sObj.aulas.find(a => (typeof a === 'object' ? a.nombre : a) === aulaFiltroSeleccionada);
+          if (aObj && typeof aObj === 'object' && aObj.aforo) {
+            aforoValText.innerText = `${aObj.aforo} Personas`;
+            aforoDisplay.style.display = 'flex';
+          } else {
+            aforoValText.innerText = `No especificado`;
+            aforoDisplay.style.display = 'flex';
+          }
+        } else {
+          aforoDisplay.style.display = 'none';
+        }
+      } else {
+        aforoDisplay.style.display = 'none';
+      }
+
       renderizarArbolSedesAulas();
       renderizarTablaCalendarioAulas();
     }
@@ -2292,8 +2334,7 @@
       document.getElementById('selectSedeAulaFiltro').value = nombreSede;
       alCambiarSedeFiltro(false);
       document.getElementById('selectAulaFiltro').value = nombreAula;
-      renderizarArbolSedesAulas();
-      renderizarTablaCalendarioAulas();
+      alCambiarAulaFiltro();
     }
 
     function renderizarArbolSedesAulas() {
@@ -2313,11 +2354,14 @@
         `;
 
         if (s.aulas && s.aulas.length > 0) {
-          s.aulas.forEach(function(a) {
-            var esSeleccionada = (s.nombre === sedeFiltroSeleccionada && a === aulaFiltroSeleccionada);
+          s.aulas.forEach(function(aItem) {
+            var nomAula = typeof aItem === 'object' ? aItem.nombre : aItem;
+            var aforoAula = (typeof aItem === 'object' && aItem.aforo) ? ` (${aItem.aforo} pers.)` : '';
+            var esSeleccionada = (s.nombre === sedeFiltroSeleccionada && nomAula === aulaFiltroSeleccionada);
+
             html += `
-              <button class="aula-chip-btn ${esSeleccionada ? 'selected' : ''}" onclick="seleccionarSedeAulaDesdeTree('${s.nombre}', '${a}')">
-                🚪 ${a}
+              <button class="aula-chip-btn ${esSeleccionada ? 'selected' : ''}" onclick="seleccionarSedeAulaDesdeTree('${s.nombre}', '${nomAula}')">
+                🚪 ${nomAula}${aforoAula}
               </button>
             `;
           });
@@ -2497,6 +2541,15 @@
         return alert('Por favor selecciona un Aula en la columna derecha.');
       }
 
+      var aforoEncontrado = "No especificado";
+      var sObj = sedesAulasMaster.find(s => s.nombre === sede);
+      if (sObj && sObj.aulas) {
+        var aObj = sObj.aulas.find(a => (typeof a === 'object' ? a.nombre : a) === aula);
+        if (aObj && typeof aObj === 'object' && aObj.aforo) {
+          aforoEncontrado = `${aObj.aforo} Personas`;
+        }
+      }
+
       var mapaPorFecha = new Map();
       celdasAulaSeleccionadasSet.forEach(function(item) {
         if (!mapaPorFecha.has(item.fechaIso)) {
@@ -2516,6 +2569,7 @@
           area: area,
           sede: sede,
           aula: aula,
+          aforo: aforoEncontrado,
           diaNombre: val.diaNombre,
           fechaIso: fIso,
           horasArray: val.horas,
@@ -2543,6 +2597,7 @@
 
       document.getElementById('infoAulaSede').innerText = res.sede;
       document.getElementById('infoAulaNombre').innerText = res.aula;
+      document.getElementById('infoAulaAforo').innerText = res.aforo || 'No especificado';
       document.getElementById('infoAulaResponsable').innerText = res.responsable;
       document.getElementById('infoAulaTipoEvento').innerText = res.tipoEvento;
       document.getElementById('infoAulaArea').innerText = res.area;
@@ -2568,7 +2623,7 @@
       calcularAlmacenamientoUsado();
     }
 
-    /* PROGRAMADOR: GESTIÓN DE SEDES Y AULAS */
+    /* PROGRAMADOR: GESTIÓN DE SEDES Y AULAS CON AFORO */
     function renderizarAdminSedesAulas() {
       var selectSedeAula = document.getElementById('selectSedeParaAulaAdmin');
       var container = document.getElementById('listaSedesAulasAdminContainer');
@@ -2585,10 +2640,13 @@
 
         var aulasHtml = '';
         if (s.aulas && s.aulas.length > 0) {
-          s.aulas.forEach(function(a, idxAula) {
+          s.aulas.forEach(function(aItem, idxAula) {
+            var nomAula = typeof aItem === 'object' ? aItem.nombre : aItem;
+            var aforoAula = (typeof aItem === 'object' && aItem.aforo) ? ` (Aforo: ${aItem.aforo})` : '';
+
             aulasHtml += `
               <span style="background:#FFF; padding:2px 8px; border-radius:12px; border:1px solid var(--border-color); font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; margin:2px;">
-                🚪 ${a} <button class="btn-danger" style="padding:0 4px; font-size:0.7rem; border-radius:50%;" onclick="eliminarAulaMaster(${idxSede}, ${idxAula})">×</button>
+                🚪 ${nomAula}${aforoAula} <button class="btn-danger" style="padding:0 4px; font-size:0.7rem; border-radius:50%;" onclick="eliminarAulaMaster(${idxSede}, ${idxAula})">×</button>
               </span>
             `;
           });
@@ -2638,22 +2696,34 @@
     function agregarAulaMaster() {
       var selectSede = document.getElementById('selectSedeParaAulaAdmin');
       var inputAula = document.getElementById('nuevaAulaNombreInput');
+      var inputAforo = document.getElementById('nuevaAulaAforoInput');
+      
       var nomSede = selectSede.value;
       var nomAula = inputAula.value.trim();
+      var aforoVal = inputAforo.value.trim();
 
       if (!nomSede || !nomAula) return alert('Selecciona una Sede e ingresa el nombre/número del Aula.');
 
       var sObj = sedesAulasMaster.find(s => s.nombre === nomSede);
       if (sObj) {
         if (!sObj.aulas) sObj.aulas = [];
-        if (sObj.aulas.includes(nomAula)) return alert('Esta Aula ya existe en esta Sede.');
-        sObj.aulas.push(nomAula);
+        
+        var existe = sObj.aulas.some(a => (typeof a === 'object' ? a.nombre : a).toLowerCase() === nomAula.toLowerCase());
+        if (existe) return alert('Esta Aula ya existe en esta Sede.');
+
+        sObj.aulas.push({
+          nombre: nomAula,
+          aforo: aforoVal ? parseInt(aforoVal) : 'No especificado'
+        });
+
         localStorage.setItem('sedesAulasJarvisDB', JSON.stringify(sedesAulasMaster));
         inputAula.value = '';
+        inputAforo.value = '';
+        
         renderizarAdminSedesAulas();
         renderizarOpcionesSedesAulasFiltro();
         calcularAlmacenamientoUsado();
-        alert('Aula agregada a la Sede con éxito.');
+        alert('Aula y aforo agregados a la Sede con éxito.');
       }
     }
 
