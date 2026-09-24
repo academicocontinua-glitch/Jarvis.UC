@@ -333,7 +333,7 @@
 
     .content-grid, .courses-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 16px;
     }
 
@@ -398,22 +398,257 @@
 
     .course-card h3 { color: var(--primary-purple); }
 
-    .course-card-progress-info {
-      margin-top: 14px;
+    .progress-bar-bg {
+      background-color: #E2E8F0;
+      border-radius: 10px;
+      height: 10px;
+      width: 100%;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.4s ease, background-color 0.4s ease;
+    }
+
+    /* FILTROS DE ETAPAS EN CURSOS */
+    .filter-stage-chips-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    .stage-chip-btn {
+      background: #FFF;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .stage-chip-btn:hover, .stage-chip-btn.active {
+      background: var(--primary-purple);
+      color: #FFF;
+      border-color: var(--primary-purple);
+      box-shadow: 0 2px 6px rgba(107, 0, 215, 0.2);
+    }
+
+    /* STEPPER DINÁMICO DE NODO EN DETALLE DEL CURSO */
+    .timeline-panel {
+      background: #FFF;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      padding: 24px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(107, 0, 215, 0.04);
+    }
+
+    .timeline-track {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin: 10px 0;
+    }
+
+    .timeline-line-base {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: #E2E8F0;
+      z-index: 1;
+    }
+
+    .timeline-line-progress {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      height: 4px;
+      background: var(--primary-purple);
+      z-index: 2;
+      transition: width 0.3s ease;
+    }
+
+    .timeline-step {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .step-node {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #FFF;
+      border: 3px solid #CBD5E1;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      font-weight: 700;
+      color: #64748B;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-step.completed .step-node {
+      background: var(--primary-purple);
+      border-color: var(--primary-purple);
+      color: #FFF;
+    }
+
+    /* PARPADEO Y PULSO EN LA BOLITA DE LA ETAPA ACTIVA */
+    .timeline-step.active .step-node {
+      background: var(--accent-purple-light);
+      border-color: var(--primary-purple);
+      color: #FFF;
+      animation: pulseGlow 1.4s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(145, 34, 255, 0.7);
+        transform: scale(1);
+      }
+      100% {
+        box-shadow: 0 0 0 12px rgba(145, 34, 255, 0);
+        transform: scale(1.15);
+      }
+    }
+
+    .step-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .timeline-step.active .step-label {
+      color: var(--primary-purple);
+      font-weight: 700;
+    }
+
+    .step-percent-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: #F3E8FF;
+      color: var(--primary-purple);
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-bottom: 4px;
+    }
+
+    .alert-banner {
+      display: none;
+      background: #DCFCE7;
+      border: 1px solid #86EFAC;
+      color: #166534;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checklist-panel {
+      background: #FFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(107, 0, 215, 0.04);
+    }
+
+    .subview-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .subview-btn {
+      background: #F3E8FF;
+      border: 1px solid var(--primary-purple);
+      color: var(--primary-purple);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .subview-btn.active {
+      background: var(--primary-purple);
+      color: #FFF;
+    }
+
+    .check-item {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #FAF8FC;
+      display: flex;
+      flex-direction: column;
       gap: 8px;
     }
 
-    .total-percent-badge {
-      background: #F3E8FF;
-      color: var(--primary-purple);
-      font-weight: 700;
-      font-size: 0.8rem;
-      padding: 3px 8px;
-      border-radius: 12px;
+    .check-item-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .check-item-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .check-item-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .check-item-meta input {
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      border-radius: 4px;
       border: 1px solid var(--border-color);
+    }
+
+    .bitacora-stage-card {
+      background: #FFF;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .bitacora-stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 8px;
     }
 
     /* ESTILOS DE HORARIO INDIVIDUAL POR DOCENTE */
@@ -1094,14 +1329,23 @@
       <div id="subvistaListaCursos">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
           <div>
-            <h1 style="color: var(--primary-purple);">Gestión de Cursos</h1>
-            <p style="color: var(--text-muted);">Seguimiento de etapas y entregables</p>
+            <h1 style="color: var(--primary-purple);">Gestión de Cursos y Programas</h1>
+            <p style="color: var(--text-muted);">Seguimiento continuo desde la creación hasta la programación</p>
           </div>
           <div style="display: flex; gap: 10px;">
             <button class="btn-pdf" onclick="exportarTodasBitacorasPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácoras Globales (PDF)</button>
             <button class="btn-save" onclick="openModal()">➕ Agregar Curso</button>
           </div>
         </div>
+
+        <!-- BARRA DE FILTROS POR ETAPAS -->
+        <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.88rem; color: var(--primary-purple);">
+          🔍 Filtrar Cursos por Etapa:
+        </div>
+        <div class="filter-stage-chips-bar" id="stageFilterChipsContainer">
+          <!-- CHIPS GENERADOS DINÁMICAMENTE -->
+        </div>
+
         <div class="courses-grid" id="gridCursos"></div>
       </div>
 
@@ -1132,8 +1376,16 @@
           </div>
 
           <div class="checklist-panel">
-            <h2 id="displayCourseName" style="color: var(--primary-purple);">Curso: --</h2>
-            <p style="color: var(--text-muted); margin-bottom: 16px;">Propuesto por: <strong id="displayProposer">--</strong></p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h2 id="displayCourseName" style="color: var(--primary-purple);">Curso: --</h2>
+                <p style="color: var(--text-muted); margin-bottom: 12px;">Propuesto por: <strong id="displayProposer">--</strong></p>
+              </div>
+              <div id="stageTimeBadgeDetail" style="background:#F3E8FF; border:1px solid var(--border-color); color:var(--primary-purple); padding:6px 14px; border-radius:20px; font-weight:600; font-size:0.85rem;">
+                ⏱️ Tiempo en etapa: Calculando...
+              </div>
+            </div>
+            
             <div id="checklistContainer"></div>
           </div>
         </div>
@@ -1707,8 +1959,10 @@
     };
 
     var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
+    
+    /* CURSOS CON SOPORTE DE REGISTRO DE TIEMPOS DE ETAPAS */
     var courses = JSON.parse(localStorage.getItem('cursosJarvisDB')) || [
-      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null }
+      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null, stageStartTimes: { 1: Date.now() } }
     ];
 
     var horariosDB = JSON.parse(localStorage.getItem('horariosJarvisDB')) || [];
@@ -1728,6 +1982,7 @@
     var activeBlockIdToDelete = null;
     var activeAulaReservaIdToDelete = null;
     var esProgramador = false;
+    var filtroEtapaCursosActual = 'TODOS'; // ESTADO DE FILTRO POR ETAPAS EN CURSOS
 
     var DIAS_SEMANA = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
     var HORAS_JORNADA = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
@@ -1762,6 +2017,18 @@
     function cambiarSemanaAula(direction) {
       currentAulaDatePivot.setDate(currentAulaDatePivot.getDate() + (direction * 7));
       renderizarTablaCalendarioAulas();
+    }
+
+    /* CALCULA DÍAS Y HORAS TRANSCURRIDAS EN UNA ETAPA */
+    function calcularTiempoTranscurridoEtapaTexto(timestampInicio) {
+      if (!timestampInicio) return "Recién iniciado";
+      var msTranscurridos = Date.now() - timestampInicio;
+      var horas = Math.floor(msTranscurridos / (1000 * 60 * 60));
+      var dias = Math.floor(horas / 24);
+
+      if (dias === 0 && horas === 0) return "Iniciado hoy";
+      if (dias === 0) return `${horas} hr(s) en esta etapa`;
+      return `${dias} día(s) en esta etapa`;
     }
 
     /* MÓDULO CONTROL DE HORARIOS DOCENTES */
@@ -3095,6 +3362,7 @@
       resetTabs();
       document.getElementById('vistaProcesos').style.display = 'block';
       document.getElementById('btnProcesos').classList.add('active');
+      renderBarraFiltroEtapas();
       renderCourses();
     }
 
@@ -3538,6 +3806,7 @@
       input.value = '';
       renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
       calcularAlmacenamientoUsado();
+      renderBarraFiltroEtapas();
     }
 
     function eliminarEtapaMaster(idEtapa) {
@@ -3549,6 +3818,7 @@
 
       renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
       calcularAlmacenamientoUsado();
+      renderBarraFiltroEtapas();
     }
 
     function renderizarConfigEtapas() {
@@ -3896,19 +4166,80 @@
       });
     }
 
+    /* BARRA DINÁMICA DE FILTRO POR ETAPA */
+    function renderBarraFiltroEtapas() {
+      var container = document.getElementById('stageFilterChipsContainer');
+      container.innerHTML = '';
+
+      var btnTodos = document.createElement('button');
+      btnTodos.className = `stage-chip-btn ${filtroEtapaCursosActual === 'TODOS' ? 'active' : ''}`;
+      btnTodos.innerText = '✨ Todos los Cursos';
+      btnTodos.onclick = function() {
+        filtroEtapaCursosActual = 'TODOS';
+        renderBarraFiltroEtapas();
+        renderCourses();
+      };
+      container.appendChild(btnTodos);
+
+      nombresEtapasMaster.forEach(function(e) {
+        var btn = document.createElement('button');
+        btn.className = `stage-chip-btn ${filtroEtapaCursosActual === e.id ? 'active' : ''}`;
+        btn.innerText = `${e.id}. ${e.name}`;
+        btn.onclick = function() {
+          filtroEtapaCursosActual = e.id;
+          renderBarraFiltroEtapas();
+          renderCourses();
+        };
+        container.appendChild(btn);
+      });
+    }
+
     function renderCourses() {
       var grid = document.getElementById('gridCursos');
       grid.innerHTML = '';
-      courses.forEach(function(c) {
+
+      var cursosFiltrados = courses.filter(function(c) {
+        if (filtroEtapaCursosActual === 'TODOS') return true;
+        return c.currentStage === parseInt(filtroEtapaCursosActual);
+      });
+
+      if (cursosFiltrados.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; color: var(--text-muted); text-align: center; padding: 30px;">No hay cursos registrados en esta etapa.</p>';
+        return;
+      }
+
+      cursosFiltrados.forEach(function(c) {
         var pctTotal = calcularPorcentajeTotalCurso(c);
+        var etapas = obtenerEtapasCurso(c);
+        var objEtapaActual = etapas.find(e => e.id === c.currentStage) || { name: 'En Proceso' };
+        
+        var startTime = (c.stageStartTimes && c.stageStartTimes[c.currentStage]) ? c.stageStartTimes[c.currentStage] : Date.now();
+        var tiempoTexto = calcularTiempoTranscurridoEtapaTexto(startTime);
+
+        // COLOR DINÁMICO DE BARRA DE PORCENTAJE
+        var barColor = '#EF4444'; // Rojo por defecto
+        if (pctTotal >= 35 && pctTotal <= 70) barColor = '#EAB308'; // Amarillo
+        else if (pctTotal > 70) barColor = '#22C55E'; // Verde
+
         grid.innerHTML += `
           <div class="course-card" onclick="openCourseDetail(${c.id})">
             <button class="course-card-delete-btn" onclick="solicitarEliminarCurso(${c.id}, event)">🗑️ Eliminar</button>
-            <h3>${c.name}</h3>
-            <p style="color:var(--text-muted); font-size:0.85rem;">Propuesto por: ${c.proposer}</p>
-            <div class="course-card-progress-info">
-              <span style="font-weight:600; color:var(--primary-purple);">Etapa Actual: ${c.currentStage}</span>
-              <span class="total-percent-badge">${pctTotal}% Avance</span>
+            <h3 style="padding-right: 80px;">${c.name}</h3>
+            <p style="color:var(--text-muted); font-size:0.83rem; margin-bottom:8px;">Propuesto por: ${c.proposer}</p>
+
+            <div style="background:#F8F5FC; padding:8px 10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:12px; font-size:0.8rem;">
+              <div style="font-weight:700; color:var(--primary-purple);">📌 Etapa: ${c.currentStage}. ${objEtapaActual.name}</div>
+              <div style="color:var(--text-muted); font-size:0.75rem; margin-top:2px;">⏱️ ${tiempoTexto}</div>
+            </div>
+
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:600;">
+                <span>Avance Global</span>
+                <span style="color:${barColor}; font-weight:700;">${pctTotal}%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width:${pctTotal}%; background-color:${barColor};"></div>
+              </div>
             </div>
           </div>
         `;
@@ -3923,7 +4254,23 @@
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
 
-      courses.push({ id: Date.now(), name: name, proposer: proposer, currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null });
+      var timeObj = {};
+      timeObj[1] = Date.now();
+
+      courses.push({ 
+        id: Date.now(), 
+        name: name, 
+        proposer: proposer, 
+        currentStage: 1, 
+        unlockedStage: 1, 
+        tasks: {}, 
+        taskMeta: {}, 
+        bitacoraNotes: {}, 
+        customEsquema: null, 
+        customEtapas: null,
+        stageStartTimes: timeObj 
+      });
+
       localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       closeModal();
       document.getElementById('inputCourseName').value = '';
@@ -3997,6 +4344,10 @@
           else if (e.id === course.unlockedStage) node.classList.add('active');
         }
       });
+
+      // MUESTRA DE TIEMPO TRANSCURRIDO EN LA ETAPA
+      var startTime = (course.stageStartTimes && course.stageStartTimes[stageNumber]) ? course.stageStartTimes[stageNumber] : Date.now();
+      document.getElementById('stageTimeBadgeDetail').innerText = `⏱️ ${calcularTiempoTranscurridoEtapaTexto(startTime)}`;
 
       var container = document.getElementById('checklistContainer');
       container.innerHTML = '';
@@ -4131,7 +4482,14 @@
       if (pctActual === 100) {
         var indexActual = etapas.findIndex(e => e.id === course.currentStage);
         if (course.unlockedStage === course.currentStage && indexActual < etapas.length - 1) {
-          course.unlockedStage = etapas[indexActual + 1].id;
+          var siguienteEtapaId = etapas[indexActual + 1].id;
+          course.unlockedStage = siguienteEtapaId;
+          
+          if (!course.stageStartTimes) course.stageStartTimes = {};
+          if (!course.stageStartTimes[siguienteEtapaId]) {
+            course.stageStartTimes[siguienteEtapaId] = Date.now();
+          }
+
           localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
           renderStage(course.currentStage);
         }
