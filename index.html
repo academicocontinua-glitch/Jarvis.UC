@@ -1633,36 +1633,15 @@
         <div id="listaSedesAulasAdminContainer"></div>
       </div>
 
-      <!-- SECCIÓN E: CONTROL DE PERMISOS DE USUARIO POR CREDENCIALES (LEGACY, CONSERVADA) -->
-      <div id="legacyPermisosUsuariosPanel" class="admin-panel">
-        <h3 style="color: var(--primary-purple);">6. 🔐 Gestión de Accesos y Permisos por Credencial de Usuario</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Habilita o deshabilita accesos especiales (crear procesos, CVs, personalizar o aprobar reservas) a usuarios externos/estándar identificados por su número de documento.</p>
-
-        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
-          <select id="permisoTipoDocSelect" class="input-field" style="flex: 1; min-width: 150px;">
-            <option value="DNI">DNI</option>
-            <option value="CE">CE / Carnet Extranjería</option>
-            <option value="PASAPORTE">Pasaporte</option>
-            <option value="RUC">RUC / Institucional</option>
-          </select>
-          <input type="text" id="permisoNumDocInput" class="input-field" style="flex: 1; min-width: 180px;" placeholder="Número de Documento / Credencial">
-          <input type="text" id="permisoUsuarioNombreInput" class="input-field" style="flex: 1.5; min-width: 200px;" placeholder="Nombre Completo del Usuario">
-          <button class="btn-save" onclick="registrarUsuarioPermisos()">➕ Registrar Credencial</button>
-        </div>
-
-        <h4 style="margin-bottom: 12px; color: var(--primary-purple);">Usuarios Configurados y Permisos Activos:</h4>
-        <div id="listaPermisosUsuariosAdminContainer"></div>
-      </div>
-
       <!-- INTEGRACIÓN NUEVA: CUENTAS OFICIALES Y PRESENCIA -->
       <div class="admin-panel" id="panelCuentasOficialesSede">
-        <h3 style="color: var(--primary-purple);">7. 🔐 Catálogo Oficial de Encargados de Sede</h3>
-        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;">Las 6 cuentas institucionales controlan directamente la creación, edición y aprobación de reservas. Contraseña común: <strong>Conti0697@</strong>.</p>
+        <h3 style="color: var(--primary-purple);">6. 🔐 Catálogo Oficial de Encargados de Sede</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;">Las 6 cuentas institucionales controlan directamente la creación, edición y aprobación de reservas. Las credenciales se gestionan internamente.</p>
         <div id="catalogoCuentasSedeAdmin"></div>
       </div>
 
       <div class="admin-panel" id="panelPresenciaSedes">
-        <h3 style="color: var(--primary-purple);">8. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
+        <h3 style="color: var(--primary-purple);">7. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
         <p style="font-size:0.85rem;color:var(--text-muted);">La presencia se registra en Firebase Realtime Database mientras una cuenta oficial mantiene la sesión activa.</p>
         <div class="jarvis-presence-grid" id="presenciaSedesGrid"></div>
       </div>
@@ -1860,7 +1839,7 @@
   <!-- MODAL LOGIN PROGRAMADOR -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">🔐 Iniciar Sesión / Identifícate</h3><p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px;">Cuentas de sede: admin.cusco, admin.andahuaylas, admin.arequipa, admin.huanuco, admin.huancayo y admin.miraflores. Contraseña común: Conti0697@.</p>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">🔐 Iniciar Sesión / Identifícate</h3><p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px;">Ingresa tus credenciales institucionales para acceder a las funciones autorizadas.</p>
       <input type="text" id="adminUser" class="input-field" style="margin-bottom: 10px;" placeholder="Usuario">
       <input type="password" id="adminPass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
@@ -2040,15 +2019,25 @@
     var reservasAulasDB = [];
     var usuariosPermisosDB = []; // BASE DE DATOS DE CREDENCIALES Y PERMISOS HABILITADOS POR EL PROGRAMADOR
 
+    // SEGURIDAD DE CARGA: evita que un sync temprano escriba arreglos vacíos
+    // sobre los catálogos que ya existen en Firebase, especialmente Sedes/Salones.
+    var nubeInicializada = false;
+    var catalogoSedesAulasCargado = false;
+
     // Catálogo existente de Sedes y Salones: se conserva y se normaliza, nunca se reemplaza por un catálogo inventado.
     protegerCatalogoSedesYAulas();
 
     // FUNCIÓN CENTRAL PARA PUBLICAR CAMBIOS A LA NUBE
     function syncToCloud() {
+      // IMPORTANTE: no sincronizar antes de cargar la base existente.
+      // Esto evita reemplazar datos remotos (como Salones/Aulas) con [].
+      if (!nubeInicializada) return;
+
       /*
        * IMPORTANTE: usamos update() y NO set().
        * Así JARVIS solo actualiza los módulos que administra este archivo y
        * no elimina accidentalmente otros datos existentes en Firebase.
+       * La sincronización inicial está bloqueada hasta recibir la primera carga.
        * Esto protege especialmente las Sedes, Salones/Aulas y demás información.
        */
       db.ref('jarvisData').update({
@@ -2080,7 +2069,6 @@
       }
 
       if (data) {
-        protegerCatalogoSedesYAulas();
         excelLinksMaster = data.excelLinksMaster || [];
         infoLinksMaster = data.infoLinksMaster || [];
         customTabsMaster = data.customTabsMaster || [];
@@ -2089,11 +2077,18 @@
         candidatosDB = data.candidatosDB || [];
         courses = data.courses || [];
         horariosDB = Array.isArray(data.horariosDB) ? data.horariosDB : horariosDB;
-        /* No borrar Sedes/Salones si Firebase no devuelve temporalmente ese campo. */
+        /*
+         * PROTECCIÓN CRÍTICA DE SEDES/SALONES:
+         * solo sustituimos el catálogo local cuando Firebase realmente entrega
+         * el campo. Si el campo no existe temporalmente, conservamos lo que ya
+         * tenemos y jamás lo convertimos en [].
+         */
         if (Array.isArray(data.sedesAulasMaster)) {
           sedesAulasMaster = data.sedesAulasMaster;
+          catalogoSedesAulasCargado = true;
         } else if (data.sedesAulasMaster && typeof data.sedesAulasMaster === 'object') {
           sedesAulasMaster = Object.keys(data.sedesAulasMaster).map(function(k){ return data.sedesAulasMaster[k]; });
+          catalogoSedesAulasCargado = true;
         }
         if (Array.isArray(data.reservasAulasDB)) {
           reservasAulasDB = data.reservasAulasDB;
@@ -2102,6 +2097,12 @@
         }
         if (Array.isArray(data.usuariosPermisosDB)) usuariosPermisosDB = data.usuariosPermisosDB;
         if (data.cuentasSedeDB) cuentasSedeDB = data.cuentasSedeDB;
+
+        // Desde este punto ya es seguro escribir cambios sin riesgo de pisar
+        // los datos que estaban previamente almacenados en Firebase.
+        nubeInicializada = true;
+        protegerCatalogoSedesYAulas();
+        asegurarCatalogoCuentasSede();
 
         // RE-RENDERIZAR INTERFAZ COMPLETA
         renderizarDropdownExcel();
@@ -2140,7 +2141,6 @@
           renderizarAdminEtapasGlobales();
           renderizarConfigEtapas();
           renderizarAdminSedesAulas();
-          renderizarAdminUsuariosPermisos();
         }
       }
     });
@@ -3692,7 +3692,6 @@
       renderizarAdminEtapasGlobales();
       renderizarConfigEtapas();
       renderizarAdminSedesAulas();
-      renderizarAdminUsuariosPermisos();
     }
 
     function cambiarModoDetalle(modo) {
@@ -4691,6 +4690,7 @@
           sedesAulasMaster = [];
         }
       }
+      sedesAulasMaster = sedesAulasMaster.filter(function(sede){ return !!sede; });
       sedesAulasMaster.forEach(function(sede) {
         if (!sede) return;
         if (!Array.isArray(sede.aulas)) {
@@ -4725,6 +4725,7 @@
     var cuentasSedeDB = JSON.parse(JSON.stringify(CUENTAS_SEDE_OFICIALES));
 
     function asegurarCatalogoCuentasSede() {
+      if (!nubeInicializada) return;
       if (!Array.isArray(cuentasSedeDB) || cuentasSedeDB.length !== CUENTAS_SEDE_OFICIALES.length) {
         cuentasSedeDB = JSON.parse(JSON.stringify(CUENTAS_SEDE_OFICIALES));
         syncToCloud();
@@ -5005,7 +5006,7 @@
       CUENTAS_SEDE_OFICIALES.forEach(function(base,idx){
         var c=cuentasSedeDB.find(function(x){return x.username===base.username;})||base;
         var p=c.permisos||{crearReservas:true,editarReservas:true,aprobarReservas:true};
-        cont.innerHTML += '<div class="jarvis-account-card"><div class="jarvis-account-header"><div><strong style="color:var(--primary-purple);">👨‍💼 '+c.displayName+'</strong><div style="font-size:.75rem;color:var(--text-muted);">Cuenta: '+c.username+' | Sede: '+c.sede+' | Contraseña común</div></div><span class="jarvis-online-dot" id="cuentaDot_'+idx+'"></span></div><div class="jarvis-permissions-grid"><label class="jarvis-permission-toggle">➕ Crear reservas <input type="checkbox" '+(p.crearReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'crearReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✏️ Editar reservas <input type="checkbox" '+(p.editarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'editarReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✅ Aprobar / Rechazar <input type="checkbox" '+(p.aprobarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'aprobarReservas\',this.checked)"></label></div></div>';
+        cont.innerHTML += '<div class="jarvis-account-card"><div class="jarvis-account-header"><div><strong style="color:var(--primary-purple);">👨‍💼 '+c.displayName+'</strong><div style="font-size:.75rem;color:var(--text-muted);">Cuenta: '+c.username+' | Sede: '+c.sede+' | Credencial institucional configurada</div></div><span class="jarvis-online-dot" id="cuentaDot_'+idx+'"></span></div><div class="jarvis-permissions-grid"><label class="jarvis-permission-toggle">➕ Crear reservas <input type="checkbox" '+(p.crearReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'crearReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✏️ Editar reservas <input type="checkbox" '+(p.editarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'editarReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✅ Aprobar / Rechazar <input type="checkbox" '+(p.aprobarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'aprobarReservas\',this.checked)"></label></div></div>';
       });
       renderizarPresenciaSedes();
     }
