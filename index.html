@@ -110,9 +110,8 @@
       gap: 8px;
       padding: 8px 24px;
       background: var(--primary-purple-dark);
-      overflow-x: auto;
       align-items: center;
-      -webkit-overflow-scrolling: touch;
+      position: relative;
     }
 
     .tab-btn {
@@ -153,16 +152,15 @@
 
     .dropdown { position: relative; display: inline-block; flex-shrink: 0; }
 
+    /* ESTILOS DEL MENÚ DESPLEGABLE CON POSICIÓN FIX */
     .dropdown-content {
       display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
+      position: fixed;
       background-color: var(--primary-purple-dark);
       min-width: 260px;
       box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
       border-radius: 6px;
-      z-index: 2000;
+      z-index: 9999;
       padding: 6px 0;
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
@@ -183,8 +181,6 @@
       background-color: var(--primary-purple);
       color: #FFF;
     }
-
-    .dropdown:hover .dropdown-content { display: block !important; }
 
     /* ÁREA PRINCIPAL */
     main {
@@ -440,7 +436,6 @@
       overflow-x: auto;
       padding-bottom: 8px;
       margin-bottom: 20px;
-      -webkit-overflow-scrolling: touch;
     }
 
     .stage-chip-btn {
@@ -802,7 +797,6 @@
       box-shadow: 0 4px 12px rgba(107, 0, 215, 0.04);
       user-select: none;
       position: relative;
-      -webkit-overflow-scrolling: touch;
     }
 
     .calendar-container.selecting-mode {
@@ -1158,78 +1152,6 @@
       color: var(--text-muted);
       margin-top: auto;
     }
-
-    /* ========================================================= */
-    /*     REGLAS ESPECIALES EXCLUSIVAS PARA CELULAR / MÓVIL    */
-    /* ========================================================= */
-    @media (max-width: 992px) {
-      .aulas-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      /* Ajuste de margen del contenedor principal */
-      main {
-        margin-top: 140px;
-        padding: 0 12px;
-      }
-
-      /* Cabecera compacta en Celular */
-      .header-info {
-        padding: 8px 12px;
-        flex-direction: row;
-        align-items: center;
-      }
-
-      .brand {
-        font-size: 0.95rem;
-        gap: 8px;
-      }
-
-      .brand-logo-wrapper {
-        height: 32px;
-        max-width: 110px;
-        padding: 2px 6px;
-      }
-
-      .time-info {
-        font-size: 0.72rem;
-        gap: 8px;
-      }
-
-      .time-info #date {
-        display: none; /* Se oculta la fecha larga en pantallas pequeñas para que entre todo sin problemas */
-      }
-
-      /* Navegación deslizable horizontalmente en móvil */
-      .nav-tabs {
-        padding: 6px 12px;
-        gap: 6px;
-      }
-
-      .tab-btn {
-        padding: 6px 12px;
-        font-size: 0.82rem;
-      }
-
-      /* Ajustes visuales de tarjetas */
-      .search-panel, .admin-panel, .checklist-panel, .timeline-panel {
-        padding: 16px;
-      }
-
-      .home-greeting {
-        font-size: 1.6rem;
-      }
-
-      .home-logo {
-        max-width: 200px;
-      }
-
-      .modal-box {
-        padding: 18px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1258,15 +1180,15 @@
       <button class="tab-btn" id="btnAulas" onclick="mostrarAulas()">🏛️ AULAS</button>
       <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
-      <div class="dropdown">
+      <div class="dropdown" id="dropdownInfo">
         <button class="tab-btn" id="btnInformacion">ℹ️ INFORMACIÓN ▼</button>
-        <div class="dropdown-content">
+        <div class="dropdown-content" id="contentInfo">
           <a onclick="mostrarDiagrama()">📊 Diagrama de Flujo</a>
         </div>
       </div>
 
-      <div class="dropdown">
-        <button class="tab-btn">📊 Excel ▼</button>
+      <div class="dropdown" id="dropdownExcel">
+        <button class="tab-btn" id="btnExcel">📊 Excel ▼</button>
         <div class="dropdown-content" id="excelDropdownContent"></div>
       </div>
 
@@ -2011,8 +1933,38 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    // SCRIPT PARA DESPLEGAR MENÚS AL PASAR EL CURSOR CON POSICIÓN FIX
+    function setupDropdowns() {
+      var dropExcel = document.getElementById('dropdownExcel');
+      var btnExcel = document.getElementById('btnExcel');
+      var contentExcel = document.getElementById('excelDropdownContent');
+
+      var dropInfo = document.getElementById('dropdownInfo');
+      var btnInfo = document.getElementById('btnInformacion');
+      var contentInfo = document.getElementById('contentInfo');
+
+      function posicionarYMostrar(btn, content) {
+        var rect = btn.getBoundingClientRect();
+        content.style.top = (rect.bottom + 2) + 'px';
+        content.style.left = rect.left + 'px';
+        content.style.display = 'block';
+      }
+
+      if (dropExcel) {
+        dropExcel.addEventListener('mouseenter', function() { posicionarYMostrar(btnExcel, contentExcel); });
+        dropExcel.addEventListener('mouseleave', function() { contentExcel.style.display = 'none'; });
+      }
+
+      if (dropInfo) {
+        dropInfo.addEventListener('mouseenter', function() { posicionarYMostrar(btnInfo, contentInfo); });
+        dropInfo.addEventListener('mouseleave', function() { contentInfo.style.display = 'none'; });
+      }
+    }
+
     // LISTENERS PARA TECLA ENTER Y DRAG
     document.addEventListener("DOMContentLoaded", function() {
+      setupDropdowns();
+
       document.getElementById("adminPass").addEventListener("keydown", function(e) {
         if (e.key === "Enter") { e.preventDefault(); validarCredenciales(); }
       });
