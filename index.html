@@ -169,15 +169,21 @@
 
     .dropdown { position: relative; display: inline-block; flex-shrink: 0; }
 
-    /* ESTILOS DEL MENÚ DESPLEGABLE CON POSICIÓN FIX */
+    /* ESTILOS DEL MENÚ DESPLEGABLE CON PUENTE DE NAVEGACIÓN */
     .dropdown-content {
       display: none;
       position: fixed;
-      background-color: var(--primary-purple-dark);
+      background-color: transparent;
       min-width: 260px;
+      z-index: 9999;
+      padding-top: 6px; /* Puente invisible para que no se cierre */
+      margin-top: -2px;
+    }
+
+    .dropdown-inner-box {
+      background-color: var(--primary-purple-dark);
       box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
       border-radius: 6px;
-      z-index: 9999;
       padding: 6px 0;
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
@@ -1101,7 +1107,7 @@
         <div class="brand-logo-wrapper">
           <img src="CONTINUA LOGO.png" alt="Logo Continua" onerror="this.src='CONTINENTAL.jpg'">
         </div>
-        JARVIS <span class="line-accent">|</span> GESTIÓN
+        JARVIS <span class="line-accent">|</span> GESTIÓN CONTINUA
       </div>
       <div class="time-info">
         <div class="sync-status-badge" id="syncBadge"><i class="fa-solid fa-cloud"></i> <span id="syncText">Conectando...</span></div>
@@ -1122,13 +1128,17 @@
       <!-- MENÚ DESPLEGABLE DE INFORMACIÓN -->
       <div class="dropdown" id="dropdownInfo">
         <button class="tab-btn" id="btnInformacion">ℹ️ INFORMACIÓN ▼</button>
-        <div class="dropdown-content" id="infoDropdownContent"></div>
+        <div class="dropdown-content" id="infoDropdownContent">
+          <div class="dropdown-inner-box" id="infoDropdownInner"></div>
+        </div>
       </div>
 
       <!-- MENÚ DESPLEGABLE DE EXCEL -->
       <div class="dropdown" id="dropdownExcel">
         <button class="tab-btn" id="btnExcel">📊 Excel ▼</button>
-        <div class="dropdown-content" id="excelDropdownContent"></div>
+        <div class="dropdown-content" id="excelDropdownContent">
+          <div class="dropdown-inner-box" id="excelDropdownInner"></div>
+        </div>
       </div>
 
       <div id="customNavTabsContainer" style="display: flex; gap: 8px;"></div>
@@ -1993,7 +2003,7 @@
 
       function posicionarYMostrar(btn, content) {
         var rect = btn.getBoundingClientRect();
-        content.style.top = (rect.bottom + 2) + 'px';
+        content.style.top = (rect.bottom - 4) + 'px';
         content.style.left = rect.left + 'px';
         content.style.display = 'block';
       }
@@ -3301,7 +3311,7 @@
     }
 
     function renderizarDropdownExcel() {
-      var container = document.getElementById('excelDropdownContent');
+      var container = document.getElementById('excelDropdownInner');
       container.innerHTML = '';
 
       if (excelLinksMaster.length === 0) {
@@ -3318,7 +3328,7 @@
     }
 
     function renderizarDropdownInfo() {
-      var container = document.getElementById('infoDropdownContent');
+      var container = document.getElementById('infoDropdownInner');
       container.innerHTML = '';
 
       if (infoLinksMaster.length === 0) {
