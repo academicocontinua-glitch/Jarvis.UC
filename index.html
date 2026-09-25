@@ -1239,7 +1239,25 @@
     .aula-half-selectable:hover { background:rgba(107,0,215,.08); box-shadow:inset 0 0 0 1px rgba(107,0,215,.22); cursor:crosshair; }
     /* No mostramos 00/30 dentro de las celdas. La hora seleccionada se informa en la barra superior. */
     .aula-half-hover-label { display:none !important; }
-    .aula-half-zone.cell-drag-selected { background:rgba(107,0,215,.22) !important; box-shadow:none !important; border-bottom-color:transparent; z-index:4; }
+    .aula-half-zone.cell-drag-selected { background:rgba(191,229,255,.92) !important; box-shadow:none !important; border-bottom-color:transparent; z-index:4; }
+    /* Reservas ocupadas: bloque visual continuo, sin líneas internas de las medias horas. */
+    .aula-half-zone.aula-half-occupied { border-bottom:none !important; background:transparent; }
+    .aula-half-zone.aula-half-occupied .aula-block-unified {
+      background:#BFE5FF !important;
+      border:none !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      color:#075985 !important;
+      padding:0 !important;
+    }
+    .aula-half-zone.aula-half-occupied.aula-range-first .aula-block-unified { border-top-left-radius:7px !important; border-top-right-radius:7px !important; }
+    .aula-half-zone.aula-half-occupied.aula-range-last .aula-block-unified { border-bottom-left-radius:7px !important; border-bottom-right-radius:7px !important; }
+    .aula-half-zone.aula-half-occupied.aula-range-single .aula-block-unified { border-radius:7px !important; }
+    .aula-half-zone.aula-half-occupied .aula-range-label {
+      width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+      text-align:center; font-size:.74rem; font-weight:800; color:#075985;
+    }
+    .aula-half-zone.aula-half-occupied .aula-range-label small { display:none !important; }
     /* Unifica visualmente los bloques consecutivos seleccionados. */
     .aula-half-zone.aula-selection-start {
       border-top-left-radius:8px; border-top-right-radius:8px;
@@ -1271,57 +1289,6 @@
     .aula-half-occupied .aula-block-unified { height:100%; min-height:25px; box-sizing:border-box; margin:0; border-radius:5px; display:flex; flex-direction:column; justify-content:center; }
     .aula-half-zone.jarvis-past-cell, .aula-half-zone.jarvis-past-cell:hover { background:rgba(120,120,120,.045); cursor:not-allowed; }
     .aula-half-zone.jarvis-now-half { overflow:visible; }
-
-    /* Unificación visual de reservas aprobadas/pendientes consecutivas.
-       Cada media hora sigue existiendo internamente, pero el bloque se percibe
-       como una sola reserva continua y el rango queda centrado en todo el bloque. */
-    .aula-half-zone.aula-reserva-unificada {
-      border-bottom-color: transparent !important;
-    }
-    .aula-half-zone.aula-reserva-unificada .aula-block-unified {
-      border-radius: 0 !important;
-      margin: 0 !important;
-      height: 100% !important;
-      min-height: 27px !important;
-      box-shadow: none !important;
-      position: relative;
-      z-index: 5;
-      background: var(--primary-purple) !important;
-      color: #FFFFFF !important;
-    }
-    .aula-half-zone.aula-reserva-inicio .aula-block-unified {
-      border-top-left-radius: 6px !important;
-      border-top-right-radius: 6px !important;
-    }
-    .aula-half-zone.aula-reserva-fin .aula-block-unified {
-      border-bottom-left-radius: 6px !important;
-      border-bottom-right-radius: 6px !important;
-    }
-    .aula-half-zone.aula-reserva-unica .aula-block-unified {
-      border-radius: 6px !important;
-    }
-    .aula-reserva-rango-label {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      pointer-events: none;
-      white-space: nowrap;
-      text-align: center;
-      font-size: .72rem;
-      font-weight: 800;
-      line-height: 1.15;
-      color: #FFFFFF;
-      background: transparent !important;
-      border: none !important;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none !important;
-    }
-    .aula-reserva-unificada .aula-reserva-contenido-secundario {
-      display: none !important;
-    }
     .aula-half-zone .aula-now-line { left:0; right:0; height:2px; position:absolute; }
     /* Progreso del tiempo actual: pinta de forma continua la parte de la media hora que ya transcurrió. */
     .aula-half-zone .aula-now-progress {
@@ -3608,8 +3575,18 @@
 
         if (seleccionada) zona.classList.add('cell-drag-selected');
         if (esPasada) zona.classList.add('jarvis-past-cell');
-        if (ocupado) zona.classList.add('aula-half-occupied');
-        else if (!esPasada) zona.classList.add('aula-half-selectable');
+        if (ocupado) {
+          zona.classList.add('aula-half-occupied');
+          /* Determinamos la posición del slot dentro de la reserva para que
+             visualmente sea un único bloque y el rango quede centrado. */
+          var slotsReservaDia = obtenerSlotsReservaAula(reserva).filter(function(v){ return true; }).sort(function(a,b){ return a-b; });
+          var indiceSlot = slotsReservaDia.findIndex(function(v){ return Math.abs(Number(v)-Number(slot)) < 0.001; });
+          if (indiceSlot >= 0) {
+            if (slotsReservaDia.length === 1) zona.classList.add('aula-range-single');
+            else if (indiceSlot === 0) zona.classList.add('aula-range-first');
+            else if (indiceSlot === slotsReservaDia.length - 1) zona.classList.add('aula-range-last');
+          }
+        } else if (!esPasada) zona.classList.add('aula-half-selectable');
 
         if (esHoy && !esPasada) {
           var ahora = new Date();
@@ -3628,8 +3605,17 @@
           var esRechazada = reserva.estadoAprobacion === 'RECHAZADA';
           var unifiedDiv = document.createElement('div');
           unifiedDiv.className = "aula-block-unified aula-block-30min " + (esPendiente ? 'aula-block-pending ' : '') + (esRechazada ? 'aula-block-rejected' : '');
-          unifiedDiv.innerHTML = '';
-          unifiedDiv.title = "Área: " + reserva.area + " | Sede: " + reserva.sede + " | Aula: " + reserva.aula + " | Horario: " + formatearHoraJarvis(slot) + " | Estado: " + (reserva.estadoAprobacion || 'APROBADO');
+          var slotsReservaDia = obtenerSlotsReservaAula(reserva).filter(function(v){ return true; }).sort(function(a,b){ return a-b; });
+          var indiceSlot = slotsReservaDia.findIndex(function(v){ return Math.abs(Number(v)-Number(slot)) < 0.001; });
+          var esCentro = indiceSlot === Math.floor((slotsReservaDia.length - 1) / 2);
+          var inicioReserva = slotsReservaDia.length ? slotsReservaDia[0] : slot;
+          var finReserva = slotsReservaDia.length ? slotsReservaDia[slotsReservaDia.length - 1] + 0.5 : slot + 0.5;
+          if (esCentro) {
+            unifiedDiv.innerHTML = '<span class="aula-range-label">' + formatearHoraJarvis(inicioReserva) + ' - ' + formatearHoraJarvis(finReserva) + '</span>';
+          } else {
+            unifiedDiv.innerHTML = '';
+          }
+          unifiedDiv.title = "Área: " + reserva.area + " | Sede: " + reserva.sede + " | Aula: " + reserva.aula + " | Horario: " + formatearHoraJarvis(inicioReserva) + " - " + formatearHoraJarvis(finReserva) + " | Estado: " + (reserva.estadoAprobacion || 'APROBADO');
           unifiedDiv.onclick = function(e){ e.stopPropagation(); verDetalleReservaAula(reserva.id); };
           zona.appendChild(unifiedDiv);
         } else if (!esPasada) {
@@ -3689,87 +3675,7 @@
         tbody.appendChild(tr);
       });
 
-      aplicarUnificacionVisualReservasAula();
       actualizarEstilosCeldasSeleccionadasAula();
-    }
-
-    function aplicarUnificacionVisualReservasAula() {
-      var reservasUnicas = [];
-      var idsVistos = {};
-
-      reservasAulasDB.forEach(function(res) {
-        if (!res || res.estadoAprobacion === 'RECHAZADA') return;
-        if (sedeFiltroSeleccionada && res.sede !== sedeFiltroSeleccionada) return;
-        if (aulaFiltroSeleccionada && res.aula !== aulaFiltroSeleccionada) return;
-        if (filtroPendientesAulas && res.estadoAprobacion !== 'PENDIENTE') return;
-        var id = String(res.id);
-        if (idsVistos[id]) return;
-        idsVistos[id] = true;
-        reservasUnicas.push(res);
-      });
-
-      reservasUnicas.forEach(function(res) {
-        var slots = obtenerSlotsReservaAula(res).sort(function(a,b){return a-b;});
-        if (!slots.length) return;
-
-        var zonas = [];
-        slots.forEach(function(slot) {
-          var selector = '#calendarAulaTbody .aula-half-zone[data-fecha-iso="' + res.fechaIso + '"]';
-          var encontrados = document.querySelectorAll(selector);
-          encontrados.forEach(function(z) {
-            var zslot = Number(z.dataset.hora) + Number(z.dataset.mitad || 0);
-            if (Math.abs(zslot - Number(slot)) < 0.001) zonas.push(z);
-          });
-        });
-
-        if (!zonas.length) return;
-        zonas.sort(function(a,b){
-          var sa=Number(a.dataset.hora)+Number(a.dataset.mitad||0);
-          var sb=Number(b.dataset.hora)+Number(b.dataset.mitad||0);
-          return sa-sb;
-        });
-
-        zonas.forEach(function(z){
-          z.classList.add('aula-reserva-unificada');
-          z.classList.remove('aula-reserva-inicio','aula-reserva-fin','aula-reserva-unica');
-          var old=z.querySelector('.aula-reserva-rango-label');
-          if(old) old.remove();
-        });
-
-        if (zonas.length === 1) {
-          zonas[0].classList.add('aula-reserva-unica');
-        } else {
-          zonas[0].classList.add('aula-reserva-inicio');
-          zonas[zonas.length-1].classList.add('aula-reserva-fin');
-        }
-
-        /*
-         * El rango se coloca en la zona que ocupa el centro matemático de
-         * toda la reserva. Así 08:00→09:30 queda realmente en medio del
-         * bloque completo, no en la primera media hora.
-         */
-        var indiceCentro = Math.floor((zonas.length - 1) / 2);
-        var zonaCentro = zonas[indiceCentro];
-        if (zonaCentro) {
-          var label=document.createElement('div');
-          label.className='aula-reserva-rango-label';
-          label.textContent=formatearHoraJarvis(slots[0])+' - '+formatearHoraJarvis(slots[slots.length-1]+0.5);
-          zonaCentro.appendChild(label);
-        }
-
-        /* En las demás medias horas dejamos únicamente el bloque de color,
-           evitando repetir el texto de la reserva en cada segmento. */
-        zonas.forEach(function(z,idx){
-          var bloque=z.querySelector('.aula-block-unified');
-          if (!bloque) return;
-          var contenido=bloque.querySelector('small');
-          if (contenido) contenido.classList.add('aula-reserva-contenido-secundario');
-          if (idx !== indiceCentro) {
-            var titulo=bloque.firstChild;
-            if (titulo && titulo.nodeType===3) titulo.textContent='';
-          }
-        });
-      });
     }
 
     /* ============================================================
