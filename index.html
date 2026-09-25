@@ -10,6 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
+  <!-- FIREBASE SDK (Módulos de la Nube) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
     :root {
       --primary-purple: #6B00D7;
@@ -102,6 +106,19 @@
       font-size: 0.85rem;
       color: #E9D5FF;
       align-items: center;
+    }
+
+    /* INDICADOR DE CONEXIÓN A LA NUBE */
+    .sync-status-badge {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* NAVEGACIÓN Y MENÚS MORADOS */
@@ -1166,6 +1183,7 @@
         JARVIS <span class="line-accent">|</span> GESTIÓN
       </div>
       <div class="time-info">
+        <div class="sync-status-badge" id="syncBadge"><i class="fa-solid fa-cloud"></i> <span id="syncText">Conectando...</span></div>
         <span id="date">--/--/----</span>
         <span id="clock">00:00:00</span>
         <button class="tab-btn btn-admin-access" onclick="abrirModalLogin()"><i class="fa-solid fa-user-gear"></i> Usuario</button>
@@ -1203,7 +1221,7 @@
     <section class="home-view" id="vistaHome">
       <img src="CONTINUA LOGO.png" alt="Logo Continua" class="home-logo" onerror="this.style.display='none'">
       <h1 class="home-greeting" id="saludoHorario">¡Bienvenido!</h1>
-      <p class="home-subtext">Selecciona una opción de la barra superior para gestionar tus documentos, horarios o buscar candidatos.</p>
+      <p class="home-subtext">Selecciona una opción de la barra superior para gestionar tus documentos, horarios o buscar candidatos en tiempo real.</p>
     </section>
 
     <!-- VISTA HORARIOS DOCENTES -->
@@ -1211,7 +1229,7 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>🗓️ Control de Horarios Docentes</h1>
-          <p>Edita nombres, notas y estados de forma individual. Las columnas mantienen un tamaño fijo estandarizado.</p>
+          <p>Edita nombres, notas y estados de forma individual. La información se sincroniza en vivo con cualquier dispositivo.</p>
         </div>
         <button class="btn-save" id="btnToggleModoSeleccion" onclick="activarModoSeleccionHorario()"><i class="fa-solid fa-calendar-plus"></i> Agregar Horario Docente</button>
       </div>
@@ -1508,32 +1526,29 @@
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
         <h1 style="color: var(--primary-purple);">🛠️ Panel de Control Total (Programador)</h1>
-        <p>Gestiona el almacenamiento, los accesos a Excel, la barra superior, requerimientos y Sedes/Aulas con Aforo.</p>
+        <p>Gestiona la sincronización, accesos a Excel, la barra superior, requerimientos y Sedes/Aulas con Aforo.</p>
       </div>
 
-      <!-- SECCIÓN 0: MONITOR DE ALMACENAMIENTO -->
+      <!-- SECCIÓN 0: MONITOR DE ALMACENAMIENTO Y NUBE -->
       <div class="admin-panel" style="background: linear-gradient(135deg, #FFF, #F3E8FF); border: 2px solid var(--border-color);">
-        <h3 style="color: var(--primary-purple);"><i class="fa-solid fa-database"></i> Estado de Almacenamiento JARVIS</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Capacidad del navegador y proyección de registros disponibles antes de llegar al límite.</p>
+        <h3 style="color: var(--primary-purple);"><i class="fa-solid fa-cloud"></i> Estado de Sincronización Nube (Firebase)</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Conexión directa en tiempo real activa para múltiples navegadores y dispositivos.</p>
         
         <div style="margin-bottom: 14px;">
           <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.88rem; margin-bottom: 4px;">
-            <span id="storageUsedText">Uso de Memoria: 0 KB / 5000 KB</span>
-            <span id="storagePercentText" style="color: var(--primary-purple);">0%</span>
-          </div>
-          <div class="progress-bar-bg" style="height: 12px; background: #E2E8F0;">
-            <div class="progress-bar-fill" id="storageBarFill" style="width: 0%; background: var(--primary-purple);"></div>
+            <span id="storageUsedText">Base de Datos: Sincronizada en vivo</span>
+            <span id="storagePercentText" style="color: var(--success-green);">100% ONLINE</span>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px;">
           <div style="background:#FFF; padding:12px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
-            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Capacidad Est. de CVs Restantes:</span>
-            <strong id="cvCapacityEst" style="font-size:1.2rem; color:var(--primary-purple);">~ 25,000 CVs</strong>
+            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Capacidad Nube Restante:</span>
+            <strong style="font-size:1.2rem; color:var(--primary-purple);">1 GB Gratis (Ilimitado)</strong>
           </div>
           <div style="background:#FFF; padding:12px; border-radius:8px; border:1px solid var(--border-color); text-align:center;">
-            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Capacidad Est. de Cursos Restantes:</span>
-            <strong id="courseCapacityEst" style="font-size:1.2rem; color:var(--primary-purple);">~ 1,000 Cursos</strong>
+            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Conexiones Simultáneas:</span>
+            <strong style="font-size:1.2rem; color:var(--primary-purple);">Hasta 100 Equipos</strong>
           </div>
         </div>
       </div>
@@ -1898,10 +1913,126 @@
   </div>
 
   <footer>
-    JARVIS - Gestión Continua © 2026
+    JARVIS - Gestión Continua © 2026 | Conectado a la Nube Firebase
   </footer>
 
   <script>
+    // ----------------------------------------------------
+    // CONFIGURACIÓN DE FIREBASE (CONEXIÓN A LA NUBE)
+    // ----------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyClmbqhpYEs_0sl55x7zjgojXKqwp0poJ8",
+      authDomain: "jarvis-gestion-9e430.firebaseapp.com",
+      databaseURL: "https://jarvis-gestion-9e430-default-rtdb.firebaseio.com",
+      projectId: "jarvis-gestion-9e430",
+      storageBucket: "jarvis-gestion-9e430.firebasestorage.app",
+      messagingSenderId: "391122767352",
+      appId: "1:391122767352:web:980dbfa79b0a3f2f6eda0d",
+      measurementId: "G-DE8QZ9GZTG"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // VARIABLES DE MEMORIA LOCAL
+    var excelLinksMaster = [];
+    var customTabsMaster = [];
+    var nombresEtapasMaster = [
+      { id: 1, name: 'Idea' },
+      { id: 2, name: 'Mercado' },
+      { id: 3, name: 'Testing' },
+      { id: 4, name: 'Comercial' }
+    ];
+    var esquemaEtapasMaster = {
+      1: [{ id: 'idea', label: 'Idea', type: 'CHECK' }, { id: 'excel', label: 'Puesto en Excel matriz', type: 'CHECK' }, { id: 'fichaCorta', label: 'Ficha Corta', type: 'CHECK' }],
+      2: [{ id: 'estudio', label: 'Estudio de Mercado', type: 'CHECK' }, { id: 'segmento', label: 'Validación de Segmento', type: 'STATUS' }],
+      3: [{ id: 'testingAds', label: 'Testing de Anuncios', type: 'STATUS' }, { id: 'leads', label: 'Proyección de Leads', type: 'TEXT' }],
+      4: [{ id: 'fichaLarga', label: 'Ficha Larga', type: 'CHECK' }, { id: 'ventasVal', label: 'Número de Ventas Alcanzadas', type: 'TEXT' }, { id: 'estadoCampaña', label: 'Rendimiento de Campaña', type: 'STATUS' }]
+    };
+    var candidatosDB = [];
+    var courses = [];
+    var horariosDB = [];
+    var sedesAulasMaster = [];
+    var reservasAulasDB = [];
+
+    // FUNCIÓN CENTRAL PARA PUBLICAR CAMBIOS A LA NUBE
+    function syncToCloud() {
+      db.ref('jarvisData').set({
+        excelLinksMaster: excelLinksMaster,
+        customTabsMaster: customTabsMaster,
+        nombresEtapasMaster: nombresEtapasMaster,
+        esquemaEtapasMaster: esquemaEtapasMaster,
+        candidatosDB: candidatosDB,
+        courses: courses,
+        horariosDB: horariosDB,
+        sedesAulasMaster: sedesAulasMaster,
+        reservasAulasDB: reservasAulasDB
+      });
+    }
+
+    // ESCUCHAR CAMBIOS DE LA NUBE EN TIEMPO REAL
+    db.ref('jarvisData').on('value', function(snapshot) {
+      var data = snapshot.val();
+      
+      var badge = document.getElementById('syncBadge');
+      var text = document.getElementById('syncText');
+      if(badge && text) {
+        badge.style.background = 'rgba(34, 197, 94, 0.25)';
+        badge.style.borderColor = 'rgba(34, 197, 94, 0.6)';
+        text.innerText = 'Nube En Vivo';
+      }
+
+      if (data) {
+        excelLinksMaster = data.excelLinksMaster || [];
+        customTabsMaster = data.customTabsMaster || [];
+        nombresEtapasMaster = data.nombresEtapasMaster || nombresEtapasMaster;
+        esquemaEtapasMaster = data.esquemaEtapasMaster || esquemaEtapasMaster;
+        candidatosDB = data.candidatosDB || [];
+        courses = data.courses || [];
+        horariosDB = data.horariosDB || [];
+        sedesAulasMaster = data.sedesAulasMaster || [];
+        reservasAulasDB = data.reservasAulasDB || [];
+
+        // RE-RENDERIZAR INTERFAZ COMPLETA
+        renderizarDropdownExcel();
+        renderizarCustomNavTabs();
+        renderBarraFiltroEtapas();
+        
+        if (document.getElementById('vistaProcesos').style.display === 'block') {
+          if (activeCourseId) {
+            openCourseDetail(activeCourseId);
+          } else {
+            renderCourses();
+          }
+        }
+        
+        if (document.getElementById('vistaHorarios').style.display === 'block') {
+          renderizarTablaCalendario();
+          if (docenteSeleccionadoActual) {
+            mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
+          }
+        }
+
+        if (document.getElementById('vistaAulas').style.display === 'block') {
+          renderizarOpcionesSedesAulasFiltro();
+          renderizarTablaCalendarioAulas();
+        }
+
+        if (document.getElementById('vistaBuscador').style.display === 'block') {
+          renderizarCandidatos();
+        }
+
+        if (document.getElementById('vistaAdmin').style.display === 'block') {
+          renderizarAdminExcel();
+          renderizarAdminCustomTabs();
+          renderizarAdminEtapasGlobales();
+          renderizarConfigEtapas();
+          renderizarAdminSedesAulas();
+        }
+      }
+    });
+
     // RELOJ Y AUDITORÍA
     function getRelojFechaTexto() {
       var now = new Date();
@@ -2002,42 +2133,6 @@
         }
       });
     });
-
-    // DATOS MAESTROS
-    var excelLinksMaster = JSON.parse(localStorage.getItem('excelLinksJarvis')) || [
-      { id: 1, label: '📊 Excel de Seguimiento', link: 'https://docs.google.com/spreadsheets/d/1XKCfeS5qU5bZ_cfodZ1FGpc2lsWds3rT/edit?gid=1634387007#gid=1634387007' }
-    ];
-
-    var customTabsMaster = JSON.parse(localStorage.getItem('customTabsJarvis')) || [];
-
-    var nombresEtapasMaster = JSON.parse(localStorage.getItem('nombresJarvisEtapas')) || [
-      { id: 1, name: 'Idea' },
-      { id: 2, name: 'Mercado' },
-      { id: 3, name: 'Testing' },
-      { id: 4, name: 'Comercial' }
-    ];
-
-    var esquemaEtapasMaster = JSON.parse(localStorage.getItem('esquemaJarvisEtapas')) || {
-      1: [{ id: 'idea', label: 'Idea', type: 'CHECK' }, { id: 'excel', label: 'Puesto en Excel matriz', type: 'CHECK' }, { id: 'fichaCorta', label: 'Ficha Corta', type: 'CHECK' }],
-      2: [{ id: 'estudio', label: 'Estudio de Mercado', type: 'CHECK' }, { id: 'segmento', label: 'Validación de Segmento', type: 'STATUS' }],
-      3: [{ id: 'testingAds', label: 'Testing de Anuncios', type: 'STATUS' }, { id: 'leads', label: 'Proyección de Leads', type: 'TEXT' }],
-      4: [{ id: 'fichaLarga', label: 'Ficha Larga', type: 'CHECK' }, { id: 'ventasVal', label: 'Número de Ventas Alcanzadas', type: 'TEXT' }, { id: 'estadoCampaña', label: 'Rendimiento de Campaña', type: 'STATUS' }]
-    };
-
-    var candidatosDB = JSON.parse(localStorage.getItem('candidatosJarvis')) || [];
-    
-    var courses = JSON.parse(localStorage.getItem('cursosJarvisDB')) || [
-      { id: 1, name: "Gestión Educativa", proposer: "Equipo Interno", currentStage: 1, unlockedStage: 1, tasks: {}, taskMeta: {}, bitacoraNotes: {}, customEsquema: null, customEtapas: null, stageStartTimes: { 1: Date.now() } }
-    ];
-
-    var horariosDB = JSON.parse(localStorage.getItem('horariosJarvisDB')) || [];
-
-    var sedesAulasMaster = JSON.parse(localStorage.getItem('sedesAulasJarvisDB')) || [
-      { id: 1, nombre: 'Sede Central', aulas: [{ nombre: 'Aula 101', aforo: 40 }, { nombre: 'Aula 102', aforo: 35 }, { nombre: 'Auditorio Principal', aforo: 150 }] },
-      { id: 2, nombre: 'Sede Campus Norte', aulas: [{ nombre: 'Lab Computo 1', aforo: 30 }, { nombre: 'Aula Magna', aforo: 120 }] }
-    ];
-
-    var reservasAulasDB = JSON.parse(localStorage.getItem('reservasAulasJarvisDB')) || [];
 
     var activeCourseId = null;
     var courseToDeleteId = null;
@@ -2457,16 +2552,9 @@
         }
       });
 
-      localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
-      
+      syncToCloud();
       cerrarModalAgregarHorario();
       activarModoSeleccionHorario();
-      renderizarTablaCalendario();
-      if (docenteSeleccionadoActual) {
-        mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
-      }
-      calcularAlmacenamientoUsado();
-      alert('Horarios docentes guardados independientemente por celda.');
     }
 
     function verDetalleBloque(idBloque) {
@@ -2503,13 +2591,8 @@
       b.tipo = nuevoTipo;
       b.curso = nuevaNota;
 
-      localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
+      syncToCloud();
       cerrarModalVerBloque();
-      renderizarTablaCalendario();
-      if (docenteSeleccionadoActual) {
-        mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
-      }
-      alert('Información de la celda modificada correctamente.');
     }
 
     function cerrarModalVerBloque() {
@@ -2522,13 +2605,8 @@
       if (!confirm('¿Seguro que deseas eliminar esta celda de horario?')) return;
 
       horariosDB = horariosDB.filter(function(b){ return b.id !== activeBlockIdToDelete; });
-      localStorage.setItem('horariosJarvisDB', JSON.stringify(horariosDB));
+      syncToCloud();
       cerrarModalVerBloque();
-      renderizarTablaCalendario();
-      if (docenteSeleccionadoActual) {
-        mostrarDetalleDocenteEnFilas(docenteSeleccionadoActual);
-      }
-      calcularAlmacenamientoUsado();
     }
 
     /* MÓDULO CONTROL Y RESERVA DE AULAS CON AFORO */
@@ -2916,13 +2994,9 @@
         });
       });
 
-      localStorage.setItem('reservasAulasJarvisDB', JSON.stringify(reservasAulasDB));
-
+      syncToCloud();
       cerrarModalReservaAula();
       activarModoSeleccionAula();
-      renderizarTablaCalendarioAulas();
-      calcularAlmacenamientoUsado();
-      alert('🏛️ Espacio de Aula reservado exitosamente.');
     }
 
     function verDetalleReservaAula(idReserva) {
@@ -2956,10 +3030,8 @@
       if (!confirm('¿Seguro que deseas eliminar esta reserva de aula?')) return;
 
       reservasAulasDB = reservasAulasDB.filter(function(r){ return r.id !== activeAulaReservaIdToDelete; });
-      localStorage.setItem('reservasAulasJarvisDB', JSON.stringify(reservasAulasDB));
+      syncToCloud();
       cerrarModalVerReservaAula();
-      renderizarTablaCalendarioAulas();
-      calcularAlmacenamientoUsado();
     }
 
     /* PROGRAMADOR: GESTIÓN DE SEDES Y AULAS CON AFORO */
@@ -3015,21 +3087,14 @@
       }
 
       sedesAulasMaster.push({ id: Date.now(), nombre: nombre, aulas: [] });
-      localStorage.setItem('sedesAulasJarvisDB', JSON.stringify(sedesAulasMaster));
+      syncToCloud();
       input.value = '';
-      renderizarAdminSedesAulas();
-      renderizarOpcionesSedesAulasFiltro();
-      calcularAlmacenamientoUsado();
-      alert('Sede registrada con éxito.');
     }
 
     function eliminarSedeMaster(idxSede) {
       if (!confirm('¿Seguro que deseas eliminar esta Sede y todas sus Aulas?')) return;
       sedesAulasMaster.splice(idxSede, 1);
-      localStorage.setItem('sedesAulasJarvisDB', JSON.stringify(sedesAulasMaster));
-      renderizarAdminSedesAulas();
-      renderizarOpcionesSedesAulasFiltro();
-      calcularAlmacenamientoUsado();
+      syncToCloud();
     }
 
     function agregarAulaMaster() {
@@ -3055,24 +3120,16 @@
           aforo: aforoVal ? parseInt(aforoVal) : 'No especificado'
         });
 
-        localStorage.setItem('sedesAulasJarvisDB', JSON.stringify(sedesAulasMaster));
+        syncToCloud();
         inputAula.value = '';
         inputAforo.value = '';
-        
-        renderizarAdminSedesAulas();
-        renderizarOpcionesSedesAulasFiltro();
-        calcularAlmacenamientoUsado();
-        alert('Aula y aforo agregados a la Sede con éxito.');
       }
     }
 
     function eliminarAulaMaster(idxSede, idxAula) {
       if (sedesAulasMaster[idxSede] && sedesAulasMaster[idxSede].aulas) {
         sedesAulasMaster[idxSede].aulas.splice(idxAula, 1);
-        localStorage.setItem('sedesAulasJarvisDB', JSON.stringify(sedesAulasMaster));
-        renderizarAdminSedesAulas();
-        renderizarOpcionesSedesAulasFiltro();
-        calcularAlmacenamientoUsado();
+        syncToCloud();
       }
     }
 
@@ -3150,9 +3207,6 @@
 
       nombresEtapasMaster = nuevasEtapas;
       esquemaEtapasMaster = nuevoEsquema;
-
-      localStorage.setItem('nombresJarvisEtapas', JSON.stringify(nombresEtapasMaster));
-      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
     }
 
     function generarImpresionPDF(titulo, htmlContenido) {
@@ -3329,30 +3383,6 @@
       generarImpresionPDF('Bitacoras_Globales_JARVIS', html);
     }
 
-    function calcularAlmacenamientoUsado() {
-      var totalBytes = 0;
-      for (var key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
-          totalBytes += ((localStorage[key].length + key.length) * 2);
-        }
-      }
-      
-      var totalKB = (totalBytes / 1024).toFixed(1);
-      var maxKB = 5000;
-      var pct = Math.min(100, ((totalKB / maxKB) * 100)).toFixed(1);
-
-      document.getElementById('storageUsedText').innerText = `Uso de Memoria: ${totalKB} KB / ${maxKB} KB`;
-      document.getElementById('storagePercentText').innerText = `${pct}%`;
-      document.getElementById('storageBarFill').style.width = `${pct}%`;
-
-      var kbLibres = Math.max(0, maxKB - totalKB);
-      var estCVs = Math.floor((kbLibres * 1024) / 200);
-      var estCursos = Math.floor((kbLibres * 1024) / 5000);
-
-      document.getElementById('cvCapacityEst').innerText = `~ ${estCVs.toLocaleString()} CVs`;
-      document.getElementById('courseCapacityEst').innerText = `~ ${estCursos.toLocaleString()} Cursos`;
-    }
-
     function renderizarDropdownExcel() {
       var container = document.getElementById('excelDropdownContent');
       container.innerHTML = '';
@@ -3473,7 +3503,6 @@
       resetTabs();
       document.getElementById('vistaAdmin').style.display = 'block';
       document.getElementById('btnAdmin').classList.add('active');
-      calcularAlmacenamientoUsado();
       renderizarAdminExcel();
       renderizarAdminCustomTabs();
       renderizarAdminEtapasGlobales();
@@ -3539,6 +3568,8 @@
 
     function renderizarBitacoraProgreso() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
       var etapas = obtenerEtapasCurso(course);
       var esquema = obtenerEsquemaCurso(course);
       document.getElementById('bitacoraCourseName').innerText = "Progreso de: " + course.name;
@@ -3608,7 +3639,7 @@
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course.bitacoraNotes) course.bitacoraNotes = {};
       course.bitacoraNotes[stageId] = texto;
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      syncToCloud();
     }
 
     // VISOR DIAGRAMA
@@ -3667,18 +3698,13 @@
       if (!name || !link) return alert('Ingresa el nombre y la dirección del Excel.');
 
       excelLinksMaster.push({ id: Date.now(), label: name, link: link });
-      localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
+      syncToCloud();
       nameInput.value = ''; linkInput.value = '';
-      renderizarAdminExcel(); renderizarDropdownExcel();
-      calcularAlmacenamientoUsado();
-      alert('Excel guardado y desplegado correctamente.');
     }
 
     function eliminarExcelLink(idx) {
       excelLinksMaster.splice(idx, 1);
-      localStorage.setItem('excelLinksJarvis', JSON.stringify(excelLinksMaster));
-      renderizarAdminExcel(); renderizarDropdownExcel();
-      calcularAlmacenamientoUsado();
+      syncToCloud();
     }
 
     function renderizarAdminCustomTabs() {
@@ -3705,17 +3731,13 @@
       if (!name || !link) return alert('Ingresa el nombre y el enlace de destino.');
 
       customTabsMaster.push({ id: Date.now(), label: name, link: link });
-      localStorage.setItem('customTabsJarvis', JSON.stringify(customTabsMaster));
+      syncToCloud();
       nameInput.value = ''; linkInput.value = '';
-      renderizarAdminCustomTabs(); renderizarCustomNavTabs();
-      calcularAlmacenamientoUsado();
     }
 
     function eliminarPestañaBarra(idx) {
       customTabsMaster.splice(idx, 1);
-      localStorage.setItem('customTabsJarvis', JSON.stringify(customTabsMaster));
-      renderizarAdminCustomTabs(); renderizarCustomNavTabs();
-      calcularAlmacenamientoUsado();
+      syncToCloud();
     }
 
     function solicitarEliminarCurso(idCurso, event) {
@@ -3734,11 +3756,8 @@
       var pass = document.getElementById('deleteCoursePass').value.trim();
       if (pass === 'L@zaro0697') {
         courses = courses.filter(function(c){ return c.id !== courseToDeleteId; });
-        localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+        syncToCloud();
         cerrarModalEliminarCurso();
-        renderCourses();
-        calcularAlmacenamientoUsado();
-        alert('Curso eliminado exitosamente.');
       } else {
         alert('Contraseña de autorización incorrecta.');
       }
@@ -3813,11 +3832,8 @@
         descripcion: desc
       };
 
-      localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
+      syncToCloud();
       cerrarModalEditarCandidato();
-      renderizarCandidatos();
-      calcularAlmacenamientoUsado();
-      alert('Datos del candidato actualizados con éxito.');
     }
 
     function solicitarEliminarCandidato(indexInDB, event) {
@@ -3837,11 +3853,8 @@
       if (pass === 'L@zaro0697') {
         if (candidateToDeleteIndex !== null && candidateToDeleteIndex >= 0) {
           candidatosDB.splice(candidateToDeleteIndex, 1);
-          localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
+          syncToCloud();
           cerrarModalEliminarCandidato();
-          renderizarCandidatos();
-          calcularAlmacenamientoUsado();
-          alert('Candidato eliminado exitosamente.');
         }
       } else {
         alert('Contraseña de autorización incorrecta.');
@@ -3874,11 +3887,8 @@
       esquemaEtapasMaster[nextId] = [];
 
       reindexarEtapasMaster();
-
+      syncToCloud();
       input.value = '';
-      renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
-      calcularAlmacenamientoUsado();
-      renderBarraFiltroEtapas();
     }
 
     function eliminarEtapaMaster(idEtapa) {
@@ -3887,10 +3897,7 @@
       delete esquemaEtapasMaster[idEtapa];
 
       reindexarEtapasMaster();
-
-      renderizarAdminEtapasGlobales(); renderizarConfigEtapas();
-      calcularAlmacenamientoUsado();
-      renderBarraFiltroEtapas();
+      syncToCloud();
     }
 
     function renderizarConfigEtapas() {
@@ -3929,17 +3936,13 @@
       if (!esquemaEtapasMaster[numEtapa]) esquemaEtapasMaster[numEtapa] = [];
       esquemaEtapasMaster[numEtapa].push({ id: newKey, label: txt, type: tipoSelect.value });
 
-      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
+      syncToCloud();
       input.value = '';
-      renderizarConfigEtapas();
-      calcularAlmacenamientoUsado();
     }
 
     function eliminarOpcionEtapa(numEtapa, index) {
       esquemaEtapasMaster[numEtapa].splice(index, 1);
-      localStorage.setItem('esquemaJarvisEtapas', JSON.stringify(esquemaEtapasMaster));
-      renderizarConfigEtapas();
-      calcularAlmacenamientoUsado();
+      syncToCloud();
     }
 
     function solicitarPersonalizarProcesoCurso() {
@@ -3977,7 +3980,7 @@
       }
 
       reindexarEtapasCurso(course);
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      syncToCloud();
 
       renderizarEtapasPersonalizadasCurso();
       renderizarSelectEtapasCursoModal();
@@ -3989,14 +3992,16 @@
       document.getElementById('customCourseProcessModal').style.display = 'none';
       if (activeCourseId) {
         var course = courses.find(function(c){ return c.id === activeCourseId; });
-        var etapas = obtenerEtapasCurso(course);
-        
-        if (!etapas.some(function(e){ return e.id === course.currentStage; })) {
-          course.currentStage = etapas.length > 0 ? 1 : 1;
+        if (course) {
+          var etapas = obtenerEtapasCurso(course);
+          
+          if (!etapas.some(function(e){ return e.id === course.currentStage; })) {
+            course.currentStage = etapas.length > 0 ? 1 : 1;
+          }
+          
+          renderTimelineTrackHTML();
+          renderStage(course.currentStage);
         }
-        
-        renderTimelineTrackHTML();
-        renderStage(course.currentStage);
       }
     }
 
@@ -4046,14 +4051,12 @@
       course.customEtapas = etapas;
 
       reindexarEtapasCurso(course);
+      syncToCloud();
 
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
       input.value = '';
-
       renderizarEtapasPersonalizadasCurso();
       renderizarSelectEtapasCursoModal();
       renderizarConfigRequerimientosCursoActual();
-      calcularAlmacenamientoUsado();
     }
 
     function eliminarEtapaPersonalizadaCurso(idEtapa) {
@@ -4070,13 +4073,11 @@
       }
 
       reindexarEtapasCurso(course);
-
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      syncToCloud();
 
       renderizarEtapasPersonalizadasCurso();
       renderizarSelectEtapasCursoModal();
       renderizarConfigRequerimientosCursoActual();
-      calcularAlmacenamientoUsado();
     }
 
     function renderizarConfigRequerimientosCursoActual() {
@@ -4134,10 +4135,9 @@
       var newKey = 'item_c_' + Date.now();
       course.customEsquema[numEtapa].push({ id: newKey, label: txt, type: selectType.value });
 
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      syncToCloud();
       inputName.value = '';
       renderizarConfigRequerimientosCursoActual();
-      calcularAlmacenamientoUsado();
     }
 
     function eliminarRequerimientoPersonalizadoCurso(numEtapa, index) {
@@ -4145,9 +4145,8 @@
       if (!course || !course.customEsquema || !course.customEsquema[numEtapa]) return;
 
       course.customEsquema[numEtapa].splice(index, 1);
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      syncToCloud();
       renderizarConfigRequerimientosCursoActual();
-      calcularAlmacenamientoUsado();
     }
 
     function toggleRegistro() {
@@ -4167,7 +4166,7 @@
       if (!prof || !nom) return alert('Ingresa profesión y nombre');
 
       candidatosDB.push({ profesion: prof, especialidad: esp, ciudad: ciu, nombre: nom, celular: cel, link: link, descripcion: desc });
-      localStorage.setItem('candidatosJarvis', JSON.stringify(candidatosDB));
+      syncToCloud();
 
       document.getElementById('regProfesion').value = "";
       document.getElementById('regEspecialidad').value = "";
@@ -4177,8 +4176,6 @@
       document.getElementById('regLink').value = "";
       document.getElementById('regDescripcion').value = "";
       toggleRegistro();
-      renderizarCandidatos();
-      calcularAlmacenamientoUsado();
     }
 
     function renderizarCandidatos() {
@@ -4342,17 +4339,17 @@
         stageStartTimes: timeObj 
       });
 
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
+      syncToCloud();
       closeModal();
       document.getElementById('inputCourseName').value = '';
       document.getElementById('inputProposer').value = '';
-      renderCourses();
-      calcularAlmacenamientoUsado();
     }
 
     function openCourseDetail(id) {
       activeCourseId = id;
       var course = courses.find(function(c){ return c.id === id; });
+      if (!course) return;
+
       document.getElementById('displayCourseName').innerText = "Curso: " + course.name;
       document.getElementById('displayProposer').innerText = course.proposer;
       document.getElementById('subvistaListaCursos').style.display = 'none';
@@ -4364,6 +4361,7 @@
     }
 
     function volverAListaCursos() {
+      activeCourseId = null;
       document.getElementById('subvistaDetalleCurso').style.display = 'none';
       document.getElementById('subvistaListaCursos').style.display = 'block';
       renderCourses();
@@ -4371,6 +4369,8 @@
 
     function renderTimelineTrackHTML() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
       var etapas = obtenerEtapasCurso(course);
 
       var container = document.getElementById('timelineTrackContainer');
@@ -4391,6 +4391,8 @@
 
     function renderStage(stageNumber) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
       var etapas = obtenerEtapasCurso(course);
 
       course.currentStage = stageNumber;
@@ -4489,12 +4491,14 @@
 
     function selectStage(stageNumber) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
-      if(stageNumber <= course.unlockedStage) renderStage(stageNumber);
+      if (!course) return;
+      if (stageNumber <= course.unlockedStage) renderStage(stageNumber);
       else alert('Completa el 100% de la etapa previa para habilitar esta luz.');
     }
 
     function guardarMetaTarea(taskKey) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
       if (!course.taskMeta) course.taskMeta = {};
 
       var respInput = document.getElementById('resp_' + taskKey);
@@ -4505,13 +4509,13 @@
         fecha: fechaInput ? fechaInput.value.trim() : ''
       };
 
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
-      calcularAlmacenamientoUsado();
+      syncToCloud();
     }
 
     function guardarTareaEntrada(taskKey, valor, tipo) {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
-      
+      if (!course) return;
+
       var meta = (course.taskMeta && course.taskMeta[taskKey]) || {};
       var respInput = document.getElementById('resp_' + taskKey);
       var fechaInput = document.getElementById('fecha_' + taskKey);
@@ -4538,13 +4542,13 @@
         course.unlockedStage = course.currentStage;
       }
 
-      localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
-      renderStage(course.currentStage);
-      calcularAlmacenamientoUsado();
+      syncToCloud();
     }
 
     function checkStageCompletion() {
       var course = courses.find(function(c){ return c.id === activeCourseId; });
+      if (!course) return;
+
       var etapas = obtenerEtapasCurso(course);
       var alertBanner = document.getElementById('stageAlert');
       var pctActual = calcularPorcentajeEtapa(course, course.currentStage);
@@ -4560,8 +4564,7 @@
             course.stageStartTimes[siguienteEtapaId] = Date.now();
           }
 
-          localStorage.setItem('cursosJarvisDB', JSON.stringify(courses));
-          renderStage(course.currentStage);
+          syncToCloud();
         }
         alertBanner.style.display = 'flex';
       } else {
@@ -4570,9 +4573,6 @@
     }
 
     window.onload = function() {
-      renderizarDropdownExcel();
-      renderizarCustomNavTabs();
-      calcularAlmacenamientoUsado();
       mostrarInicio();
     };
   </script>
