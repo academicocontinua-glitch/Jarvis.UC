@@ -2019,28 +2019,81 @@
     var reservasAulasDB = [];
     var usuariosPermisosDB = []; // BASE DE DATOS DE CREDENCIALES Y PERMISOS HABILITADOS POR EL PROGRAMADOR
 
-    // SEGURIDAD DE CARGA: evita que un sync temprano escriba arreglos vacíos
-    // sobre los catálogos que ya existen en Firebase, especialmente Sedes/Salones.
+    // ============================================================
+    // SEGURIDAD DE PERSISTENCIA EN FIREBASE
+    // ============================================================
+    // Firebase es la FUENTE DE VERDAD de JARVIS.
+    //
+    // Regla principal:
+    // 1) Al abrir el sistema, primero se carga la nube.
+    // 2) Mientras esa carga no termine, NO se permite escribir.
+    // 3) Cuando se guarda un cambio, SOLO se envían a Firebase los módulos
+    //    que realmente cambiaron desde la última lectura de la nube.
+    // 4) Si un módulo no fue modificado, JARVIS NO lo vuelve a escribir.
+    //    Esto evita que una variable local [] borre información existente.
+    // 5) Si Firebase no contiene todavía un módulo, se mantiene ausente hasta
+    //    que el usuario lo cree explícitamente.
+    //
+    // Esto es especialmente importante para Sedes/Salones y Reservas.
     var nubeInicializada = false;
     var catalogoSedesAulasCargado = false;
+    var ultimoEstadoNube = null;
+    var estadoInicialLocalJARVIS = {};
+    var sincronizacionEnCurso = false;
+    var sincronizacionPendiente = false;
+
+    function clonarParaNube(valor) {
+      if (valor === undefined) return undefined;
+      try { return JSON.parse(JSON.stringify(valor)); }
+      catch (e) { return valor; }
+    }
+
+    function tienePropiedadNube(obj, clave) {
+      return !!obj && Object.prototype.hasOwnProperty.call(obj, clave);
+    }
+
+    function establecerEstadoNube(data) {
+      ultimoEstadoNube = {};
+      var clavesAdministradas = [
+        'excelLinksMaster',
+        'infoLinksMaster',
+        'customTabsMaster',
+        'nombresEtapasMaster',
+        'esquemaEtapasMaster',
+        'candidatosDB',
+        'courses',
+        'horariosDB',
+        'sedesAulasMaster',
+        'reservasAulasDB',
+        'usuariosPermisosDB',
+        'cuentasSedeDB'
+      ];
+
+      clavesAdministradas.forEach(function(clave) {
+        if (tienePropiedadNube(data, clave)) {
+          ultimoEstadoNube[clave] = clonarParaNube(data[clave]);
+        } else {
+          // Marcador especial: Firebase no tenía este campo.
+          ultimoEstadoNube[clave] = '__JARVIS_CAMPO_NO_EXISTIA_EN_FIREBASE__';
+        }
+      });
+    }
+
+    function valoresSonIguales(a, b) {
+      try { return JSON.stringify(a) === JSON.stringify(b); }
+      catch (e) { return a === b; }
+    }
 
     // Catálogo existente de Sedes y Salones: se conserva y se normaliza, nunca se reemplaza por un catálogo inventado.
     protegerCatalogoSedesYAulas();
 
     // FUNCIÓN CENTRAL PARA PUBLICAR CAMBIOS A LA NUBE
     function syncToCloud() {
-      // IMPORTANTE: no sincronizar antes de cargar la base existente.
-      // Esto evita reemplazar datos remotos (como Salones/Aulas) con [].
-      if (!nubeInicializada) return;
+      // NUNCA escribir antes de terminar la carga inicial de Firebase.
+      if (!nubeInicializada || !ultimoEstadoNube) return;
+      if (sincronizacionEnCurso) { sincronizacionPendiente = true; return; }
 
-      /*
-       * IMPORTANTE: usamos update() y NO set().
-       * Así JARVIS solo actualiza los módulos que administra este archivo y
-       * no elimina accidentalmente otros datos existentes en Firebase.
-       * La sincronización inicial está bloqueada hasta recibir la primera carga.
-       * Esto protege especialmente las Sedes, Salones/Aulas y demás información.
-       */
-      db.ref('jarvisData').update({
+      var datosActuales = {
         excelLinksMaster: excelLinksMaster,
         infoLinksMaster: infoLinksMaster,
         customTabsMaster: customTabsMaster,
@@ -2053,6 +2106,63 @@
         reservasAulasDB: reservasAulasDB,
         usuariosPermisosDB: usuariosPermisosDB,
         cuentasSedeDB: cuentasSedeDB
+      };
+
+      var cambios = {};
+      var cantidadCambios = 0;
+
+      Object.keys(datosActuales).forEach(function(clave) {
+        var estadoAnterior = ultimoEstadoNube[clave];
+        var valorActual = datosActuales[clave];
+
+        // Si el campo no existía en Firebase, SOLO se crea si el usuario
+        // realmente modificó/creó ese módulo después de la carga.
+        var campoNoExistia = estadoAnterior === '__JARVIS_CAMPO_NO_EXISTIA_EN_FIREBASE__';
+
+        if (campoNoExistia) {
+          // Los valores iniciales predeterminados NO se escriben por sí solos.
+          // Para detectar un cambio real, comparamos contra el estado inicial
+          // que tenía JARVIS justo antes de la carga.
+          var valorInicialLocal = estadoInicialLocalJARVIS[clave];
+          if (!valoresSonIguales(valorActual, valorInicialLocal)) {
+            cambios[clave] = clonarParaNube(valorActual);
+            cantidadCambios++;
+          }
+        } else if (!valoresSonIguales(valorActual, estadoAnterior)) {
+          // ESTE ES EL CASO NORMAL: solo sincronizar lo que realmente cambió.
+          cambios[clave] = clonarParaNube(valorActual);
+          cantidadCambios++;
+        }
+      });
+
+      if (cantidadCambios === 0) return;
+
+      sincronizacionEnCurso = true;
+
+      db.ref('jarvisData').update(cambios).then(function() {
+        // Actualizar únicamente el espejo local de los campos que acabamos de
+        // guardar. Así una modificación futura se compara contra la versión real.
+        Object.keys(cambios).forEach(function(clave) {
+          ultimoEstadoNube[clave] = clonarParaNube(cambios[clave]);
+        });
+
+        sincronizacionEnCurso = false;
+        var habiaPendiente = sincronizacionPendiente;
+        sincronizacionPendiente = false;
+
+        var badge = document.getElementById('syncBadge');
+        var text = document.getElementById('syncText');
+        if (badge && text) text.innerText = 'Guardado en la Nube ✓';
+        if (habiaPendiente) syncToCloud();
+      }).catch(function(error) {
+        sincronizacionEnCurso = false;
+        console.error('JARVIS - Error al guardar en Firebase:', error);
+
+        var badge = document.getElementById('syncBadge');
+        var text = document.getElementById('syncText');
+        if (badge && text) text.innerText = 'Error al guardar en la Nube';
+
+        alert('⚠️ JARVIS no pudo guardar el cambio en Firebase.\n\nTus datos locales no se han eliminado. Revisa tu conexión y vuelve a intentarlo.');
       });
     }
 
@@ -2069,6 +2179,24 @@
       }
 
       if (data) {
+        // Guardamos el estado que JARVIS tenía antes de leer Firebase.
+        // Esto permite distinguir entre un valor predeterminado y un cambio
+        // realizado realmente por el usuario.
+        estadoInicialLocalJARVIS = {
+          excelLinksMaster: clonarParaNube(excelLinksMaster),
+          infoLinksMaster: clonarParaNube(infoLinksMaster),
+          customTabsMaster: clonarParaNube(customTabsMaster),
+          nombresEtapasMaster: clonarParaNube(nombresEtapasMaster),
+          esquemaEtapasMaster: clonarParaNube(esquemaEtapasMaster),
+          candidatosDB: clonarParaNube(candidatosDB),
+          courses: clonarParaNube(courses),
+          horariosDB: clonarParaNube(horariosDB),
+          sedesAulasMaster: clonarParaNube(sedesAulasMaster),
+          reservasAulasDB: clonarParaNube(reservasAulasDB),
+          usuariosPermisosDB: clonarParaNube(usuariosPermisosDB),
+          cuentasSedeDB: clonarParaNube(typeof cuentasSedeDB !== 'undefined' ? cuentasSedeDB : undefined)
+        };
+
         excelLinksMaster = data.excelLinksMaster || [];
         infoLinksMaster = data.infoLinksMaster || [];
         customTabsMaster = data.customTabsMaster || [];
@@ -2098,8 +2226,10 @@
         if (Array.isArray(data.usuariosPermisosDB)) usuariosPermisosDB = data.usuariosPermisosDB;
         if (data.cuentasSedeDB) cuentasSedeDB = data.cuentasSedeDB;
 
-        // Desde este punto ya es seguro escribir cambios sin riesgo de pisar
-        // los datos que estaban previamente almacenados en Firebase.
+        // Desde este punto ya es seguro escribir cambios.
+        // Guardamos una copia del último estado confirmado por Firebase.
+        // syncToCloud() utilizará esta copia para enviar SOLO campos modificados.
+        establecerEstadoNube(data);
         nubeInicializada = true;
         protegerCatalogoSedesYAulas();
         asegurarCatalogoCuentasSede();
@@ -2142,6 +2272,27 @@
           renderizarConfigEtapas();
           renderizarAdminSedesAulas();
         }
+      } else {
+        // Primera instalación: Firebase todavía no tiene jarvisData.
+        // Se considera una nube vacía, pero NO se escribe nada automáticamente.
+        estadoInicialLocalJARVIS = {
+          excelLinksMaster: clonarParaNube(excelLinksMaster),
+          infoLinksMaster: clonarParaNube(infoLinksMaster),
+          customTabsMaster: clonarParaNube(customTabsMaster),
+          nombresEtapasMaster: clonarParaNube(nombresEtapasMaster),
+          esquemaEtapasMaster: clonarParaNube(esquemaEtapasMaster),
+          candidatosDB: clonarParaNube(candidatosDB),
+          courses: clonarParaNube(courses),
+          horariosDB: clonarParaNube(horariosDB),
+          sedesAulasMaster: clonarParaNube(sedesAulasMaster),
+          reservasAulasDB: clonarParaNube(reservasAulasDB),
+          usuariosPermisosDB: clonarParaNube(usuariosPermisosDB),
+          cuentasSedeDB: clonarParaNube(typeof cuentasSedeDB !== 'undefined' ? cuentasSedeDB : undefined)
+        };
+        establecerEstadoNube({});
+        nubeInicializada = true;
+        protegerCatalogoSedesYAulas();
+        asegurarCatalogoCuentasSede();
       }
     });
 
@@ -3012,6 +3163,66 @@
       });
 
       actualizarEstilosCeldasSeleccionadasAula();
+    }
+
+    /* ============================================================
+       RESERVA: CARGA ROBUSTA DEL DESPLEGABLE DE SEDES
+       La Sede del modal de reserva se alimenta directamente del
+       catálogo cargado desde Firebase. Para un ENCARGADO se limita
+       a su sede; si el catálogo aún no tiene esa sede, se muestra
+       la sede de su sesión sin crear ni guardar datos automáticamente.
+       ============================================================ */
+    function cargarSedesEnModalReserva() {
+      var select = document.getElementById('reservaSedeSelect');
+      if (!select) return;
+
+      var valorAnterior = select.value || sedeFiltroSeleccionada || '';
+      select.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
+
+      var lista = Array.isArray(sedesAulasMaster) ? sedesAulasMaster.slice() : [];
+
+      if (sesionActual && sesionActual.role === 'ENCARGADO') {
+        lista = lista.filter(function(s) {
+          return s && sedesCoincidenJarvis(s.nombre, sesionActual.sede);
+        });
+
+        // La cuenta ya tiene una sede definida. Si por cualquier motivo
+        // el catálogo aún no llegó a la interfaz, mostramos esa sede
+        // para que la reserva no quede bloqueada. Esto NO escribe en Firebase.
+        if (!lista.length && sesionActual.sede) {
+          lista = [{ nombre: sesionActual.sede, aulas: [] }];
+        }
+      }
+
+      lista.forEach(function(s) {
+        if (!s || !s.nombre) return;
+        var option = document.createElement('option');
+        option.value = s.nombre;
+        option.textContent = s.nombre;
+        select.appendChild(option);
+      });
+
+      // Programador: conserva la sede seleccionada en el calendario.
+      // Encargado: fuerza su sede oficial.
+      var objetivo = '';
+      if (sesionActual && sesionActual.role === 'ENCARGADO') {
+        objetivo = sesionActual.sede || '';
+      } else {
+        objetivo = valorAnterior || sedeFiltroSeleccionada || '';
+      }
+
+      var opcionObjetivo = Array.from(select.options).find(function(o) {
+        return sedesCoincidenJarvis(o.value, objetivo);
+      });
+
+      if (opcionObjetivo) {
+        select.value = opcionObjetivo.value;
+      } else {
+        select.value = '';
+      }
+
+      // Un encargado no puede cambiar de sede; el Programador sí.
+      select.disabled = !!(sesionActual && sesionActual.role === 'ENCARGADO');
     }
 
     function abrirModalReservaAula() {
@@ -4856,6 +5067,10 @@
       if (!cuentaPuede('crearReservas')) return alert('⛔ Tu cuenta no tiene permiso para crear reservas. Solicita al Programador que habilite este permiso.');
       if (celdasAulaSeleccionadasSet.size === 0) return alert('Por favor selecciona las celdas de horario que deseas reservar.');
       if (!aulaFiltroSeleccionada && !document.getElementById('selectAulaFiltro').value) return alert('Por favor selecciona primero una Sede y un Aula.');
+      // Cargar explícitamente las sedes antes de abrir el formulario.
+      // Así el desplegable no depende de que otra vista se haya renderizado antes.
+      cargarSedesEnModalReserva();
+
       var numBloques = celdasAulaSeleccionadasSet.size;
       document.getElementById('selectedAulaRangeInfoText').innerText = 'Reserva para ' + numBloques + ' bloque(s). Sesión: ' + sesionActual.displayName + '.';
       document.getElementById('reservaResponsableInput').value = sesionActual.displayName;
@@ -4863,9 +5078,8 @@
       document.getElementById('reservaAreaInput').value = '';
       document.getElementById('reservaDistribucionInput').value = '';
       document.getElementById('reservaRequerimientosInput').value = '';
-      var selSede = document.getElementById('reservaSedeSelect');
-      if (sesionActual.role === 'ENCARGADO') { selSede.value = sesionActual.sede; selSede.disabled = true; }
-      else { selSede.disabled = false; selSede.value = sedeFiltroSeleccionada || ''; }
+      // Reafirmar el valor después de limpiar los campos del formulario.
+      cargarSedesEnModalReserva();
       document.getElementById('addReservaAulaModal').style.display = 'flex';
     }
 
@@ -5045,7 +5259,12 @@
     // El contador se actualiza con cada cambio en la base de datos.
     db.ref('jarvisData/reservasAulasDB').on('value',function(snapshot){
       var arr=snapshot.val();
-      if(arr) reservasAulasDB=Array.isArray(arr)?arr:Object.keys(arr).map(function(k){return arr[k];});
+      // Esta escucha es SOLO de lectura. Nunca crea ni elimina reservas.
+      // Si Firebase devuelve null, no convertimos las reservas locales en [].
+      if (arr !== null && arr !== undefined) {
+        reservasAulasDB=Array.isArray(arr)?arr:Object.keys(arr).map(function(k){return arr[k];});
+        if (ultimoEstadoNube) ultimoEstadoNube.reservasAulasDB=clonarParaNube(reservasAulasDB);
+      }
       actualizarContadorNotificaciones();
       if(document.getElementById('vistaAulas') && document.getElementById('vistaAulas').style.display==='block') renderizarTablaCalendarioAulas();
     });
