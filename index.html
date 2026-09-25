@@ -5808,7 +5808,19 @@
       var box = document.getElementById('programadorCeldaActions');
       var sel = document.getElementById('programadorCeldaSelect');
       if (!box || !sel) return;
-      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR' || !res || !Array.isArray(res.horasArray) || !res.horasArray.length) {
+
+      /*
+       * La eliminación individual de una celda puede hacerla:
+       * 1) el PROGRAMADOR, con alcance global; o
+       * 2) el ENCARGADO de la sede propietaria de la reserva.
+       * Esto es independiente de quién haya solicitado la reserva.
+       */
+      var puedeLiberarCelda = !!(sesionActual && res && (
+        sesionActual.role === 'PROGRAMADOR' ||
+        (sesionActual.role === 'ENCARGADO' && sedesCoincidenJarvis(res.sede, sesionActual.sede))
+      ));
+
+      if (!puedeLiberarCelda || !Array.isArray(res.horasArray) || !res.horasArray.length) {
         box.style.display = 'none';
         sel.innerHTML = '';
         return;
@@ -5836,18 +5848,26 @@
     };
 
     function eliminarCeldaReservaAulaActual(){
-      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR') {
-        return alert('⛔ Solo el Programador puede eliminar celdas reservadas.');
-      }
       var res = reservasAulasDB.find(function(r){ return r.id === activeAulaReservaIdToDelete; });
       if (!res || !Array.isArray(res.horasArray)) return;
+
+      /* El Programador puede liberar cualquier sede. El Encargado solo puede
+         liberar celdas de reservas cuya sede propietaria sea la suya.
+         El solicitante puede ser de otra sede y eso no limita al propietario. */
+      var puedeLiberarCelda = !!(sesionActual && (
+        sesionActual.role === 'PROGRAMADOR' ||
+        (sesionActual.role === 'ENCARGADO' && sedesCoincidenJarvis(res.sede, sesionActual.sede))
+      ));
+      if (!puedeLiberarCelda) {
+        return alert('⛔ Solo el Programador o el encargado de la sede propietaria pueden liberar esta celda.');
+      }
       var sel = document.getElementById('programadorCeldaSelect');
       var hora = Number(sel && sel.value);
       if (!Number.isFinite(hora)) return alert('Selecciona la celda que deseas eliminar.');
       if (!res.horasArray.some(function(h){ return Number(h) === hora; })) return;
 
       var fechaTexto = res.fechaIso || '';
-      var confirmacion = confirm('⚠️ Vas a liberar únicamente la celda '+String(hora).padStart(2,'0')+':00 del '+fechaTexto+'.\n\nLa reserva seguirá registrada con las demás horas.\n\n¿Deseas continuar?');
+      var confirmacion = confirm('⚠️ Vas a liberar únicamente la celda '+String(hora).padStart(2,'0')+':00 del '+fechaTexto+'.\n\nLa reserva seguirá registrada con las demás horas.\n\nSede propietaria: '+(res.sede||'')+'\n\n¿Deseas continuar?');
       if (!confirmacion) return;
 
       res.horasArray = res.horasArray.filter(function(h){ return Number(h) !== hora; });
