@@ -237,7 +237,7 @@
 
     .home-subtext { font-size: 1rem; color: var(--text-muted); }
 
-    .search-view, .procesos-view, .admin-view, .diagrama-view, .horarios-view, .aulas-view { display: none; }
+    .search-view, .procesos-view, .admin-view, .horarios-view, .aulas-view { display: none; }
 
     .page-title-section { margin-bottom: 20px; }
     .page-title-section h1 { color: var(--primary-purple); }
@@ -1062,85 +1062,6 @@
       border-radius: 4px;
     }
 
-    /* VISOR DIAGRAMA DE FLUJO */
-    .viewer-toolbar {
-      display: flex;
-      gap: 10px;
-      background: var(--primary-purple);
-      padding: 12px 20px;
-      border-radius: var(--radius-md) var(--radius-md) 0 0;
-      align-items: center;
-      color: #FFF;
-      flex-wrap: wrap;
-    }
-
-    .viewer-toolbar-btn {
-      background: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: #FFF;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s;
-    }
-
-    .viewer-toolbar-btn:hover, .viewer-toolbar-btn.active {
-      background: #FFFFFF;
-      color: var(--primary-purple);
-    }
-
-    .diagrama-viewport {
-      position: relative;
-      width: 100%;
-      height: 650px;
-      background: #000;
-      overflow: hidden;
-      border-radius: 0 0 var(--radius-md) var(--radius-md);
-      border: 1px solid var(--border-color);
-      cursor: grab;
-    }
-
-    .diagrama-viewport:active { cursor: grabbing; }
-
-    .diagrama-img-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform-origin: 0 0;
-      transition: transform 0.1s ease-out;
-    }
-
-    .diagrama-img-container img {
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-
-    .laser-pointer {
-      display: none;
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: rgba(239, 68, 68, 0.9);
-      border: 2px solid #FFF;
-      border-radius: 50%;
-      box-shadow: 0 0 12px #EF4444, 0 0 24px #EF4444;
-      pointer-events: none;
-      z-index: 100;
-      transform: translate(-50%, -50%);
-      animation: laserGlow 0.8s infinite alternate;
-    }
-
-    @keyframes laserGlow {
-      from { transform: translate(-50%, -50%) scale(1); }
-      to { transform: translate(-50%, -50%) scale(1.3); }
-    }
-
     .modal-overlay {
       display: none;
       position: fixed;
@@ -1198,13 +1119,13 @@
       <button class="tab-btn" id="btnAulas" onclick="mostrarAulas()">🏛️ AULAS</button>
       <button class="tab-btn" id="btnBuscador" onclick="mostrarBuscador()">🔍 BUSCADOR DE CV</button>
 
+      <!-- MENÚ DESPLEGABLE DE INFORMACIÓN -->
       <div class="dropdown" id="dropdownInfo">
         <button class="tab-btn" id="btnInformacion">ℹ️ INFORMACIÓN ▼</button>
-        <div class="dropdown-content" id="contentInfo">
-          <a onclick="mostrarDiagrama()">📊 Diagrama de Flujo</a>
-        </div>
+        <div class="dropdown-content" id="infoDropdownContent"></div>
       </div>
 
+      <!-- MENÚ DESPLEGABLE DE EXCEL -->
       <div class="dropdown" id="dropdownExcel">
         <button class="tab-btn" id="btnExcel">📊 Excel ▼</button>
         <div class="dropdown-content" id="excelDropdownContent"></div>
@@ -1462,29 +1383,6 @@
       </div>
     </section>
 
-    <!-- VISTA DIAGRAMA DE FLUJO -->
-    <section class="diagrama-view" id="vistaDiagrama">
-      <div class="page-title-section">
-        <h1>Diagrama de Flujo - Continua</h1>
-        <p>Utiliza las herramientas para hacer Zoom, desplazarte o activar el Puntero Láser para presentaciones.</p>
-      </div>
-
-      <div class="viewer-toolbar">
-        <button class="viewer-toolbar-btn" onclick="zoomIn()"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom +</button>
-        <button class="viewer-toolbar-btn" onclick="zoomOut()"><i class="fa-solid fa-magnifying-glass-minus"></i> Zoom -</button>
-        <button class="viewer-toolbar-btn" onclick="resetZoom()"><i class="fa-solid fa-rotate-left"></i> Restablecer</button>
-        <button class="viewer-toolbar-btn" id="laserBtn" onclick="toggleLaser()"><i class="fa-solid fa-arrow-pointer"></i> Activar Puntero Láser</button>
-        <span style="margin-left: auto; font-size: 0.85rem;" id="zoomLevelDisplay">Zoom: 100%</span>
-      </div>
-
-      <div class="diagrama-viewport" id="diagramaViewport">
-        <div class="laser-pointer" id="laserPointer"></div>
-        <div class="diagrama-img-container" id="diagramaContainer">
-          <img src="DIAGRAMA DE FLUJO - CONTINUA.png" alt="Diagrama de Flujo Continua" id="diagramaImg">
-        </div>
-      </div>
-    </section>
-
     <!-- VISTA BUSCADOR DE CV -->
     <section class="search-view" id="vistaBuscador">
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -1526,7 +1424,7 @@
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
         <h1 style="color: var(--primary-purple);">🛠️ Panel de Control Total (Programador)</h1>
-        <p>Gestiona la sincronización, accesos a Excel, la barra superior, requerimientos y Sedes/Aulas con Aforo.</p>
+        <p>Gestiona la sincronización, accesos a Excel, menú Información, barra superior, requerimientos y Sedes/Aulas con Aforo.</p>
       </div>
 
       <!-- SECCIÓN 0: MONITOR DE ALMACENAMIENTO Y NUBE -->
@@ -1567,9 +1465,23 @@
         <div id="listaExcelAdminContainer"></div>
       </div>
 
+      <!-- SECCIÓN A.2: ADMINISTRAR MENÚ INFORMACIÓN -->
+      <div class="admin-panel">
+        <h3 style="color: var(--primary-purple);">2. Gestión del Menú Desplegable "Información"</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o elimina enlaces, manuales o documentos dentro del menú desplegable "Información".</p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <input type="text" id="nuevaInfoNombreInput" class="input-field" style="flex: 1;" placeholder="Nombre del documento u opción (ej: Manual de Usuario)">
+          <input type="text" id="nuevaInfoLinkInput" class="input-field" style="flex: 2;" placeholder="URL/Link directo de información o PDF...">
+          <button class="btn-save" onclick="agregarInfoLinkMaster()">➕ Agregar Opción a Información</button>
+        </div>
+
+        <div id="listaInfoAdminContainer"></div>
+      </div>
+
       <!-- SECCIÓN B: BARRA SUPERIOR -->
       <div class="admin-panel">
-        <h3 style="color: var(--primary-purple);">2. Herramienta de Modificación de la Barra Superior</h3>
+        <h3 style="color: var(--primary-purple);">3. Herramienta de Modificación de la Barra Superior</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea nuevas opciones/pestañas en la barra principal.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
@@ -1583,7 +1495,7 @@
 
       <!-- SECCIÓN C: ETAPAS GLOBALES -->
       <div class="admin-panel">
-        <h3 style="color: var(--primary-purple);">3. Configuración General de Etapas y Requerimientos (Plantilla Global)</h3>
+        <h3 style="color: var(--primary-purple);">4. Configuración General de Etapas y Requerimientos (Plantilla Global)</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Crea más etapas globales o agrega requerimientos por defecto para nuevos cursos.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
@@ -1616,7 +1528,7 @@
 
       <!-- SECCIÓN D: GESTIÓN DE SEDES Y AULAS CON AFORO (PROGRAMADOR) -->
       <div class="admin-panel">
-        <h3 style="color: var(--primary-purple);">4. Gestión de Sedes y Salones / Aulas con Aforo</h3>
+        <h3 style="color: var(--primary-purple);">5. Gestión de Sedes y Salones / Aulas con Aforo</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Agrega o elimina sedes y asigna salones especificando su aforo máximo.</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
@@ -1937,6 +1849,7 @@
 
     // VARIABLES DE MEMORIA LOCAL
     var excelLinksMaster = [];
+    var infoLinksMaster = [];
     var customTabsMaster = [];
     var nombresEtapasMaster = [
       { id: 1, name: 'Idea' },
@@ -1960,6 +1873,7 @@
     function syncToCloud() {
       db.ref('jarvisData').set({
         excelLinksMaster: excelLinksMaster,
+        infoLinksMaster: infoLinksMaster,
         customTabsMaster: customTabsMaster,
         nombresEtapasMaster: nombresEtapasMaster,
         esquemaEtapasMaster: esquemaEtapasMaster,
@@ -1985,6 +1899,7 @@
 
       if (data) {
         excelLinksMaster = data.excelLinksMaster || [];
+        infoLinksMaster = data.infoLinksMaster || [];
         customTabsMaster = data.customTabsMaster || [];
         nombresEtapasMaster = data.nombresEtapasMaster || nombresEtapasMaster;
         esquemaEtapasMaster = data.esquemaEtapasMaster || esquemaEtapasMaster;
@@ -1996,6 +1911,7 @@
 
         // RE-RENDERIZAR INTERFAZ COMPLETA
         renderizarDropdownExcel();
+        renderizarDropdownInfo();
         renderizarCustomNavTabs();
         renderBarraFiltroEtapas();
         
@@ -2025,6 +1941,7 @@
 
         if (document.getElementById('vistaAdmin').style.display === 'block') {
           renderizarAdminExcel();
+          renderizarAdminInfo();
           renderizarAdminCustomTabs();
           renderizarAdminEtapasGlobales();
           renderizarConfigEtapas();
@@ -2072,7 +1989,7 @@
 
       var dropInfo = document.getElementById('dropdownInfo');
       var btnInfo = document.getElementById('btnInformacion');
-      var contentInfo = document.getElementById('contentInfo');
+      var contentInfo = document.getElementById('infoDropdownContent');
 
       function posicionarYMostrar(btn, content) {
         var rect = btn.getBoundingClientRect();
@@ -3400,6 +3317,23 @@
       });
     }
 
+    function renderizarDropdownInfo() {
+      var container = document.getElementById('infoDropdownContent');
+      container.innerHTML = '';
+
+      if (infoLinksMaster.length === 0) {
+        container.innerHTML = '<span style="padding:10px; color:#E9D5FF; font-size:0.8rem; display:block;">Sin opciones guardadas</span>';
+        return;
+      }
+
+      infoLinksMaster.forEach(function(item) {
+        var linkElement = document.createElement('a');
+        linkElement.innerHTML = item.label;
+        linkElement.onclick = function() { abrirLinkWeb(item.link); };
+        container.appendChild(linkElement);
+      });
+    }
+
     function renderizarCustomNavTabs() {
       var container = document.getElementById('customNavTabsContainer');
       container.innerHTML = '';
@@ -3451,7 +3385,6 @@
       document.getElementById('vistaAulas').style.display = 'none';
       document.getElementById('vistaBuscador').style.display = 'none';
       document.getElementById('vistaAdmin').style.display = 'none';
-      document.getElementById('vistaDiagrama').style.display = 'none';
     }
 
     function mostrarInicio() {
@@ -3491,19 +3424,13 @@
       renderizarCandidatos();
     }
 
-    function mostrarDiagrama() {
-      resetTabs();
-      document.getElementById('vistaDiagrama').style.display = 'block';
-      document.getElementById('btnInformacion').classList.add('active');
-      resetZoom();
-    }
-
     function mostrarAdmin() {
       if (!esProgramador) return;
       resetTabs();
       document.getElementById('vistaAdmin').style.display = 'block';
       document.getElementById('btnAdmin').classList.add('active');
       renderizarAdminExcel();
+      renderizarAdminInfo();
       renderizarAdminCustomTabs();
       renderizarAdminEtapasGlobales();
       renderizarConfigEtapas();
@@ -3642,41 +3569,6 @@
       syncToCloud();
     }
 
-    // VISOR DIAGRAMA
-    var currentScale = 1; var currentX = 0; var currentY = 0; var isDragging = false; var startX = 0; var startY = 0; var isLaserActive = false;
-    var viewport = document.getElementById('diagramaViewport');
-    var container = document.getElementById('diagramaContainer');
-    var laser = document.getElementById('laserPointer');
-
-    function updateDiagramaTransform() {
-      container.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
-      document.getElementById('zoomLevelDisplay').innerText = `Zoom: ${Math.round(currentScale * 100)}%`;
-    }
-
-    function zoomIn() { currentScale = Math.min(currentScale + 0.25, 4); updateDiagramaTransform(); }
-    function zoomOut() { currentScale = Math.max(currentScale - 0.25, 0.4); updateDiagramaTransform(); }
-    function resetZoom() { currentScale = 1; currentX = 20; currentY = 20; updateDiagramaTransform(); }
-
-    function toggleLaser() {
-      isLaserActive = !isLaserActive;
-      var btn = document.getElementById('laserBtn');
-      if (isLaserActive) { btn.classList.add('active'); laser.style.display = 'block'; }
-      else { btn.classList.remove('active'); laser.style.display = 'none'; }
-    }
-
-    viewport.addEventListener('mousedown', function(e) { if (isLaserActive) return; isDragging = true; startX = e.clientX - currentX; startY = e.clientY - currentY; });
-    window.addEventListener('mousemove', function(e) {
-      if (isLaserActive) {
-        var rect = viewport.getBoundingClientRect();
-        laser.style.left = (e.clientX - rect.left) + 'px';
-        laser.style.top = (e.clientY - rect.top) + 'px';
-      } else if (isDragging) {
-        currentX = e.clientX - startX; currentY = e.clientY - startY; updateDiagramaTransform();
-      }
-    });
-    window.addEventListener('mouseup', function() { isDragging = false; });
-    viewport.addEventListener('wheel', function(e) { e.preventDefault(); if (e.deltaY < 0) zoomIn(); else zoomOut(); }, { passive: false });
-
     // PROGRAMADOR
     function renderizarAdminExcel() {
       var container = document.getElementById('listaExcelAdminContainer');
@@ -3704,6 +3596,39 @@
 
     function eliminarExcelLink(idx) {
       excelLinksMaster.splice(idx, 1);
+      syncToCloud();
+    }
+
+    function renderizarAdminInfo() {
+      var container = document.getElementById('listaInfoAdminContainer');
+      container.innerHTML = '';
+      if (infoLinksMaster.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No hay opciones agregadas al menú "Información".</p>';
+        return;
+      }
+      infoLinksMaster.forEach(function(item, idx) {
+        container.innerHTML += `
+          <div class="check-item">
+            <div><strong>ℹ️ ${item.label}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${item.link}</span></div>
+            <button class="btn-danger" onclick="eliminarInfoLink(${idx})">❌ Eliminar</button>
+          </div>
+        `;
+      });
+    }
+
+    function agregarInfoLinkMaster() {
+      var nameInput = document.getElementById('nuevaInfoNombreInput');
+      var linkInput = document.getElementById('nuevaInfoLinkInput');
+      var name = nameInput.value.trim(); var link = linkInput.value.trim();
+      if (!name || !link) return alert('Ingresa el nombre y la dirección web de la opción.');
+
+      infoLinksMaster.push({ id: Date.now(), label: name, link: link });
+      syncToCloud();
+      nameInput.value = ''; linkInput.value = '';
+    }
+
+    function eliminarInfoLink(idx) {
+      infoLinksMaster.splice(idx, 1);
       syncToCloud();
     }
 
