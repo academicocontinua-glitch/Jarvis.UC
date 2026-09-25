@@ -1044,6 +1044,12 @@
       border: 1px solid #F59E0B !important;
       color: #B45309 !important;
     }
+    .aula-block-rejected {
+      background-color: #FEE2E2 !important;
+      border: 1px solid #EF4444 !important;
+      color: #B91C1C !important;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.18) !important;
+    }
 
     /* LAYOUT DE LA SECCIÓN AULAS */
     .aulas-layout {
@@ -1395,7 +1401,10 @@
           <h1>🏛️ Reserva y Control de Aulas</h1>
           <p>Selecciona una Sede y Aula en el panel derecho. Marca y arrastra celdas para reservar un espacio unificado. Las solicitudes externas quedarán pendientes de aprobación.</p>
         </div>
-        <button class="btn-save" id="btnToggleModoSeleccionAula" onclick="activarModoSeleccionAula()"><i class="fa-solid fa-calendar-plus"></i> Modificar Selección de Aula</button>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button class="btn-edit" id="btnActualizarReservasAulas" onclick="actualizarReservasAulas()"><i class="fa-solid fa-rotate"></i> Actualizar Reservas</button>
+          <button class="btn-save" id="btnToggleModoSeleccionAula" onclick="activarModoSeleccionAula()"><i class="fa-solid fa-calendar-plus"></i> Modificar Selección de Aula</button>
+        </div>
       </div>
 
       <div class="aulas-layout">
@@ -2949,6 +2958,51 @@
     }
 
     /* MÓDULO CONTROL Y RESERVA DE AULAS CON AFORO E IDENTIFICACIÓN EXTERNA */
+    /*
+     * ACTUALIZAR RESERVAS
+     * Solo lee reservas desde Firebase. No escribe, no elimina y no modifica
+     * ningún otro módulo del sistema. Sirve para refrescar manualmente el
+     * calendario después de que otra sede haya creado/aprobado/rechazado una
+     * solicitud.
+     */
+    async function actualizarReservasAulas() {
+      var btn = document.getElementById('btnActualizarReservasAulas');
+      var textoOriginal = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Actualizando...';
+      }
+
+      try {
+        var snapshot = await db.ref('jarvisData/reservasAulasDB').once('value');
+        var data = snapshot.val();
+
+        // Si Firebase devuelve reservas, reemplazamos únicamente la copia local
+        // de reservas. Si devuelve null, conservamos la copia actual para evitar
+        // convertir una ausencia temporal en un borrado.
+        if (Array.isArray(data)) {
+          reservasAulasDB = data;
+        } else if (data && typeof data === 'object') {
+          reservasAulasDB = Object.keys(data).map(function(k){ return data[k]; });
+        }
+
+        actualizarContadorNotificaciones();
+        renderizarPanelNotificacionesAulas();
+        renderizarTablaCalendarioAulas();
+        
+        if (btn) {
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Reservas Actualizadas';
+          setTimeout(function(){ if(btn) btn.innerHTML = textoOriginal; }, 1200);
+        }
+      } catch (error) {
+        console.error('Error al actualizar reservas desde Firebase:', error);
+        alert('No se pudieron actualizar las reservas desde Firebase. Las reservas actuales no fueron modificadas.');
+        if (btn) btn.innerHTML = textoOriginal;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     function activarModoSeleccionAula() {
       modoSeleccionAulaActivo = !modoSeleccionAulaActivo;
       var btn = document.getElementById('btnToggleModoSeleccionAula');
@@ -3237,10 +3291,11 @@
             }
 
             var esPendiente = reservaActual.estadoAprobacion === 'PENDIENTE';
+            var esRechazada = reservaActual.estadoAprobacion === 'RECHAZADA';
             var unifiedDiv = document.createElement('div');
-            unifiedDiv.className = "aula-block-unified " + (esPendiente ? 'aula-block-pending' : '');
+            unifiedDiv.className = "aula-block-unified " + (esPendiente ? 'aula-block-pending ' : '') + (esRechazada ? 'aula-block-rejected' : '');
             
-            var estadoIcono = esPendiente ? '⏳ PENDIENTE' : '🟢 APROBADA';
+            var estadoIcono = esPendiente ? '⏳ PENDIENTE' : (esRechazada ? '🔴 RECHAZADA' : '🟢 APROBADA');
             unifiedDiv.innerHTML = '🏢 ' + reservaActual.area + '<br><small style="font-size:0.7rem; font-weight:600;">' + estadoIcono + '</small>';
             unifiedDiv.title = "Área: " + reservaActual.area + " | Sede: " + reservaActual.sede + " | Aula: " + reservaActual.aula + " | Estado: " + (reservaActual.estadoAprobacion || 'APROBADO');
             
