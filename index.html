@@ -1594,7 +1594,7 @@
         <div id="listaSedesAulasAdminContainer"></div>
       </div>
 
-      <!-- SECCIÓN E: CONTROL DE PERMISOS DE USUARIO POR CREDENCIALES (NUEVO) -->
+      <!-- SECCIÓN E: CONTROL DE PERMISOS DE USUARIO POR CREDENCIALES -->
       <div class="admin-panel">
         <h3 style="color: var(--primary-purple);">6. 🔐 Gestión de Accesos y Permisos por Credencial de Usuario</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Habilita o deshabilita accesos especiales (crear procesos, CVs, personalizar o aprobar reservas) a usuarios externos/estándar identificados por su número de documento.</p>
@@ -2048,7 +2048,7 @@
       var minutes = String(now.getMinutes()).padStart(2, '0');
       var seconds = String(now.getSeconds()).padStart(2, '0');
       var dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      return `${dateStr.toUpperCase()} a las ${hours}:${minutes}:${seconds}`;
+      return dateStr.toUpperCase() + ' a las ' + hours + ':' + minutes + ':' + seconds;
     }
 
     function updateClock() {
@@ -2171,7 +2171,9 @@
     function tienePermisoUsuario(numDoc, clavePermiso) {
       if (esProgramador) return true;
       if (!numDoc) return false;
-      var usr = usuariosPermisosDB.find(u => String(u.numDoc).trim().toLowerCase() === String(numDoc).trim().toLowerCase());
+      var usr = usuariosPermisosDB.find(function(u) {
+        return String(u.numDoc).trim().toLowerCase() === String(numDoc).trim().toLowerCase();
+      });
       if (usr && usr.permisos && usr.permisos[clavePermiso] === true) {
         return true;
       }
@@ -2202,8 +2204,8 @@
       var dias = Math.floor(horas / 24);
 
       if (dias === 0 && horas === 0) return "Iniciado hoy";
-      if (dias === 0) return `${horas} hr(s) en esta etapa`;
-      return `${dias} día(s) en esta etapa`;
+      if (dias === 0) return horas + " hr(s) en esta etapa";
+      return dias + " día(s) en esta etapa";
     }
 
     /* MÓDULO CONTROL DE HORARIOS DOCENTES */
@@ -2225,7 +2227,7 @@
     }
 
     function toggleSeleccionCelda(diaNombre, fechaIso, hora) {
-      var key = `${fechaIso}_${hora}`;
+      var key = fechaIso + "_" + hora;
       if (celdasSeleccionadasSet.has(key)) {
         celdasSeleccionadasSet.delete(key);
       } else {
@@ -2242,7 +2244,7 @@
     function actualizarEstilosCeldasSeleccionadas() {
       var cells = document.querySelectorAll('#calendarTbody .calendar-cell');
       cells.forEach(function(c) {
-        var key = `${c.dataset.fechaIso}_${c.dataset.hora}`;
+        var key = c.dataset.fechaIso + "_" + c.dataset.hora;
         if (celdasSeleccionadasSet.has(key)) {
           c.classList.add('cell-drag-selected');
         } else {
@@ -2256,7 +2258,7 @@
 
       if (count > 0 && modoSeleccionHorarioActivo) {
         bar.style.display = 'flex';
-        text.innerText = `${count} ${count === 1 ? 'bloque seleccionado' : 'bloques seleccionados'}`;
+        text.innerText = count + " " + (count === 1 ? 'bloque seleccionado' : 'bloques seleccionados');
       } else {
         bar.style.display = 'none';
       }
@@ -2275,11 +2277,11 @@
       var formatFechaHeader = function(d) {
         var dd = String(d.getDate()).padStart(2, '0');
         var mm = String(d.getMonth() + 1).padStart(2, '0');
-        return `${dd}/${mm}`;
+        return dd + "/" + mm;
       };
 
       var mesStr = monday.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-      document.getElementById('currentWeekDisplayText').innerText = `Semana del ${formatFechaHeader(monday)} al ${formatFechaHeader(sunday)} (${mesStr.toUpperCase()})`;
+      document.getElementById('currentWeekDisplayText').innerText = "Semana del " + formatFechaHeader(monday) + " al " + formatFechaHeader(sunday) + " (" + mesStr.toUpperCase() + ")";
 
       var theadTr = document.getElementById('calendarTheadTr');
       theadTr.innerHTML = '<th class="time-col">HORA</th>';
@@ -2290,12 +2292,7 @@
         dayDate.setDate(dayDate.getDate() + idx);
         fechasDiasSemana.push(dayDate);
 
-        theadTr.innerHTML += `
-          <th>
-            ${diaNombre}
-            <span class="th-day-date">${formatFechaHeader(dayDate)}</span>
-          </th>
-        `;
+        theadTr.innerHTML += '<th>' + diaNombre + '<span class="th-day-date">' + formatFechaHeader(dayDate) + '</span></th>';
       });
 
       var tbody = document.getElementById('calendarTbody');
@@ -2355,9 +2352,9 @@
               icono = '🟡';
             }
 
-            blockDiv.className = `schedule-block ${claseTipo}`;
-            blockDiv.innerHTML = `${icono} <strong>${b.docente}</strong> ${b.curso ? `(${b.curso})` : ''}`;
-            blockDiv.title = `${b.docente} ${b.curso ? `- ${b.curso}` : ''}`;
+            blockDiv.className = "schedule-block " + claseTipo;
+            blockDiv.innerHTML = icono + " <strong>" + b.docente + "</strong> " + (b.curso ? "(" + b.curso + ")" : "");
+            blockDiv.title = b.docente + " " + (b.curso ? "- " + b.curso : "");
             
             blockDiv.onclick = function(e) {
               e.stopPropagation();
@@ -2396,8 +2393,8 @@
         resultsBar.style.display = 'flex';
         conjuntoDocentes.forEach(function(nombreDoc) {
           var btn = document.createElement('button');
-          btn.className = `docente-chip-btn ${docenteSeleccionadoActual === nombreDoc ? 'selected' : ''}`;
-          btn.innerHTML = `<i class="fa-solid fa-user-tie"></i> ${nombreDoc}`;
+          btn.className = "docente-chip-btn " + (docenteSeleccionadoActual === nombreDoc ? 'selected' : '');
+          btn.innerHTML = '<i class="fa-solid fa-user-tie"></i> ' + nombreDoc;
           btn.onclick = function() {
             mostrarDetalleDocenteEnFilas(nombreDoc);
           };
@@ -2416,7 +2413,7 @@
       var title = document.getElementById('docenteDetailTitle');
       var container = document.getElementById('docenteRowsContainer');
 
-      title.innerHTML = `👨‍🏫 Horario Especificado Global: ${nombreDocente}`;
+      title.innerHTML = '👨‍🏫 Horario Especificado Global: ' + nombreDocente;
       panel.style.display = 'block';
 
       var bloquesDocente = horariosDB.filter(function(b) {
@@ -2424,7 +2421,7 @@
       });
 
       if (bloquesDocente.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); padding:10px 0;">No existen registros de horario guardados para el docente <strong>${nombreDocente}</strong>.</p>`;
+        container.innerHTML = '<p style="color:var(--text-muted); padding:10px 0;">No existen registros de horario guardados para el docente <strong>' + nombreDocente + '</strong>.</p>';
         filtrarHorarioDocente();
         return;
       }
@@ -2440,19 +2437,7 @@
 
       var fechasOrdenadas = Array.from(fechasMap.keys()).sort();
 
-      var html = `
-        <table class="docente-rows-table">
-          <thead>
-            <tr>
-              <th style="width: 15%;">MES / DÍA</th>
-              <th style="width: 20%;">FECHA COMPLETA</th>
-              <th style="width: 25%;">TURNO MAÑANA (07:00 - 13:00)</th>
-              <th style="width: 20%;">TURNO TARDE (13:00 - 18:00)</th>
-              <th style="width: 20%;">TURNO NOCHE (18:00 - 23:00)</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+      var html = '<table class="docente-rows-table"><thead><tr><th style="width: 15%;">MES / DÍA</th><th style="width: 20%;">FECHA COMPLETA</th><th style="width: 25%;">TURNO MAÑANA (07:00 - 13:00)</th><th style="width: 20%;">TURNO TARDE (13:00 - 18:00)</th><th style="width: 20%;">TURNO NOCHE (18:00 - 23:00)</th></tr></thead><tbody>';
 
       fechasOrdenadas.forEach(function(fechaKey) {
         var listaBloques = fechasMap.get(fechaKey);
@@ -2492,24 +2477,20 @@
               colorBg = '#FEF08A'; colorBorder = '#FACC15'; colorTxt = '#854D0E'; tipoIcono = '🟡 Capacitación:';
             }
 
-            return `
-              <div style="background:${colorBg}; border:1px solid ${colorBorder}; color:${colorTxt}; padding:4px 8px; border-radius:6px; margin-bottom:4px; font-weight:600; font-size:0.78rem;">
-                ${tipoIcono} ${String(b.horaInicio).padStart(2,'0')}:00 - ${String(b.horaFin).padStart(2,'0')}:00
-                ${b.curso ? `<br><small style="font-weight:400;">${b.curso}</small>` : ''}
-              </div>
-            `;
+            return '<div style="background:' + colorBg + '; border:1px solid ' + colorBorder + '; color:' + colorTxt + '; padding:4px 8px; border-radius:6px; margin-bottom:4px; font-weight:600; font-size:0.78rem;">' +
+              tipoIcono + ' ' + String(b.horaInicio).padStart(2,'0') + ':00 - ' + String(b.horaFin).padStart(2,'0') + ':00' +
+              (b.curso ? '<br><small style="font-weight:400;">' + b.curso + '</small>' : '') +
+              '</div>';
           }).join('');
         };
 
-        html += `
-          <tr>
-            <td><strong>${diaNombre}</strong></td>
-            <td>${fechaFormateada}</td>
-            <td>${renderBloquesTurno('MANANA')}</td>
-            <td>${renderBloquesTurno('TARDE')}</td>
-            <td>${renderBloquesTurno('NOCHE')}</td>
-          </tr>
-        `;
+        html += '<tr>' +
+          '<td><strong>' + diaNombre + '</strong></td>' +
+          '<td>' + fechaFormateada + '</td>' +
+          '<td>' + renderBloquesTurno('MANANA') + '</td>' +
+          '<td>' + renderBloquesTurno('TARDE') + '</td>' +
+          '<td>' + renderBloquesTurno('NOCHE') + '</td>' +
+          '</tr>';
       });
 
       html += '</tbody></table>';
@@ -2528,7 +2509,7 @@
       if (celdasSeleccionadasSet.size === 0) return alert('No has seleccionado celdas.');
 
       document.getElementById('selectedRangeInfoText').innerText = 
-        `Se asignará el horario a ${celdasSeleccionadasSet.size} celdas/bloques seleccionados.`;
+        "Se asignará el horario a " + celdasSeleccionadasSet.size + " celdas/bloques seleccionados.";
 
       var datalist = document.getElementById('listDocentesDatalist');
       datalist.innerHTML = '';
@@ -2537,7 +2518,7 @@
       horariosDB.forEach(function(h) { if(h.docente) nombresUnicos.add(h.docente); });
 
       nombresUnicos.forEach(function(nom) {
-        datalist.innerHTML += `<option value="${nom}">`;
+        datalist.innerHTML += '<option value="' + nom + '">';
       });
 
       document.getElementById('scheduleDocenteInput').value = document.getElementById('buscarDocenteHorarioInput').value.trim();
@@ -2586,10 +2567,9 @@
       document.getElementById('editBlockTipoSelect').value = b.tipo || 'CLASS';
       document.getElementById('editBlockCursoInput').value = b.curso || '';
 
-      document.getElementById('viewBlockBodyInfo').innerHTML = `
-        <strong>Día:</strong> ${b.dia} (${b.fechaIso || 'Fecha general'}) | 
-        <strong>Hora de la celda:</strong> ${String(b.horaInicio).padStart(2, '0')}:00 - ${String(b.horaFin).padStart(2, '0')}:00
-      `;
+      document.getElementById('viewBlockBodyInfo').innerHTML = 
+        '<strong>Día:</strong> ' + b.dia + ' (' + (b.fechaIso || 'Fecha general') + ') | ' +
+        '<strong>Hora de la celda:</strong> ' + String(b.horaInicio).padStart(2, '0') + ':00 - ' + String(b.horaFin).padStart(2, '0') + ':00';
 
       document.getElementById('viewScheduleBlockModal').style.display = 'flex';
     }
@@ -2647,7 +2627,7 @@
     }
 
     function toggleSeleccionCeldaAula(diaNombre, fechaIso, hora) {
-      var key = `${fechaIso}_${hora}`;
+      var key = fechaIso + "_" + hora;
       if (celdasAulaSeleccionadasSet.has(key)) {
         celdasAulaSeleccionadasSet.delete(key);
       } else {
@@ -2663,7 +2643,7 @@
     function actualizarEstilosCeldasSeleccionadasAula() {
       var cells = document.querySelectorAll('#calendarAulaTbody .calendar-cell');
       cells.forEach(function(c) {
-        var key = `${c.dataset.fechaIso}_${c.dataset.hora}`;
+        var key = c.dataset.fechaIso + "_" + c.dataset.hora;
         if (celdasAulaSeleccionadasSet.has(key)) {
           c.classList.add('cell-drag-selected');
         } else {
@@ -2677,7 +2657,7 @@
 
       if (count > 0 && modoSeleccionAulaActivo) {
         bar.style.display = 'flex';
-        text.innerText = `${count} ${count === 1 ? 'bloque seleccionado' : 'bloques seleccionados'}`;
+        text.innerText = count + " " + (count === 1 ? 'bloque seleccionado' : 'bloques seleccionados');
       } else {
         bar.style.display = 'none';
       }
@@ -2697,8 +2677,8 @@
       selectSedeModal.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
 
       sedesAulasMaster.forEach(function(s) {
-        selectSede.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
-        selectSedeModal.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
+        selectSede.innerHTML += '<option value="' + s.nombre + '">' + s.nombre + '</option>';
+        selectSedeModal.innerHTML += '<option value="' + s.nombre + '">' + s.nombre + '</option>';
       });
 
       if (sedeFiltroSeleccionada) {
@@ -2720,7 +2700,7 @@
         if (sObj && sObj.aulas) {
           sObj.aulas.forEach(function(aItem) {
             var nomAula = typeof aItem === 'object' ? aItem.nombre : aItem;
-            selectAula.innerHTML += `<option value="${nomAula}">${nomAula}</option>`;
+            selectAula.innerHTML += '<option value="' + nomAula + '">' + nomAula + '</option>';
           });
         }
       }
@@ -2746,10 +2726,10 @@
         if (sObj && sObj.aulas) {
           var aObj = sObj.aulas.find(a => (typeof a === 'object' ? a.nombre : a) === aulaFiltroSeleccionada);
           if (aObj && typeof aObj === 'object' && aObj.aforo) {
-            aforoValText.innerText = `${aObj.aforo} Personas`;
+            aforoValText.innerText = aObj.aforo + " Personas";
             aforoDisplay.style.display = 'flex';
           } else {
-            aforoValText.innerText = `No especificado`;
+            aforoValText.innerText = 'No especificado';
             aforoDisplay.style.display = 'flex';
           }
         } else {
@@ -2783,23 +2763,16 @@
       }
 
       sedesAulasMaster.forEach(function(s) {
-        var html = `
-          <div class="sede-tree-item">
-            <div class="sede-tree-title">🏛️ ${s.nombre}</div>
-            <div>
-        `;
+        var html = '<div class="sede-tree-item"><div class="sede-tree-title">🏛️ ' + s.nombre + '</div><div>';
 
         if (s.aulas && s.aulas.length > 0) {
           s.aulas.forEach(function(aItem) {
             var nomAula = typeof aItem === 'object' ? aItem.nombre : aItem;
-            var aforoAula = (typeof aItem === 'object' && aItem.aforo) ? ` (${aItem.aforo} pers.)` : '';
+            var aforoAula = (typeof aItem === 'object' && aItem.aforo) ? ' (' + aItem.aforo + ' pers.)' : '';
             var esSeleccionada = (s.nombre === sedeFiltroSeleccionada && nomAula === aulaFiltroSeleccionada);
 
-            html += `
-              <button class="aula-chip-btn ${esSeleccionada ? 'selected' : ''}" onclick="seleccionarSedeAulaDesdeTree('${s.nombre}', '${nomAula}')">
-                🚪 ${nomAula}${aforoAula}
-              </button>
-            `;
+            html += '<button class="aula-chip-btn ' + (esSeleccionada ? 'selected' : '') + '" onclick="seleccionarSedeAulaDesdeTree(\'' + s.nombre + '\', \'' + nomAula + '\')">' +
+              '🚪 ' + nomAula + aforoAula + '</button>';
           });
         } else {
           html += '<span style="font-size:0.75rem; color:var(--text-muted);">Sin aulas registradas</span>';
@@ -2818,11 +2791,11 @@
       var formatFechaHeader = function(d) {
         var dd = String(d.getDate()).padStart(2, '0');
         var mm = String(d.getMonth() + 1).padStart(2, '0');
-        return `${dd}/${mm}`;
+        return dd + "/" + mm;
       };
 
       var mesStr = monday.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-      document.getElementById('currentWeekAulaDisplayText').innerText = `Semana del ${formatFechaHeader(monday)} al ${formatFechaHeader(sunday)} (${mesStr.toUpperCase()})`;
+      document.getElementById('currentWeekAulaDisplayText').innerText = "Semana del " + formatFechaHeader(monday) + " al " + formatFechaHeader(sunday) + " (" + mesStr.toUpperCase() + ")";
 
       var theadTr = document.getElementById('calendarAulaTheadTr');
       theadTr.innerHTML = '<th class="time-col">HORA</th>';
@@ -2833,12 +2806,7 @@
         dayDate.setDate(dayDate.getDate() + idx);
         fechasDiasSemana.push(dayDate);
 
-        theadTr.innerHTML += `
-          <th>
-            ${diaNombre}
-            <span class="th-day-date">${formatFechaHeader(dayDate)}</span>
-          </th>
-        `;
+        theadTr.innerHTML += '<th>' + diaNombre + '<span class="th-day-date">' + formatFechaHeader(dayDate) + '</span></th>';
       });
 
       var tbody = document.getElementById('calendarAulaTbody');
@@ -2872,7 +2840,7 @@
 
         DIAS_SEMANA.forEach(function(diaNombre, idx) {
           var dateIsoString = fechasDiasSemana[idx].toISOString().split('T')[0];
-          var keyIgnorar = `${dateIsoString}_${hora}`;
+          var keyIgnorar = dateIsoString + "_" + hora;
 
           if (celdasIgnoradas.has(keyIgnorar)) {
             return;
@@ -2886,7 +2854,7 @@
             var spanFilas = (maxHora - minHora) + 1;
 
             for (var hSpan = minHora; hSpan <= maxHora; hSpan++) {
-              celdasIgnoradas.add(`${dateIsoString}_${hSpan}`);
+              celdasIgnoradas.add(dateIsoString + "_" + hSpan);
             }
 
             var tdSpan = document.createElement('td');
@@ -2897,11 +2865,11 @@
 
             var esPendiente = reservaActual.estadoAprobacion === 'PENDIENTE';
             var unifiedDiv = document.createElement('div');
-            unifiedDiv.className = `aula-block-unified ${esPendiente ? 'aula-block-pending' : ''}`;
+            unifiedDiv.className = "aula-block-unified " + (esPendiente ? 'aula-block-pending' : '');
             
             var estadoIcono = esPendiente ? '⏳ PENDIENTE' : '🟢 APROBADA';
-            unifiedDiv.innerHTML = `🏢 ${reservaActual.area}<br><small style="font-size:0.7rem; font-weight:600;">${estadoIcono}</small>`;
-            unifiedDiv.title = `Área: ${reservaActual.area} | Sede: ${reservaActual.sede} | Aula: ${reservaActual.aula} | Estado: ${reservaActual.estadoAprobacion || 'APROBADO'}`;
+            unifiedDiv.innerHTML = '🏢 ' + reservaActual.area + '<br><small style="font-size:0.7rem; font-weight:600;">' + estadoIcono + '</small>';
+            unifiedDiv.title = "Área: " + reservaActual.area + " | Sede: " + reservaActual.sede + " | Aula: " + reservaActual.aula + " | Estado: " + (reservaActual.estadoAprobacion || 'APROBADO');
             
             unifiedDiv.onclick = function(e) {
               e.stopPropagation();
@@ -2949,7 +2917,7 @@
 
       var numBloques = celdasAulaSeleccionadasSet.size;
       document.getElementById('selectedAulaRangeInfoText').innerText = 
-        `Reserva para ${numBloques} bloque(s) seleccionado(s). Identifícate con cualquiera de tus credenciales oficiales:`;
+        "Reserva para " + numBloques + " bloque(s) seleccionado(s). Identifícate con cualquiera de tus credenciales oficiales:";
 
       if (sedeFiltroSeleccionada) {
         document.getElementById('reservaSedeSelect').value = sedeFiltroSeleccionada;
@@ -2988,7 +2956,7 @@
       if (sObj && sObj.aulas) {
         var aObj = sObj.aulas.find(a => (typeof a === 'object' ? a.nombre : a) === aula);
         if (aObj && typeof aObj === 'object' && aObj.aforo) {
-          aforoEncontrado = `${aObj.aforo} Personas`;
+          aforoEncontrado = aObj.aforo + " Personas";
         }
       }
 
@@ -3047,14 +3015,14 @@
       document.getElementById('infoAulaNombre').innerText = res.aula;
       document.getElementById('infoAulaAforo').innerText = res.aforo || 'No especificado';
       document.getElementById('infoAulaResponsable').innerText = res.responsable;
-      document.getElementById('infoAulaCredencialDoc').innerText = `${res.tipoDoc || 'DOC'}: ${res.numDoc || 'No especificado'}`;
+      document.getElementById('infoAulaCredencialDoc').innerText = (res.tipoDoc || 'DOC') + ": " + (res.numDoc || 'No especificado');
       document.getElementById('infoAulaTipoEvento').innerText = res.tipoEvento;
       document.getElementById('infoAulaArea').innerText = res.area;
       
       var estadoTexto = res.estadoAprobacion === 'PENDIENTE' ? '⏳ PENDIENTE DE APROBACIÓN' : '🟢 APROBADA';
       document.getElementById('infoAulaEstadoAprobacion').innerText = estadoTexto;
 
-      document.getElementById('infoAulaDiaHora').innerText = `${res.diaNombre} (${res.fechaIso}) de ${String(minH).padStart(2,'0')}:00 a ${String(maxH).padStart(2,'0')}:00`;
+      document.getElementById('infoAulaDiaHora').innerText = res.diaNombre + " (" + res.fechaIso + ") de " + String(minH).padStart(2,'0') + ":00 a " + String(maxH).padStart(2,'0') + ":00";
       document.getElementById('infoAulaFechaAuditoria').innerText = res.fechaAuditoria || 'Registrado previamente';
 
       var btnAprobarGroup = document.getElementById('accionesAprobacionReservaGroup');
@@ -3106,33 +3074,27 @@
       }
 
       sedesAulasMaster.forEach(function(s, idxSede) {
-        selectSedeAula.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
+        selectSedeAula.innerHTML += '<option value="' + s.nombre + '">' + s.nombre + '</option>';
 
         var aulasHtml = '';
         if (s.aulas && s.aulas.length > 0) {
           s.aulas.forEach(function(aItem, idxAula) {
             var nomAula = typeof aItem === 'object' ? aItem.nombre : aItem;
-            var aforoAula = (typeof aItem === 'object' && aItem.aforo) ? ` (Aforo: ${aItem.aforo})` : '';
+            var aforoAula = (typeof aItem === 'object' && aItem.aforo) ? ' (Aforo: ' + aItem.aforo + ')' : '';
 
-            aulasHtml += `
-              <span style="background:#FFF; padding:2px 8px; border-radius:12px; border:1px solid var(--border-color); font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; margin:2px;">
-                🚪 ${nomAula}${aforoAula} <button class="btn-danger" style="padding:0 4px; font-size:0.7rem; border-radius:50%;" onclick="eliminarAulaMaster(${idxSede}, ${idxAula})">×</button>
-              </span>
-            `;
+            aulasHtml += '<span style="background:#FFF; padding:2px 8px; border-radius:12px; border:1px solid var(--border-color); font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; margin:2px;">' +
+              '🚪 ' + nomAula + aforoAula + ' <button class="btn-danger" style="padding:0 4px; font-size:0.7rem; border-radius:50%;" onclick="eliminarAulaMaster(' + idxSede + ', ' + idxAula + ')">×</button>' +
+              '</span>';
           });
         } else {
           aulasHtml = '<span style="font-size:0.78rem; color:var(--text-muted);">Sin aulas agregadas</span>';
         }
 
-        container.innerHTML += `
-          <div class="check-item" style="flex-direction:column; align-items:flex-start; gap:8px; padding:12px;">
-            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-              <strong style="color:var(--primary-purple); font-size:0.95rem;">🏛️ Sede: ${s.nombre}</strong>
-              <button class="btn-danger" onclick="eliminarSedeMaster(${idxSede})">❌ Eliminar Sede</button>
-            </div>
-            <div>${aulasHtml}</div>
-          </div>
-        `;
+        container.innerHTML += '<div class="check-item" style="flex-direction:column; align-items:flex-start; gap:8px; padding:12px;">' +
+          '<div style="display:flex; justify-content:space-between; width:100%; align-items:center;">' +
+          '<strong style="color:var(--primary-purple); font-size:0.95rem;">🏛️ Sede: ' + s.nombre + '</strong>' +
+          '<button class="btn-danger" onclick="eliminarSedeMaster(' + idxSede + ')">❌ Eliminar Sede</button>' +
+          '</div><div>' + aulasHtml + '</div></div>';
       });
     }
 
@@ -3205,36 +3167,21 @@
       usuariosPermisosDB.forEach(function(u, idx) {
         var p = u.permisos || {};
 
-        container.innerHTML += `
-          <div class="check-item" style="flex-direction:column; align-items:flex-start; gap:10px; background:#FFF; border:1px solid var(--border-color); padding:14px; border-radius:10px;">
-            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-              <div>
-                <strong style="color:var(--primary-purple); font-size:0.95rem;">👤 ${u.nombre}</strong> 
-                <span style="font-size:0.8rem; color:var(--text-muted); margin-left:8px;">(${u.tipoDoc}: ${u.numDoc})</span>
-              </div>
-              <button class="btn-danger" onclick="eliminarUsuarioPermisos(${idx})">❌ Quitar Credencial</button>
-            </div>
-
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:8px; width:100%;">
-              <div class="permission-check-group">
-                <label for="p_proc_${idx}">➕ Crear Cursos y Procesos</label>
-                <input type="checkbox" id="p_proc_${idx}" ${p.crearProcesos ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'crearProcesos', this.checked)">
-              </div>
-              <div class="permission-check-group">
-                <label for="p_custom_${idx}">✏️ Personalizar Etapas y Procesos</label>
-                <input type="checkbox" id="p_custom_${idx}" ${p.personalizarProcesos ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'personalizarProcesos', this.checked)">
-              </div>
-              <div class="permission-check-group">
-                <label for="p_cv_${idx}">➕ Registrar Candidatos y CVs</label>
-                <input type="checkbox" id="p_cv_${idx}" ${p.agregarCVs ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'agregarCVs', this.checked)">
-              </div>
-              <div class="permission-check-group">
-                <label for="p_appr_${idx}">🏛️ Aprobar Reservas de Aulas</label>
-                <input type="checkbox" id="p_appr_${idx}" ${p.aprobarReservas ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'aprobarReservas', this.checked)">
-              </div>
-            </div>
-          </div>
-        `;
+        container.innerHTML += '<div class="check-item" style="flex-direction:column; align-items:flex-start; gap:10px; background:#FFF; border:1px solid var(--border-color); padding:14px; border-radius:10px;">' +
+          '<div style="display:flex; justify-content:space-between; width:100%; align-items:center;">' +
+          '<div><strong style="color:var(--primary-purple); font-size:0.95rem;">👤 ' + u.nombre + '</strong> ' +
+          '<span style="font-size:0.8rem; color:var(--text-muted); margin-left:8px;">(' + u.tipoDoc + ': ' + u.numDoc + ')</span></div>' +
+          '<button class="btn-danger" onclick="eliminarUsuarioPermisos(' + idx + ')">❌ Quitar Credencial</button></div>' +
+          '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:8px; width:100%;">' +
+          '<div class="permission-check-group"><label for="p_proc_' + idx + '">➕ Crear Cursos y Procesos</label>' +
+          '<input type="checkbox" id="p_proc_' + idx + '" ' + (p.crearProcesos ? 'checked' : '') + ' onchange="actualizarCheckPermiso(' + idx + ', \'crearProcesos\', this.checked)"></div>' +
+          '<div class="permission-check-group"><label for="p_custom_' + idx + '">✏️ Personalizar Etapas y Procesos</label>' +
+          '<input type="checkbox" id="p_custom_' + idx + '" ' + (p.personalizarProcesos ? 'checked' : '') + ' onchange="actualizarCheckPermiso(' + idx + ', \'personalizarProcesos\', this.checked)"></div>' +
+          '<div class="permission-check-group"><label for="p_cv_' + idx + '">➕ Registrar Candidatos y CVs</label>' +
+          '<input type="checkbox" id="p_cv_' + idx + '" ' + (p.agregarCVs ? 'checked' : '') + ' onchange="actualizarCheckPermiso(' + idx + ', \'agregarCVs\', this.checked)"></div>' +
+          '<div class="permission-check-group"><label for="p_appr_' + idx + '">🏛️ Aprobar Reservas de Aulas</label>' +
+          '<input type="checkbox" id="p_appr_' + idx + '" ' + (p.aprobarReservas ? 'checked' : '') + ' onchange="actualizarCheckPermiso(' + idx + ', \'aprobarReservas\', this.checked)"></div>' +
+          '</div></div>';
       });
     }
 
@@ -3364,37 +3311,7 @@
       var win = window.open('', '_blank');
       var fechaStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 
-      win.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${titulo}</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-            body { font-family: 'Poppins', sans-serif; padding: 30px; color: #1E1233; }
-            .pdf-header { border-bottom: 3px solid #6B00D7; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-            .pdf-title { color: #6B00D7; font-size: 22px; font-weight: 700; margin: 0; }
-            .pdf-sub { color: #625871; font-size: 12px; margin-top: 4px; }
-            .pdf-card { background: #F4F0FA; border: 1px solid #E2D9F3; border-radius: 8px; padding: 16px; margin-bottom: 16px; page-break-inside: avoid; }
-            .pdf-card h3 { color: #6B00D7; margin: 0 0 10px 0; font-size: 16px; }
-            ul { margin: 6px 0 0 0; padding-left: 20px; }
-            li { margin-bottom: 6px; font-size: 13px; color: #1E1233; }
-          </style>
-        </head>
-        <body>
-          <div class="pdf-header">
-            <div>
-              <h1 class="pdf-title">JARVIS | Gestión Continua</h1>
-              <div class="pdf-sub">${titulo}</div>
-            </div>
-            <div style="text-align: right; font-size: 11px; color: #625871;">
-              Emisión: ${fechaStr}
-            </div>
-          </div>
-          ${htmlContenido}
-        </body>
-        </html>
-      `);
+      win.document.write('<!DOCTYPE html><html><head><title>' + titulo + '</title><style>@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"); body { font-family: "Poppins", sans-serif; padding: 30px; color: #1E1233; } .pdf-header { border-bottom: 3px solid #6B00D7; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; } .pdf-title { color: #6B00D7; font-size: 22px; font-weight: 700; margin: 0; } .pdf-sub { color: #625871; font-size: 12px; margin-top: 4px; } .pdf-card { background: #F4F0FA; border: 1px solid #E2D9F3; border-radius: 8px; padding: 16px; margin-bottom: 16px; page-break-inside: avoid; } .pdf-card h3 { color: #6B00D7; margin: 0 0 10px 0; font-size: 16px; } ul { margin: 6px 0 0 0; padding-left: 20px; } li { margin-bottom: 6px; font-size: 13px; color: #1E1233; }</style></head><body><div class="pdf-header"><div><h1 class="pdf-title">JARVIS | Gestión Continua</h1><div class="pdf-sub">' + titulo + '</div></div><div style="text-align: right; font-size: 11px; color: #625871;">Emisión: ' + fechaStr + '</div></div>' + htmlContenido + '</body></html>');
 
       win.document.close();
       setTimeout(function() {
@@ -3409,19 +3326,14 @@
       var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Copia de Seguridad - Registro de Candidatos / CVs</h2>';
       
       candidatosDB.forEach(function(c, i) {
-        html += `
-          <div class="pdf-card">
-            <h3>${i + 1}. ${c.nombre}</h3>
-            <ul>
-              <li><strong>Profesión:</strong> ${c.profesion || 'N/A'}</li>
-              <li><strong>Especialidad:</strong> ${c.especialidad || 'N/A'}</li>
-              <li><strong>Ciudad:</strong> ${c.ciudad || 'N/A'}</li>
-              <li><strong>Celular:</strong> ${c.celular || 'N/A'}</li>
-              <li><strong>Enlace al CV / Drive:</strong> ${c.link ? `<a href="${c.link}" target="_blank">${c.link}</a>` : 'Sin enlace registrado'}</li>
-              <li><strong>Breve descripción:</strong> ${c.descripcion || 'Sin descripción'}</li>
-            </ul>
-          </div>
-        `;
+        html += '<div class="pdf-card"><h3>' + (i + 1) + '. ' + c.nombre + '</h3><ul>' +
+          '<li><strong>Profesión:</strong> ' + (c.profesion || 'N/A') + '</li>' +
+          '<li><strong>Especialidad:</strong> ' + (c.especialidad || 'N/A') + '</li>' +
+          '<li><strong>Ciudad:</strong> ' + (c.ciudad || 'N/A') + '</li>' +
+          '<li><strong>Celular:</strong> ' + (c.celular || 'N/A') + '</li>' +
+          '<li><strong>Enlace al CV / Drive:</strong> ' + (c.link ? '<a href="' + c.link + '" target="_blank">' + c.link + '</a>' : 'Sin enlace registrado') + '</li>' +
+          '<li><strong>Breve descripción:</strong> ' + (c.descripcion || 'Sin descripción') + '</li>' +
+          '</ul></div>';
       });
 
       generarImpresionPDF('Respaldo_Candidatos_CVs', html);
@@ -3434,24 +3346,16 @@
       var etapas = obtenerEtapasCurso(course);
       var esquema = obtenerEsquemaCurso(course);
       var pctGlobal = calcularPorcentajeTotalCurso(course);
-      var html = `
-        <div style="margin-bottom: 20px; background:#E2D9F3; padding:12px; border-radius:8px;">
-          <h2 style="color:#6B00D7; margin:0; font-size:18px;">Curso: ${course.name}</h2>
-          <p style="margin:4px 0 0 0; font-size:13px;"><strong>Propuesto por:</strong> ${course.proposer} | <strong>Avance Global:</strong> ${pctGlobal}%</p>
-        </div>
-      `;
+      var html = '<div style="margin-bottom: 20px; background:#E2D9F3; padding:12px; border-radius:8px;">' +
+        '<h2 style="color:#6B00D7; margin:0; font-size:18px;">Curso: ' + course.name + '</h2>' +
+        '<p style="margin:4px 0 0 0; font-size:13px;"><strong>Propuesto por:</strong> ' + course.proposer + ' | <strong>Avance Global:</strong> ' + pctGlobal + '%</p></div>';
 
       etapas.forEach(function(e) {
         var reqs = esquema[e.id] || [];
         var stagePct = calcularPorcentajeEtapa(course, e.id);
         var obsEtapa = (course.bitacoraNotes && course.bitacoraNotes[e.id]) || 'Sin observaciones guardadas';
 
-        html += `
-          <div class="pdf-card">
-            <h3>Etapa ${e.id}: ${e.name} (${stagePct}% Avance)</h3>
-            <p style="font-size:12px; margin-bottom:8px;"><strong>Requerimientos y Progreso:</strong></p>
-            <ul>
-        `;
+        html += '<div class="pdf-card"><h3>Etapa ' + e.id + ': ' + e.name + ' (' + stagePct + '% Avance)</h3><p style="font-size:12px; margin-bottom:8px;"><strong>Requerimientos y Progreso:</strong></p><ul>';
 
         if (reqs.length === 0) {
           html += '<li>Sin requerimientos configurados.</li>';
@@ -3462,26 +3366,17 @@
             var estadoTxt = "❌ Pendiente";
 
             if (r.type === 'CHECK' && val === true) estadoTxt = "🟢 Completado";
-            else if (r.type === 'TEXT' && val) estadoTxt = `📝 Texto: "${val}"`;
-            else if (r.type === 'STATUS' && val) estadoTxt = `🚦 Estado: ${val}`;
+            else if (r.type === 'TEXT' && val) estadoTxt = '📝 Texto: "' + val + '"';
+            else if (r.type === 'STATUS' && val) estadoTxt = "🚦 Estado: " + val;
 
-            html += `
-              <li>
-                <strong>${r.label}</strong> — Status: ${estadoTxt}<br>
-                <span style="color:#625871; font-size:11px;">👤 Responsable: ${meta.responsable || 'N/A'} | 📅 Fecha: ${meta.fecha || 'N/A'}</span>
-              </li>
-            `;
+            html += '<li><strong>' + r.label + '</strong> — Status: ' + estadoTxt + '<br><span style="color:#625871; font-size:11px;">👤 Responsable: ' + (meta.responsable || 'N/A') + ' | 📅 Fecha: ' + (meta.fecha || 'N/A') + '</span></li>';
           });
         }
 
-        html += `
-            </ul>
-            <p style="font-size:11px; margin-top:10px; color:#4C0099;"><strong>Comentarios de Etapa:</strong> ${obsEtapa}</p>
-          </div>
-        `;
+        html += '</ul><p style="font-size:11px; margin-top:10px; color:#4C0099;"><strong>Comentarios de Etapa:</strong> ' + obsEtapa + '</p></div>';
       });
 
-      generarImpresionPDF(`Bitacora_${course.name}`, html);
+      generarImpresionPDF('Bitacora_' + course.name, html);
     }
 
     function exportarTodasBitacorasPDF() {
@@ -3493,21 +3388,15 @@
         var etapas = obtenerEtapasCurso(course);
         var esquema = obtenerEsquemaCurso(course);
         var pctGlobal = calcularPorcentajeTotalCurso(course);
-        html += `
-          <div style="border: 2px solid #6B00D7; border-radius: 10px; padding: 16px; margin-bottom: 24px; background:#FFF;">
-            <h2 style="color:#6B00D7; margin:0; font-size:17px;">${course.name}</h2>
-            <p style="margin:4px 0 12px 0; font-size:12px; color:#625871;">Propuesto por: ${course.proposer} | Avance: ${pctGlobal}%</p>
-        `;
+        html += '<div style="border: 2px solid #6B00D7; border-radius: 10px; padding: 16px; margin-bottom: 24px; background:#FFF;">' +
+          '<h2 style="color:#6B00D7; margin:0; font-size:17px;">' + course.name + '</h2>' +
+          '<p style="margin:4px 0 12px 0; font-size:12px; color:#625871;">Propuesto por: ' + course.proposer + ' | Avance: ' + pctGlobal + '%</p>';
 
         etapas.forEach(function(e) {
           var reqs = esquema[e.id] || [];
           var stagePct = calcularPorcentajeEtapa(course, e.id);
 
-          html += `
-            <div style="background:#F4F0FA; border-radius:6px; padding:10px; margin-bottom:10px;">
-              <strong style="color:#4C0099; font-size:13px;">Etapa ${e.id}: ${e.name} (${stagePct}%)</strong>
-              <ul>
-          `;
+          html += '<div style="background:#F4F0FA; border-radius:6px; padding:10px; margin-bottom:10px;"><strong style="color:#4C0099; font-size:13px;">Etapa ' + e.id + ': ' + e.name + ' (' + stagePct + '%)</strong><ul>';
 
           if (reqs.length === 0) {
             html += '<li>Sin requerimientos.</li>';
@@ -3521,7 +3410,7 @@
               else if (r.type === 'TEXT' && val) estadoTxt = val;
               else if (r.type === 'STATUS' && val) estadoTxt = val;
 
-              html += `<li><strong>${r.label}:</strong> ${estadoTxt} (Resp: ${meta.responsable || 'N/A'} - Fecha: ${meta.fecha || 'N/A'})</li>`;
+              html += '<li><strong>' + r.label + ':</strong> ' + estadoTxt + ' (Resp: ' + (meta.responsable || 'N/A') + ' - Fecha: ' + (meta.fecha || 'N/A') + ')</li>';
             });
           }
 
@@ -3573,7 +3462,7 @@
       container.innerHTML = '';
 
       customTabsMaster.forEach(function(item) {
-        container.innerHTML += `<button class="tab-btn" onclick="abrirLinkWeb('${item.link}')">🔗 ${item.label}</button>`;
+        container.innerHTML += '<button class="tab-btn" onclick="abrirLinkWeb(\'' + item.link + '\')">🔗 ' + item.label + '</button>';
       });
     }
 
@@ -3759,41 +3648,27 @@
             if (r.type === 'CHECK' && val === true) {
               estadoBadge = '<span style="color:var(--success-green); font-weight:600;">Completado</span>';
             } else if (r.type === 'TEXT' && val && String(val).trim() !== '') {
-              estadoBadge = `<span style="color:var(--primary-purple); font-weight:600;">📝 Texto: "${val}"</span>`;
+              estadoBadge = '<span style="color:var(--primary-purple); font-weight:600;">📝 Texto: "' + val + '"</span>';
             } else if (r.type === 'STATUS' && val) {
               var color = val === 'BUENO' ? 'var(--success-green)' : (val === 'REGULAR' ? 'var(--warning-yellow)' : 'var(--danger-red)');
-              estadoBadge = `<span style="color:${color}; font-weight:600;">🚦 Estado: ${val}</span>`;
+              estadoBadge = '<span style="color:' + color + '; font-weight:600;">🚦 Estado: ' + val + '</span>';
             }
 
-            reqsListHtml += `
-              <div style="padding:8px 0; border-bottom:1px dashed var(--border-color); font-size:0.88rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span>📌 <strong>${r.label}</strong></span>
-                  <div>${estadoBadge}</div>
-                </div>
-                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">
-                  👤 <strong>Responsable:</strong> ${meta.responsable || 'Sin registrar'} | 📅 <strong>Fecha:</strong> ${meta.fecha || 'Sin registrar'}
-                </div>
-              </div>
-            `;
+            reqsListHtml += '<div style="padding:8px 0; border-bottom:1px dashed var(--border-color); font-size:0.88rem;">' +
+              '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+              '<span>📌 <strong>' + r.label + '</strong></span><div>' + estadoBadge + '</div></div>' +
+              '<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">' +
+              '👤 <strong>Responsable:</strong> ' + (meta.responsable || 'Sin registrar') + ' | 📅 <strong>Fecha:</strong> ' + (meta.fecha || 'Sin registrar') + '</div></div>';
           });
         }
 
         var notaEtapa = (course.bitacoraNotes && course.bitacoraNotes[e.id]) || '';
 
-        container.innerHTML += `
-          <div class="bitacora-stage-card">
-            <div class="bitacora-stage-header">
-              <h3>Etapa ${e.id}: ${e.name}</h3>
-              <span style="font-weight:700; color:var(--primary-purple);">${stagePct}% Avance</span>
-            </div>
-            <div style="margin-bottom: 12px;">${reqsListHtml}</div>
-            <div style="margin-top: 12px;">
-              <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">📝 Comentarios / Bitácora de Observaciones:</label>
-              <input type="text" class="input-field" placeholder="Escribe notas de lo que han avanzado o acordado..." value="${notaEtapa}" onchange="guardarNotaBitacora(${e.id}, this.value)">
-            </div>
-          </div>
-        `;
+        container.innerHTML += '<div class="bitacora-stage-card"><div class="bitacora-stage-header">' +
+          '<h3>Etapa ' + e.id + ': ' + e.name + '</h3><span style="font-weight:700; color:var(--primary-purple);">' + stagePct + '% Avance</span></div>' +
+          '<div style="margin-bottom: 12px;">' + reqsListHtml + '</div>' +
+          '<div style="margin-top: 12px;"><label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">📝 Comentarios / Bitácora de Observaciones:</label>' +
+          '<input type="text" class="input-field" placeholder="Escribe notas de lo que han avanzado o acordado..." value="' + notaEtapa + '" onchange="guardarNotaBitacora(' + e.id + ', this.value)"></div></div>';
       });
     }
 
@@ -3809,12 +3684,8 @@
       var container = document.getElementById('listaExcelAdminContainer');
       container.innerHTML = '';
       excelLinksMaster.forEach(function(item, idx) {
-        container.innerHTML += `
-          <div class="check-item">
-            <div><strong>${item.label}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${item.link}</span></div>
-            <button class="btn-danger" onclick="eliminarExcelLink(${idx})">❌ Eliminar</button>
-          </div>
-        `;
+        container.innerHTML += '<div class="check-item"><div><strong>' + item.label + '</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">' + item.link + '</span></div>' +
+          '<button class="btn-danger" onclick="eliminarExcelLink(' + idx + ')">❌ Eliminar</button></div>';
       });
     }
 
@@ -3842,12 +3713,8 @@
         return;
       }
       infoLinksMaster.forEach(function(item, idx) {
-        container.innerHTML += `
-          <div class="check-item">
-            <div><strong>ℹ️ ${item.label}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${item.link}</span></div>
-            <button class="btn-danger" onclick="eliminarInfoLink(${idx})">❌ Eliminar</button>
-          </div>
-        `;
+        container.innerHTML += '<div class="check-item"><div><strong>ℹ️ ' + item.label + '</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">' + item.link + '</span></div>' +
+          '<button class="btn-danger" onclick="eliminarInfoLink(' + idx + ')">❌ Eliminar</button></div>';
       });
     }
 
@@ -3875,12 +3742,8 @@
         return;
       }
       customTabsMaster.forEach(function(item, idx) {
-        container.innerHTML += `
-          <div class="check-item">
-            <div><strong>🔗 ${item.label}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${item.link}</span></div>
-            <button class="btn-danger" onclick="eliminarPestañaBarra(${idx})">❌ Eliminar</button>
-          </div>
-        `;
+        container.innerHTML += '<div class="check-item"><div><strong>🔗 ' + item.label + '</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">' + item.link + '</span></div>' +
+          '<button class="btn-danger" onclick="eliminarPestañaBarra(' + idx + ')">❌ Eliminar</button></div>';
       });
     }
 
@@ -4027,13 +3890,11 @@
       select.innerHTML = ''; containerEliminar.innerHTML = '';
 
       nombresEtapasMaster.forEach(function(e) {
-        select.innerHTML += `<option value="${e.id}">Etapa ${e.id}: ${e.name}</option>`;
-        containerEliminar.innerHTML += `
-          <div style="background: var(--bg-body); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
-            <span><strong>${e.id}.</strong> ${e.name}</span>
-            ${nombresEtapasMaster.length > 1 ? `<button class="btn-danger" style="padding: 2px 6px;" onclick="eliminarEtapaMaster(${e.id})">🗑️</button>` : ''}
-          </div>
-        `;
+        select.innerHTML += '<option value="' + e.id + '">Etapa ' + e.id + ': ' + e.name + '</option>';
+        containerEliminar.innerHTML += '<div style="background: var(--bg-body); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">' +
+          '<span><strong>' + e.id + '.</strong> ' + e.name + '</span>' +
+          (nombresEtapasMaster.length > 1 ? '<button class="btn-danger" style="padding: 2px 6px;" onclick="eliminarEtapaMaster(' + e.id + ')">🗑️</button>' : '') +
+          '</div>';
       });
     }
 
@@ -4074,12 +3935,9 @@
       } else {
         lista.forEach(function(item, idx) {
           var tipoTag = item.type === 'TEXT' ? '📝 Texto / Área Amplia' : (item.type === 'STATUS' ? '🚦 Estado' : 'Casilla Check');
-          contenedor.innerHTML += `
-            <div class="check-item">
-              <div><strong>📌 ${item.label}</strong> <span style="font-size:0.75rem; background:#E2D9F3; color:var(--primary-purple); padding:2px 6px; border-radius:4px; margin-left:8px;">${tipoTag}</span></div>
-              <button class="btn-danger" onclick="eliminarOpcionEtapa(${numEtapa}, ${idx})">❌ Eliminar</button>
-            </div>
-          `;
+          contenedor.innerHTML += '<div class="check-item"><div><strong>📌 ' + item.label + '</strong> ' +
+            '<span style="font-size:0.75rem; background:#E2D9F3; color:var(--primary-purple); padding:2px 6px; border-radius:4px; margin-left:8px;">' + tipoTag + '</span></div>' +
+            '<button class="btn-danger" onclick="eliminarOpcionEtapa(' + numEtapa + ', ' + idx + ')">❌ Eliminar</button></div>';
         });
       }
     }
@@ -4175,12 +4033,10 @@
       var etapas = obtenerEtapasCurso(course);
 
       etapas.forEach(function(e) {
-        container.innerHTML += `
-          <div style="background: #FFF; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">
-            <span><strong>Etapa ${e.id}:</strong> ${e.name}</span>
-            ${etapas.length > 1 ? `<button class="btn-danger" style="padding: 1px 5px; font-size: 0.75rem;" onclick="eliminarEtapaPersonalizadaCurso(${e.id})">🗑️</button>` : ''}
-          </div>
-        `;
+        container.innerHTML += '<div style="background: #FFF; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">' +
+          '<span><strong>Etapa ' + e.id + ':</strong> ' + e.name + '</span>' +
+          (etapas.length > 1 ? '<button class="btn-danger" style="padding: 1px 5px; font-size: 0.75rem;" onclick="eliminarEtapaPersonalizadaCurso(' + e.id + ')">🗑️</button>' : '') +
+          '</div>';
       });
     }
 
@@ -4193,7 +4049,7 @@
       var etapas = obtenerEtapasCurso(course);
 
       etapas.forEach(function(e) {
-        selectStage.innerHTML += `<option value="${e.id}">Etapa ${e.id}: ${e.name}</option>`;
+        selectStage.innerHTML += '<option value="' + e.id + '">Etapa ' + e.id + ': ' + e.name + '</option>';
       });
     }
 
@@ -4261,14 +4117,11 @@
 
       lista.forEach(function(item, idx) {
         var tipoTag = item.type === 'TEXT' ? '📝 Texto / Área Amplia' : (item.type === 'STATUS' ? '🚦 Estado' : 'Casilla Check');
-        container.innerHTML += `
-          <div class="check-item" style="padding:10px 14px; margin-top:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div><strong>📌 ${item.label}</strong> <span style="font-size:0.75rem; background:#E2D9F3; color:var(--primary-purple); padding:2px 6px; border-radius:4px;">${tipoTag}</span></div>
-              <button class="btn-danger" style="padding:3px 8px;" onclick="eliminarRequerimientoPersonalizadoCurso(${numEtapa}, ${idx})">❌</button>
-            </div>
-          </div>
-        `;
+        container.innerHTML += '<div class="check-item" style="padding:10px 14px; margin-top:8px;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+          '<div><strong>📌 ' + item.label + '</strong> <span style="font-size:0.75rem; background:#E2D9F3; color:var(--primary-purple); padding:2px 6px; border-radius:4px;">' + tipoTag + '</span></div>' +
+          '<button class="btn-danger" style="padding:3px 8px;" onclick="eliminarRequerimientoPersonalizadoCurso(' + numEtapa + ', ' + idx + ')">❌</button>' +
+          '</div></div>';
       });
     }
 
@@ -4378,19 +4231,17 @@
 
         var card = document.createElement('div');
         card.className = 'candidate-card';
-        card.innerHTML = `
-          <div class="candidate-card-actions">
-            <button class="candidate-card-edit-btn" onclick="solicitarEditarCandidato(${idx}, event)">✏️ Editar</button>
-            <button class="candidate-card-delete-btn" onclick="solicitarEliminarCandidato(${idx}, event)">🗑️ Eliminar</button>
-          </div>
-          <h3 style="color:var(--primary-purple); padding-right: 140px;">${c.nombre}</h3>
-          <p><strong>Profesión:</strong> ${c.profesion}</p>
-          ${c.especialidad ? `<p><strong>Especialidad:</strong> ${c.especialidad}</p>` : ''}
-          ${c.ciudad ? `<p><strong>Ciudad:</strong> ${c.ciudad}</p>` : ''}
-          <p><strong>Celular:</strong> ${c.celular || 'N/A'}</p>
-          ${c.descripcion ? `<p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; margin-bottom:8px;"><strong>Descripción:</strong> ${c.descripcion}</p>` : ''}
-          ${c.link ? `<a href="${c.link}" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>` : ''}
-        `;
+        card.innerHTML = '<div class="candidate-card-actions">' +
+          '<button class="candidate-card-edit-btn" onclick="solicitarEditarCandidato(' + idx + ', event)">✏️ Editar</button>' +
+          '<button class="candidate-card-delete-btn" onclick="solicitarEliminarCandidato(' + idx + ', event)">🗑️ Eliminar</button>' +
+          '</div>' +
+          '<h3 style="color:var(--primary-purple); padding-right: 140px;">' + c.nombre + '</h3>' +
+          '<p><strong>Profesión:</strong> ' + c.profesion + '</p>' +
+          (c.especialidad ? '<p><strong>Especialidad:</strong> ' + c.especialidad + '</p>' : '') +
+          (c.ciudad ? '<p><strong>Ciudad:</strong> ' + c.ciudad + '</p>' : '') +
+          '<p><strong>Celular:</strong> ' + (c.celular || 'N/A') + '</p>' +
+          (c.descripcion ? '<p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; margin-bottom:8px;"><strong>Descripción:</strong> ' + c.descripcion + '</p>' : '') +
+          (c.link ? '<a href="' + c.link + '" target="_blank" style="color:var(--primary-purple); font-weight:600; text-decoration:none;">📄 Ver CV</a>' : '');
         contenedor.appendChild(card);
       });
     }
@@ -4401,7 +4252,7 @@
       container.innerHTML = '';
 
       var btnTodos = document.createElement('button');
-      btnTodos.className = `stage-chip-btn ${filtroEtapaCursosActual === 'TODOS' ? 'active' : ''}`;
+      btnTodos.className = "stage-chip-btn " + (filtroEtapaCursosActual === 'TODOS' ? 'active' : '');
       btnTodos.innerText = '✨ Todos los Cursos';
       btnTodos.onclick = function() {
         filtroEtapaCursosActual = 'TODOS';
@@ -4412,8 +4263,8 @@
 
       nombresEtapasMaster.forEach(function(e) {
         var btn = document.createElement('button');
-        btn.className = `stage-chip-btn ${filtroEtapaCursosActual === e.id ? 'active' : ''}`;
-        btn.innerText = `${e.id}. ${e.name}`;
+        btn.className = "stage-chip-btn " + (filtroEtapaCursosActual === e.id ? 'active' : '');
+        btn.innerText = e.id + ". " + e.name;
         btn.onclick = function() {
           filtroEtapaCursosActual = e.id;
           renderBarraFiltroEtapas();
@@ -4449,28 +4300,16 @@
         if (pctTotal >= 35 && pctTotal <= 70) barColor = '#EAB308';
         else if (pctTotal > 70) barColor = '#22C55E';
 
-        grid.innerHTML += `
-          <div class="course-card" onclick="openCourseDetail(${c.id})">
-            <button class="course-card-delete-btn" onclick="solicitarEliminarCurso(${c.id}, event)">🗑️ Eliminar</button>
-            <h3 style="padding-right: 80px;">${c.name}</h3>
-            <p style="color:var(--text-muted); font-size:0.83rem; margin-bottom:8px;">Propuesto por: ${c.proposer}</p>
-
-            <div style="background:#F8F5FC; padding:8px 10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:12px; font-size:0.8rem;">
-              <div style="font-weight:700; color:var(--primary-purple);">📌 Etapa: ${c.currentStage}. ${objEtapaActual.name}</div>
-              <div style="color:var(--text-muted); font-size:0.75rem; margin-top:2px;">⏱️ ${tiempoTexto}</div>
-            </div>
-
-            <div>
-              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:600;">
-                <span>Avance Global</span>
-                <span style="color:${barColor}; font-weight:700;">${pctTotal}%</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill" style="width:${pctTotal}%; background-color:${barColor};"></div>
-              </div>
-            </div>
-          </div>
-        `;
+        grid.innerHTML += '<div class="course-card" onclick="openCourseDetail(' + c.id + ')">' +
+          '<button class="course-card-delete-btn" onclick="solicitarEliminarCurso(' + c.id + ', event)">🗑️ Eliminar</button>' +
+          '<h3 style="padding-right: 80px;">' + c.name + '</h3>' +
+          '<p style="color:var(--text-muted); font-size:0.83rem; margin-bottom:8px;">Propuesto por: ' + c.proposer + '</p>' +
+          '<div style="background:#F8F5FC; padding:8px 10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:12px; font-size:0.8rem;">' +
+          '<div style="font-weight:700; color:var(--primary-purple);">📌 Etapa: ' + c.currentStage + '. ' + objEtapaActual.name + '</div>' +
+          '<div style="color:var(--text-muted); font-size:0.75rem; margin-top:2px;">⏱️ ' + tiempoTexto + '</div></div>' +
+          '<div><div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:600;">' +
+          '<span>Avance Global</span><span style="color:' + barColor + '; font-weight:700;">' + pctTotal + '%</span></div>' +
+          '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + pctTotal + '%; background-color:' + barColor + ';"></div></div></div></div>';
       });
     }
 
@@ -4537,13 +4376,10 @@
       var html = '<div class="timeline-line-base"></div><div class="timeline-line-progress" id="timelineProgress"></div>';
 
       etapas.forEach(function(e) {
-        html += `
-          <div class="timeline-step" id="step-node-${e.id}" onclick="selectStage(${e.id})">
-            <span class="step-percent-badge" id="step-percent-${e.id}">0%</span>
-            <div class="step-node">${e.id}</div>
-            <span class="step-label">${e.name}</span>
-          </div>
-        `;
+        html += '<div class="timeline-step" id="step-node-' + e.id + '" onclick="selectStage(' + e.id + ')">' +
+          '<span class="step-percent-badge" id="step-percent-' + e.id + '">0%</span>' +
+          '<div class="step-node">' + e.id + '</div>' +
+          '<span class="step-label">' + e.name + '</span></div>';
       });
 
       container.innerHTML = html;
@@ -4579,7 +4415,7 @@
       });
 
       var startTime = (course.stageStartTimes && course.stageStartTimes[stageNumber]) ? course.stageStartTimes[stageNumber] : Date.now();
-      document.getElementById('stageTimeBadgeDetail').innerText = `⏱️ ${calcularTiempoTranscurridoEtapaTexto(startTime)}`;
+      document.getElementById('stageTimeBadgeDetail').innerText = "⏱️ " + calcularTiempoTranscurridoEtapaTexto(startTime);
 
       var container = document.getElementById('checklistContainer');
       container.innerHTML = '';
@@ -4594,54 +4430,28 @@
           var val = course.tasks ? course.tasks[item.id] : '';
           var meta = (course.taskMeta && course.taskMeta[item.id]) || { responsable: '', fecha: '' };
 
-          var metaFieldsHtml = `
-            <div class="check-item-meta">
-              <label>👤 Responsable:
-                <input type="text" id="resp_${item.id}" placeholder="Nombre..." value="${meta.responsable || ''}" onchange="guardarMetaTarea('${item.id}')">
-              </label>
-              <label>📅 Fecha:
-                <input type="date" id="fecha_${item.id}" value="${meta.fecha || ''}" onchange="guardarMetaTarea('${item.id}')">
-              </label>
-            </div>
-          `;
+          var metaFieldsHtml = '<div class="check-item-meta"><label>👤 Responsable: ' +
+            '<input type="text" id="resp_' + item.id + '" placeholder="Nombre..." value="' + (meta.responsable || '') + '" onchange="guardarMetaTarea(\'' + item.id + '\')"></label>' +
+            '<label>📅 Fecha: <input type="date" id="fecha_' + item.id + '" value="' + (meta.fecha || '') + '" onchange="guardarMetaTarea(\'' + item.id + '\')"></label></div>';
 
           if (item.type === 'TEXT') {
-            container.innerHTML += `
-              <div class="check-item">
-                <div class="check-item-main" style="flex-direction: column; align-items: stretch;">
-                  <span class="check-item-label">📝 ${item.label}</span>
-                  <textarea class="textarea-req-item" placeholder="Escribe la información solicitada aquí..." onchange="guardarTareaEntrada('${item.id}', this.value, '${item.type}')">${val || ''}</textarea>
-                </div>
-                ${metaFieldsHtml}
-              </div>
-            `;
+            container.innerHTML += '<div class="check-item"><div class="check-item-main" style="flex-direction: column; align-items: stretch;">' +
+              '<span class="check-item-label">📝 ' + item.label + '</span>' +
+              '<textarea class="textarea-req-item" placeholder="Escribe la información solicitada aquí..." onchange="guardarTareaEntrada(\'' + item.id + '\', this.value, \'' + item.type + '\')">' + (val || '') + '</textarea></div>' +
+              metaFieldsHtml + '</div>';
           } else if (item.type === 'STATUS') {
-            container.innerHTML += `
-              <div class="check-item">
-                <div class="check-item-main">
-                  <span class="check-item-label">🚦 ${item.label}</span>
-                  <select class="select-status-item status-${val || 'NINGUNO'}" onchange="guardarTareaEntrada('${item.id}', this.value, '${item.type}')">
-                    <option value="">-- Seleccionar Estado --</option>
-                    <option value="BUENO" ${val === 'BUENO' ? 'selected' : ''}>🟢 BUENO</option>
-                    <option value="REGULAR" ${val === 'REGULAR' ? 'selected' : ''}>🟡 REGULAR</option>
-                    <option value="MALO" ${val === 'MALO' ? 'selected' : ''}>🔴 MALO</option>
-                  </select>
-                </div>
-                ${metaFieldsHtml}
-              </div>
-            `;
+            container.innerHTML += '<div class="check-item"><div class="check-item-main">' +
+              '<span class="check-item-label">🚦 ' + item.label + '</span>' +
+              '<select class="select-status-item status-' + (val || 'NINGUNO') + '" onchange="guardarTareaEntrada(\'' + item.id + '\', this.value, \'' + item.type + '\')">' +
+              '<option value="">-- Seleccionar Estado --</option>' +
+              '<option value="BUENO" ' + (val === 'BUENO' ? 'selected' : '') + '>🟢 BUENO</option>' +
+              '<option value="REGULAR" ' + (val === 'REGULAR' ? 'selected' : '') + '>🟡 REGULAR</option>' +
+              '<option value="MALO" ' + (val === 'MALO' ? 'selected' : '') + '>🔴 MALO</option>' +
+              '</select></div>' + metaFieldsHtml + '</div>';
           } else {
-            container.innerHTML += `
-              <div class="check-item">
-                <div class="check-item-main">
-                  <label class="check-item-label">
-                    <input type="checkbox" ${val === true ? 'checked' : ''} onchange="guardarTareaEntrada('${item.id}', this.checked, '${item.type}')">
-                    <span>${item.label}</span>
-                  </label>
-                </div>
-                ${metaFieldsHtml}
-              </div>
-            `;
+            container.innerHTML += '<div class="check-item"><div class="check-item-main"><label class="check-item-label">' +
+              '<input type="checkbox" ' + (val === true ? 'checked' : '') + ' onchange="guardarTareaEntrada(\'' + item.id + '\', this.checked, \'' + item.type + '\')">' +
+              '<span>' + item.label + '</span></label></div>' + metaFieldsHtml + '</div>';
           }
         });
       }
