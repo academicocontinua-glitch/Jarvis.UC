@@ -1271,6 +1271,55 @@
     .aula-half-occupied .aula-block-unified { height:100%; min-height:25px; box-sizing:border-box; margin:0; border-radius:5px; display:flex; flex-direction:column; justify-content:center; }
     .aula-half-zone.jarvis-past-cell, .aula-half-zone.jarvis-past-cell:hover { background:rgba(120,120,120,.045); cursor:not-allowed; }
     .aula-half-zone.jarvis-now-half { overflow:visible; }
+
+    /* Unificación visual de reservas aprobadas/pendientes consecutivas.
+       Cada media hora sigue existiendo internamente, pero el bloque se percibe
+       como una sola reserva continua y el rango queda centrado en todo el bloque. */
+    .aula-half-zone.aula-reserva-unificada {
+      border-bottom-color: transparent !important;
+    }
+    .aula-half-zone.aula-reserva-unificada .aula-block-unified {
+      border-radius: 0 !important;
+      margin: 0 !important;
+      height: 100% !important;
+      min-height: 27px !important;
+      box-shadow: none !important;
+      position: relative;
+      z-index: 5;
+    }
+    .aula-half-zone.aula-reserva-inicio .aula-block-unified {
+      border-top-left-radius: 6px !important;
+      border-top-right-radius: 6px !important;
+    }
+    .aula-half-zone.aula-reserva-fin .aula-block-unified {
+      border-bottom-left-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
+    }
+    .aula-half-zone.aula-reserva-unica .aula-block-unified {
+      border-radius: 6px !important;
+    }
+    .aula-reserva-rango-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      pointer-events: none;
+      white-space: nowrap;
+      text-align: center;
+      font-size: .69rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #FFFFFF;
+      background: rgba(76, 0, 153, .82);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 6px;
+      padding: 4px 9px;
+      box-shadow: 0 2px 5px rgba(0,0,0,.18);
+    }
+    .aula-reserva-unificada .aula-reserva-contenido-secundario {
+      display: none !important;
+    }
     .aula-half-zone .aula-now-line { left:0; right:0; height:2px; position:absolute; }
     /* Progreso del tiempo actual: pinta de forma continua la parte de la media hora que ya transcurrió. */
     .aula-half-zone .aula-now-progress {
@@ -1899,19 +1948,12 @@
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">4. Sede (*):</label>
-          <select id="reservaSedeSelect" class="input-field">
-            <option value="">-- Seleccionar Sede --</option>
-          </select>
-        </div>
-
-        <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">5. Distribución del espacio (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">4. Distribución del espacio (*):</label>
           <input type="text" id="reservaDistribucionInput" class="input-field" placeholder="Ej. Mesas en U, filas de carpeta, espacio abierto, auditorio...">
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">6. Requerimientos Técnicos / Materiales (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">5. Requerimientos Técnicos / Materiales (*):</label>
           <textarea id="reservaRequerimientosInput" class="textarea-field" placeholder="Ej. 2 micrófonos extra, ecran, proyector, plumones, extensión eléctrica..."></textarea>
         </div>
       </div>
@@ -3646,7 +3688,87 @@
         tbody.appendChild(tr);
       });
 
+      aplicarUnificacionVisualReservasAula();
       actualizarEstilosCeldasSeleccionadasAula();
+    }
+
+    function aplicarUnificacionVisualReservasAula() {
+      var reservasUnicas = [];
+      var idsVistos = {};
+
+      reservasAulasDB.forEach(function(res) {
+        if (!res || res.estadoAprobacion === 'RECHAZADA') return;
+        if (sedeFiltroSeleccionada && res.sede !== sedeFiltroSeleccionada) return;
+        if (aulaFiltroSeleccionada && res.aula !== aulaFiltroSeleccionada) return;
+        if (filtroPendientesAulas && res.estadoAprobacion !== 'PENDIENTE') return;
+        var id = String(res.id);
+        if (idsVistos[id]) return;
+        idsVistos[id] = true;
+        reservasUnicas.push(res);
+      });
+
+      reservasUnicas.forEach(function(res) {
+        var slots = obtenerSlotsReservaAula(res).sort(function(a,b){return a-b;});
+        if (!slots.length) return;
+
+        var zonas = [];
+        slots.forEach(function(slot) {
+          var selector = '#calendarAulaTbody .aula-half-zone[data-fecha-iso="' + res.fechaIso + '"]';
+          var encontrados = document.querySelectorAll(selector);
+          encontrados.forEach(function(z) {
+            var zslot = Number(z.dataset.hora) + Number(z.dataset.mitad || 0);
+            if (Math.abs(zslot - Number(slot)) < 0.001) zonas.push(z);
+          });
+        });
+
+        if (!zonas.length) return;
+        zonas.sort(function(a,b){
+          var sa=Number(a.dataset.hora)+Number(a.dataset.mitad||0);
+          var sb=Number(b.dataset.hora)+Number(b.dataset.mitad||0);
+          return sa-sb;
+        });
+
+        zonas.forEach(function(z){
+          z.classList.add('aula-reserva-unificada');
+          z.classList.remove('aula-reserva-inicio','aula-reserva-fin','aula-reserva-unica');
+          var old=z.querySelector('.aula-reserva-rango-label');
+          if(old) old.remove();
+        });
+
+        if (zonas.length === 1) {
+          zonas[0].classList.add('aula-reserva-unica');
+        } else {
+          zonas[0].classList.add('aula-reserva-inicio');
+          zonas[zonas.length-1].classList.add('aula-reserva-fin');
+        }
+
+        /*
+         * El rango se coloca en la zona que ocupa el centro matemático de
+         * toda la reserva. Así 08:00→09:30 queda realmente en medio del
+         * bloque completo, no en la primera media hora.
+         */
+        var indiceCentro = Math.floor((zonas.length - 1) / 2);
+        var zonaCentro = zonas[indiceCentro];
+        if (zonaCentro) {
+          var label=document.createElement('div');
+          label.className='aula-reserva-rango-label';
+          label.textContent=formatearHoraJarvis(slots[0])+' → '+formatearHoraJarvis(slots[slots.length-1]+0.5);
+          zonaCentro.appendChild(label);
+        }
+
+        /* En las demás medias horas dejamos únicamente el bloque de color,
+           evitando repetir el texto de la reserva en cada segmento. */
+        zonas.forEach(function(z,idx){
+          var bloque=z.querySelector('.aula-block-unified');
+          if (!bloque) return;
+          var contenido=bloque.querySelector('small');
+          if (contenido) contenido.classList.add('aula-reserva-contenido-secundario');
+          if (idx !== indiceCentro) {
+            var titulo=bloque.firstChild;
+            if (titulo && titulo.nodeType===3) titulo.textContent='';
+          }
+        });
+      });
     }
 
     /* ============================================================
@@ -3705,11 +3827,7 @@
       var minutosSeleccionados = numBloques * 30;
       var duracionSeleccionada = minutosSeleccionados >= 60 ? (Math.floor(minutosSeleccionados/60) + ' hora(s)' + (minutosSeleccionados%60 ? ' y ' + (minutosSeleccionados%60) + ' minutos' : '')) : minutosSeleccionados + ' minutos';
       document.getElementById('selectedAulaRangeInfoText').innerText = 
-        "Reserva para " + duracionSeleccionada + ". Puedes seleccionar cada hora completa o media hora (00/30). Identifícate con cualquiera de tus credenciales oficiales:";
-
-      if (sedeFiltroSeleccionada) {
-        document.getElementById('reservaSedeSelect').value = sedeFiltroSeleccionada;
-      }
+        "Reserva para " + duracionSeleccionada + ". La sede y el aula corresponden a la selección realizada en el calendario:";
 
       document.getElementById('reservaResponsableInput').value = '';
       document.getElementById('reservaTipoEventoInput').value = '';
@@ -3725,14 +3843,16 @@
       var responsable = document.getElementById('reservaResponsableInput').value.trim();
       var tipoEvento = document.getElementById('reservaTipoEventoInput').value.trim();
       var area = document.getElementById('reservaAreaInput').value.trim();
-      var sede = document.getElementById('reservaSedeSelect').value.trim();
+      // La Sede ya queda determinada por la selección del calendario.
+      // No se solicita nuevamente en el formulario para evitar duplicidad.
+      var sede = (sedeFiltroSeleccionada || '').trim();
       var distribucion = document.getElementById('reservaDistribucionInput').value.trim();
       var requerimientosTecnicos = document.getElementById('reservaRequerimientosInput').value.trim();
       var tipoDoc = 'CUENTA';
       var numDoc = (sesionActual && sesionActual.username) ? sesionActual.username : '';
 
       if (!responsable || !tipoEvento || !area || !sede || !distribucion || !requerimientosTecnicos) {
-        return alert('⚠️ ATENCIÓN: Completa todos los campos obligatorios de la reserva.');
+        return alert('⚠️ ATENCIÓN: Completa todos los campos obligatorios de la reserva y verifica que hayas seleccionado una Sede y un Aula en el calendario.');
       }
 
       var aula = aulaFiltroSeleccionada || document.getElementById('selectAulaFiltro').value;
@@ -5598,10 +5718,6 @@
       if (!cuentaPuede('crearReservas')) return alert('⛔ Tu cuenta no tiene permiso para crear reservas. Solicita al Programador que habilite este permiso.');
       if (celdasAulaSeleccionadasSet.size === 0) return alert('Por favor selecciona las celdas de horario que deseas reservar.');
       if (!aulaFiltroSeleccionada && !document.getElementById('selectAulaFiltro').value) return alert('Por favor selecciona primero una Sede y un Aula.');
-      // Cargar explícitamente las sedes antes de abrir el formulario.
-      // Así el desplegable no depende de que otra vista se haya renderizado antes.
-      cargarSedesEnModalReserva();
-
       var numBloques = celdasAulaSeleccionadasSet.size;
       document.getElementById('selectedAulaRangeInfoText').innerText = 'Reserva para ' + numBloques + ' bloque(s). Sesión: ' + sesionActual.displayName + '.';
       document.getElementById('reservaResponsableInput').value = sesionActual.displayName;
@@ -5609,8 +5725,6 @@
       document.getElementById('reservaAreaInput').value = '';
       document.getElementById('reservaDistribucionInput').value = '';
       document.getElementById('reservaRequerimientosInput').value = '';
-      // Reafirmar el valor después de limpiar los campos del formulario.
-      cargarSedesEnModalReserva();
       document.getElementById('addReservaAulaModal').style.display = 'flex';
     }
 
@@ -5620,7 +5734,7 @@
       var responsable = document.getElementById('reservaResponsableInput').value.trim();
       var tipoEvento = document.getElementById('reservaTipoEventoInput').value.trim();
       var area = document.getElementById('reservaAreaInput').value.trim();
-      var sede = document.getElementById('reservaSedeSelect').value.trim();
+      var sede = (sedeFiltroSeleccionada || '').trim();
       var distribucion = document.getElementById('reservaDistribucionInput').value.trim();
       var requerimientosTecnicos = document.getElementById('reservaRequerimientosInput').value.trim();
       /* Compatibilidad con reservas antiguas: la información de credencial se conserva
