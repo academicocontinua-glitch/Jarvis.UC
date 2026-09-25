@@ -5448,10 +5448,20 @@
       var btnFiltro=document.getElementById('btnNotificacionesAulas'); if(btnFiltro) btnFiltro.classList.remove('jarvis-pending-filter-active');
       syncToCloud();
       var estadoCorreo=res.estadoAprobacion==='APROBADO'?'ACEPTADO':'RECHAZADO';
-      enviarCorreoEstadoReserva(res,estadoCorreo,false).then(function(resultadoCorreo){
-        if(resultadoCorreo && resultadoCorreo.ok){ syncToCloud(); }
+      var reservaParaCorreo=JSON.parse(JSON.stringify(res));
+      enviarCorreoEstadoReserva(reservaParaCorreo,estadoCorreo,false).then(function(resultadoCorreo){
+        if(resultadoCorreo && resultadoCorreo.ok){
+          res.ultimaNotificacionCorreo=estadoCorreo+'|'+(res.fechaAprobacionAuditoria||'');
+          res.correoNotificacionEstado='ENVIADO';
+          syncToCloud();
+          cerrarModalAuditReserva(); cerrarModalVerReservaAula(); actualizarContadorNotificaciones(); renderizarTablaCalendarioAulas(); renderizarPanelNotificacionesAulas();
+          alert(res.estadoAprobacion==='APROBADO' ? '🟢 Reserva aprobada y correo enviado correctamente al solicitante.' : '🔴 Reserva rechazada y correo enviado correctamente al solicitante.');
+        } else {
+          cerrarModalAuditReserva(); cerrarModalVerReservaAula(); actualizarContadorNotificaciones(); renderizarTablaCalendarioAulas(); renderizarPanelNotificacionesAulas();
+          var detalleCorreo = resultadoCorreo && resultadoCorreo.reason ? resultadoCorreo.reason : 'ERROR_DESCONOCIDO';
+          alert((res.estadoAprobacion==='APROBADO' ? '🟢 Reserva aprobada.' : '🔴 Reserva rechazada.') + '\n\n⚠️ La reserva sí se guardó en Firebase, pero NO se pudo enviar el correo.\n\nMotivo: ' + detalleCorreo + (resultadoCorreo && resultadoCorreo.error && resultadoCorreo.error.text ? '\nDetalle EmailJS: ' + resultadoCorreo.error.text : ''));
+        }
       });
-      cerrarModalAuditReserva(); cerrarModalVerReservaAula(); actualizarContadorNotificaciones(); renderizarTablaCalendarioAulas(); renderizarPanelNotificacionesAulas(); alert(res.estadoAprobacion==='APROBADO'?'🟢 Reserva aprobada con auditoría registrada y reflejada en el calendario.':'🔴 Reserva rechazada con auditoría registrada.');
     }
     function aprobarReservaAulaActual(){abrirAuditoriaReserva('APROBAR');}
     function rechazarReservaAulaActual(){abrirAuditoriaReserva('RECHAZAR');}
@@ -5657,28 +5667,62 @@
 
     function enviarCorreoEstadoReserva(res,estado,forzar){
       var email=obtenerCorreoSolicitanteReserva(res);
-      if(!email)return Promise.resolve({ok:false,reason:'SIN_CORREO'});
-      if(!configuracionCorreoJARVIS.habilitado)return Promise.resolve({ok:false,reason:'CORREO_DESACTIVADO'});
-      if(!configuracionCorreoJARVIS.serviceId||!configuracionCorreoJARVIS.templateId||!configuracionCorreoJARVIS.publicKey)return Promise.resolve({ok:false,reason:'CONFIGURACION_INCOMPLETA'});
+      if(!email)return Promise.resolve({ok:false,reason:'SIN_CORREO: la cuenta solicitante no tiene un correo registrado.'});
+      if(!configuracionCorreoJARVIS.habilitado)return Promise.resolve({ok:false,reason:'CORREO_DESACTIVADO: activa las notificaciones en la configuración de JARVIS.'});
+      if(!configuracionCorreoJARVIS.serviceId||!configuracionCorreoJARVIS.templateId||!configuracionCorreoJARVIS.publicKey)return Promise.resolve({ok:false,reason:'CONFIGURACION_INCOMPLETA: falta Service ID, Template ID o Public Key.'});
+      if(typeof emailjs==='undefined')return Promise.resolve({ok:false,reason:'EMAILJS_NO_DISPONIBLE: no se cargó la librería de EmailJS.'});
       if(!forzar && res.ultimaNotificacionCorreo===estado+'|'+(res.fechaAprobacionAuditoria||''))return Promise.resolve({ok:true,reason:'YA_ENVIADO'});
-      if(!inicializarEmailJARVIS())return Promise.resolve({ok:false,reason:'EMAILJS_NO_DISPONIBLE'});
-      var params={to_email:email,email:email,recipient_email:email,subject:'RESERVA '+estado+' - '+res.sede+' - '+res.aula,estado:estado,estado_reserva:estado,responsable:res.responsable,sede:res.sede,aula:res.aula,fecha:res.fechaIso,dia:res.diaNombre,horario:(Math.min.apply(null,res.horasArray||[0])).toString().padStart(2,'0')+':00 - '+(Math.max.apply(null,res.horasArray||[0])+1).toString().padStart(2,'0')+':00',tipo_evento:res.tipoEvento,area:res.area,motivo:res.respuestaAuditoria||'',message_html:construirCorreoReservaHTML(res,estado)};
-      return emailjs.send(configuracionCorreoJARVIS.serviceId,configuracionCorreoJARVIS.templateId,params).then(function(){
+      if(!inicializarEmailJARVIS())return Promise.resolve({ok:false,reason:'EMAILJS_NO_DISPONIBLE: no fue posible inicializar EmailJS con el Public Key configurado.'});
+      var minH=Math.min.apply(null,res.horasArray||[0]);
+      var maxH=Math.max.apply(null,res.horasArray||[0])+1;
+      var horario=String(minH).padStart(2,'0')+':00 - '+String(maxH).padStart(2,'0')+':00';
+      var params={
+        to_email:email,
+        email:email,
+        recipient_email:email,
+        subject:'RESERVA '+estado+' - '+(res.sede||'')+' - '+(res.aula||''),
+        estado:estado,
+        estado_reserva:estado,
+        responsable:res.responsable||'',
+        sede:res.sede||'',
+        aula:res.aula||'',
+        fecha:res.fechaIso||'',
+        dia:res.diaNombre||'',
+        horario:horario,
+        tipo_evento:res.tipoEvento||'',
+        area:res.area||'',
+        distribucion:res.distribucion||'',
+        requerimientos:res.requerimientosTecnicos||'',
+        motivo:res.respuestaAuditoria||'',
+        responde:res.responde||'',
+        fecha_respuesta:res.fechaAprobacionAuditoria||'',
+        message_html:construirCorreoReservaHTML(res,estado)
+      };
+      return emailjs.send(configuracionCorreoJARVIS.serviceId,configuracionCorreoJARVIS.templateId,params).then(function(response){
+        console.log('JARVIS - Correo enviado:',response);
         res.ultimaNotificacionCorreo=estado+'|'+(res.fechaAprobacionAuditoria||'');
         res.correoNotificacionEstado='ENVIADO';
-        return {ok:true};
-      }).catch(function(error){console.error('JARVIS - Error enviando correo:',error);return {ok:false,reason:'ERROR_ENVIO',error:error};});
+        return {ok:true,response:response,email:email};
+      }).catch(function(error){
+        console.error('JARVIS - Error enviando correo:',error);
+        return {ok:false,reason:'ERROR_ENVIO',error:error,email:email};
+      });
     }
 
     function probarCorreoJARVIS(){
       if(!esProgramador)return alert('⛔ Solo el Programador puede probar el correo.');
       var email=prompt('Ingresa el correo al que deseas enviar la prueba:','');
       if(!email)return;
-      var prueba={responsable:'Prueba JARVIS',sede:'Sede de prueba',aula:'Aula de prueba',diaNombre:'Día de prueba',fechaIso:new Date().toISOString().split('T')[0],horasArray:[10,11],tipoEvento:'Prueba de correo',area:'JARVIS',distribucion:'Prueba',requerimientosTecnicos:'Correo de prueba',responde:'Programador',respuestaAuditoria:'Prueba de configuración de correo',fechaAprobacionAuditoria:getRelojFechaTexto(),solicitadoPorCuenta:original.username};
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return alert('⚠️ Ingresa un correo electrónico válido.');
       var original=cuentasSedeDB.length?cuentasSedeDB[0]:null;
       if(!original)return alert('No existen cuentas de sede.');
-      var old=original.email; original.email=email;
-      enviarCorreoEstadoReserva(prueba,'ACEPTADO',true).then(function(r){original.email=old; if(r.ok)alert('📨 Correo de prueba enviado correctamente.'); else alert('⚠️ No se pudo enviar la prueba: '+r.reason);});
+      var prueba={responsable:'Prueba JARVIS',sede:'Sede de prueba',aula:'Aula de prueba',diaNombre:'Día de prueba',fechaIso:new Date().toISOString().split('T')[0],horasArray:[10,11],tipoEvento:'Prueba de correo',area:'JARVIS',distribucion:'Prueba',requerimientosTecnicos:'Correo de prueba',responde:'Programador',respuestaAuditoria:'Prueba de configuración de correo',fechaAprobacionAuditoria:getRelojFechaTexto(),solicitadoPorCuenta:original.username};
+      var old=original.email; original.email=email.trim();
+      enviarCorreoEstadoReserva(prueba,'ACEPTADO',true).then(function(r){
+        original.email=old;
+        if(r.ok) alert('📨 Correo de prueba enviado correctamente a '+email.trim()+'.');
+        else alert('⚠️ No se pudo enviar la prueba.\n\nMotivo: '+r.reason+(r.error&&r.error.text?'\nDetalle EmailJS: '+r.error.text:''));
+      });
     }
 
     function cambiarPermisoCuentaSede(username,clave,valor){
