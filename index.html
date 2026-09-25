@@ -3168,9 +3168,9 @@
     /* ============================================================
        RESERVA: CARGA ROBUSTA DEL DESPLEGABLE DE SEDES
        La Sede del modal de reserva se alimenta directamente del
-       catálogo cargado desde Firebase. Para un ENCARGADO se limita
-       a su sede; si el catálogo aún no tiene esa sede, se muestra
-       la sede de su sesión sin crear ni guardar datos automáticamente.
+       catálogo cargado desde Firebase. Cualquier usuario puede elegir
+       cualquier sede disponible; las restricciones de gestión por sede
+       se mantienen para aprobación y edición.
        ============================================================ */
     function cargarSedesEnModalReserva() {
       var select = document.getElementById('reservaSedeSelect');
@@ -3179,20 +3179,10 @@
       var valorAnterior = select.value || sedeFiltroSeleccionada || '';
       select.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
 
+      // Cualquier usuario puede solicitar una reserva en cualquier sede.
+      // La sede asociada a la cuenta NO limita la sede de la solicitud.
+      // Las restricciones por sede se mantienen únicamente para APROBAR/EDITAR.
       var lista = Array.isArray(sedesAulasMaster) ? sedesAulasMaster.slice() : [];
-
-      if (sesionActual && sesionActual.role === 'ENCARGADO') {
-        lista = lista.filter(function(s) {
-          return s && sedesCoincidenJarvis(s.nombre, sesionActual.sede);
-        });
-
-        // La cuenta ya tiene una sede definida. Si por cualquier motivo
-        // el catálogo aún no llegó a la interfaz, mostramos esa sede
-        // para que la reserva no quede bloqueada. Esto NO escribe en Firebase.
-        if (!lista.length && sesionActual.sede) {
-          lista = [{ nombre: sesionActual.sede, aulas: [] }];
-        }
-      }
 
       lista.forEach(function(s) {
         if (!s || !s.nombre) return;
@@ -3202,14 +3192,9 @@
         select.appendChild(option);
       });
 
-      // Programador: conserva la sede seleccionada en el calendario.
-      // Encargado: fuerza su sede oficial.
-      var objetivo = '';
-      if (sesionActual && sesionActual.role === 'ENCARGADO') {
-        objetivo = sesionActual.sede || '';
-      } else {
-        objetivo = valorAnterior || sedeFiltroSeleccionada || '';
-      }
+      // Todos conservan la sede seleccionada en el calendario o la que
+      // ya estuviera elegida en el formulario. No se fuerza la sede de la cuenta.
+      var objetivo = valorAnterior || sedeFiltroSeleccionada || '';
 
       var opcionObjetivo = Array.from(select.options).find(function(o) {
         return sedesCoincidenJarvis(o.value, objetivo);
@@ -3221,8 +3206,9 @@
         select.value = '';
       }
 
-      // Un encargado no puede cambiar de sede; el Programador sí.
-      select.disabled = !!(sesionActual && sesionActual.role === 'ENCARGADO');
+      // Cualquier usuario puede seleccionar cualquier sede para solicitar una reserva.
+      // La gestión de aprobación/edición continúa restringida a la sede correspondiente.
+      select.disabled = false;
     }
 
     function abrirModalReservaAula() {
@@ -5023,37 +5009,26 @@
       selectAula.innerHTML = '<option value="">-- Seleccionar Aula --</option>';
       if (selectSedeModal) selectSedeModal.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
 
+      // El calendario es global: cualquier usuario puede consultar cualquier sede
+      // y seleccionar un aula para solicitar una reserva.
       var lista = sedesAulasMaster || [];
-      if (sesionActual && sesionActual.role === 'ENCARGADO') {
-        lista = lista.filter(function(s){ return sedesCoincidenJarvis(s.nombre, sesionActual.sede); });
-        // Si la sede todavía no fue creada en el catálogo, permitimos mostrar la cuenta y evitamos mezclar sedes.
-        if (!lista.length) lista = [{ nombre: sesionActual.sede, aulas: [] }];
-      }
 
       lista.forEach(function(s){
         selectSede.innerHTML += '<option value="'+s.nombre+'">'+s.nombre+'</option>';
         if (selectSedeModal) selectSedeModal.innerHTML += '<option value="'+s.nombre+'">'+s.nombre+'</option>';
       });
 
-      if (sesionActual && sesionActual.role === 'ENCARGADO') {
-        var sedeOpt = Array.from(selectSede.options).find(function(o){ return sedesCoincidenJarvis(o.value,sesionActual.sede); });
-        if (sedeOpt) { selectSede.value = sedeOpt.value; }
-      } else if (sedeFiltroSeleccionada) selectSede.value = sedeFiltroSeleccionada;
+      // No forzamos la sede asociada a la cuenta: todos pueden cambiar de sede.
+      if (sedeFiltroSeleccionada) selectSede.value = sedeFiltroSeleccionada;
 
       alCambiarSedeFiltro(false);
       renderizarArbolSedesAulas();
     }
 
-    // Asegura que el encargado nunca pueda cambiar de sede manualmente.
+    // Todos los usuarios pueden cambiar la sede que están consultando.
+    // La sede de la cuenta no bloquea la selección del calendario.
     var alCambiarSedeFiltroOriginal = alCambiarSedeFiltro;
     alCambiarSedeFiltro = function(resetAula) {
-      if (sesionActual && sesionActual.role === 'ENCARGADO') {
-        var select = document.getElementById('selectSedeAulaFiltro');
-        if (select) {
-          var encontrada = Array.from(select.options).find(function(o){ return sedesCoincidenJarvis(o.value, sesionActual.sede); });
-          if (encontrada) select.value = encontrada.value;
-        }
-      }
       return alCambiarSedeFiltroOriginal(resetAula);
     };
 
@@ -5097,7 +5072,8 @@
       var tipoDoc = 'CUENTA';
       var numDoc = (sesionActual && sesionActual.username) ? sesionActual.username : '';
       if (!responsable || !numDoc || !tipoEvento || !area || !sede || !distribucion || !requerimientosTecnicos) return alert('⚠️ Completa todos los campos obligatorios de la reserva, incluida la distribución y los requerimientos técnicos/materiales.');
-      if (sesionActual.role === 'ENCARGADO' && !sedesCoincidenJarvis(sede,sesionActual.sede)) return alert('⛔ Tu cuenta solo puede reservar en la sede ' + sesionActual.sede + '.');
+      // Cualquier usuario puede solicitar una reserva en cualquier sede.
+      // La aprobación y edición siguen siendo responsabilidad de la sede correspondiente.
       var aula = aulaFiltroSeleccionada || document.getElementById('selectAulaFiltro').value;
       if (!aula) return alert('Por favor selecciona un Aula.');
       var aforoEncontrado = 'No especificado';
