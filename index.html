@@ -1814,7 +1814,8 @@
         </div>
         <div style="display: flex; gap: 6px;">
           <button class="btn-edit" id="btnEditarReservaAulaActual" onclick="abrirEditarReservaAulaActual()"><i class="fa-solid fa-pen"></i> Editar Reserva</button>
-          <button class="btn-danger" onclick="rechazarReservaAulaActual()"><i class="fa-solid fa-xmark"></i> Rechazar Reserva</button>
+          <button class="btn-danger" id="btnRechazarReservaAulaActual" onclick="rechazarReservaAulaActual()"><i class="fa-solid fa-xmark"></i> Rechazar Reserva</button>
+          <button class="btn-danger" id="btnEliminarReservaAulaActual" style="display:none; background:#B91C1C;" onclick="eliminarReservaAulaActual()"><i class="fa-solid fa-trash"></i> Eliminar Reserva</button>
           <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerReservaAula()">Cerrar</button>
         </div>
       </div>
@@ -5348,10 +5349,19 @@
       var estadoTexto=res.estadoAprobacion==='PENDIENTE'?'⏳ PENDIENTE DE APROBACIÓN':(res.estadoAprobacion==='RECHAZADA'?'🔴 RECHAZADA':'🟢 APROBADA'); document.getElementById('infoAulaEstadoAprobacion').innerText=estadoTexto;
       document.getElementById('infoAulaDiaHora').innerText=res.diaNombre+' ('+res.fechaIso+') de '+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00'; document.getElementById('infoAulaFechaAuditoria').innerText=res.fechaAuditoria||'Registrado previamente';
       var grupo=document.getElementById('accionesAprobacionReservaGroup');
-      var puedeResponder=sesionActual && sesionActual.role==='ENCARGADO' && cuentaPuede('aprobarReservas') && res.estadoAprobacion==='PENDIENTE' && sedesCoincidenJarvis(res.sede,sesionActual.sede);
+      // El Programador tiene alcance global. El encargado solo puede procesar
+      // solicitudes pertenecientes a su propia sede.
+      var puedeResponder = false;
+      if (sesionActual && res.estadoAprobacion==='PENDIENTE') {
+        puedeResponder = sesionActual.role==='PROGRAMADOR' || (sesionActual.role==='ENCARGADO' && cuentaPuede('aprobarReservas') && sedesCoincidenJarvis(res.sede,sesionActual.sede));
+      }
       grupo.style.display=puedeResponder?'flex':'none';
       var btnEditar=document.getElementById('btnEditarReservaAulaActual');
       if(btnEditar) btnEditar.style.display=(sesionActual && cuentaPuede('editarReservas') && (sesionActual.role==='PROGRAMADOR'||sedesCoincidenJarvis(res.sede,sesionActual.sede)))?'inline-flex':'none';
+      var btnRechazar=document.getElementById('btnRechazarReservaAulaActual');
+      if(btnRechazar) btnRechazar.style.display=(sesionActual && (sesionActual.role==='PROGRAMADOR' || (sesionActual.role==='ENCARGADO' && cuentaPuede('aprobarReservas') && sedesCoincidenJarvis(res.sede,sesionActual.sede))) && res.estadoAprobacion==='PENDIENTE')?'inline-flex':'none';
+      var btnEliminar=document.getElementById('btnEliminarReservaAulaActual');
+      if(btnEliminar) btnEliminar.style.display=(sesionActual && sesionActual.role==='PROGRAMADOR')?'inline-flex':'none';
       document.getElementById('viewReservaAulaModal').style.display='flex';
     }
 
@@ -5377,11 +5387,17 @@
     }
 
     function abrirAuditoriaReserva(accion){
-      if(!sesionActual || sesionActual.role!=='ENCARGADO' || !cuentaPuede('aprobarReservas')) return alert('⛔ Solo el administrador de la sede correspondiente puede aprobar o rechazar esta reserva.');
+      if(!sesionActual) return alert('⛔ Debes iniciar sesión para gestionar una reserva.');
+      var esProgramadorGlobal = sesionActual.role==='PROGRAMADOR';
+      var esEncargadoDeSede = sesionActual.role==='ENCARGADO' && cuentaPuede('aprobarReservas');
+      if(!esProgramadorGlobal && !esEncargadoDeSede) return alert('⛔ Solo el administrador de la sede correspondiente o el Programador pueden aprobar o rechazar esta reserva.');
       var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;}); if(!res)return;
-      if(sesionActual.role!=='ENCARGADO' || !sedesCoincidenJarvis(res.sede,sesionActual.sede)) return alert('⛔ Solo el administrador de la sede correspondiente puede aprobar o rechazar esta reserva.');
+      if(!esProgramadorGlobal && !sedesCoincidenJarvis(res.sede,sesionActual.sede)) return alert('⛔ Solo el administrador de la sede correspondiente puede gestionar esta reserva.');
+      if(res.estadoAprobacion!=='PENDIENTE') return alert('ℹ️ Esta solicitud ya no está pendiente de aprobación.');
       reservaAuditoriaPendienteId=res.id; reservaAuditoriaPendienteAccion=accion;
-      document.getElementById('auditReservaAccionText').innerText=accion==='APROBAR'?'Estás aprobando esta solicitud. Registra obligatoriamente quién responde y la respuesta.':'Estás rechazando esta solicitud. Registra obligatoriamente quién responde y el motivo.';
+      document.getElementById('auditReservaAccionText').innerText=accion==='APROBAR'
+        ? (esProgramadorGlobal ? 'Estás aprobando esta solicitud con permisos globales de Programador. Registra quién responde y la respuesta.' : 'Estás aprobando esta solicitud de tu sede. Registra obligatoriamente quién responde y la respuesta.')
+        : (esProgramadorGlobal ? 'Estás rechazando esta solicitud con permisos globales de Programador. Registra quién responde y el motivo.' : 'Estás rechazando esta solicitud. Registra obligatoriamente quién responde y el motivo.');
       document.getElementById('respuestaEncargadoInput').value=sesionActual.displayName; document.getElementById('respuestaAuditoriaInput').value=''; document.getElementById('auditReservaModal').style.display='flex';
     }
     function cerrarModalAuditReserva(){document.getElementById('auditReservaModal').style.display='none';reservaAuditoriaPendienteId=null;reservaAuditoriaPendienteAccion=null;}
@@ -5396,7 +5412,22 @@
     }
     function aprobarReservaAulaActual(){abrirAuditoriaReserva('APROBAR');}
     function rechazarReservaAulaActual(){abrirAuditoriaReserva('RECHAZAR');}
-    function eliminarReservaAulaActual(){ return rechazarReservaAulaActual(); }
+
+    // SOLO EL PROGRAMADOR puede eliminar físicamente una reserva de Firebase.
+    // Rechazar una reserva NO la elimina: queda registrada como RECHAZADA.
+    function eliminarReservaAulaActual(){
+      if(!sesionActual || sesionActual.role!=='PROGRAMADOR') return alert('⛔ Solo el Programador puede eliminar reservas.');
+      var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;});
+      if(!res) return;
+      if(!confirm('⚠️ Esta acción eliminará definitivamente la reserva de Firebase.\n\nSede: '+res.sede+'\nAula: '+res.aula+'\nResponsable: '+res.responsable+'\n\n¿Deseas continuar?')) return;
+      reservasAulasDB=reservasAulasDB.filter(function(r){return r.id!==activeAulaReservaIdToDelete;});
+      syncToCloud();
+      cerrarModalVerReservaAula();
+      actualizarContadorNotificaciones();
+      renderizarTablaCalendarioAulas();
+      renderizarPanelNotificacionesAulas();
+      alert('🗑️ Reserva eliminada definitivamente por el Programador.');
+    }
 
     function togglePanelNotificacionesAulas(event){
       if(event) event.stopPropagation();
