@@ -176,7 +176,7 @@
       background-color: transparent;
       min-width: 260px;
       z-index: 9999;
-      padding-top: 6px; /* Puente invisible para que no se cierre */
+      padding-top: 6px;
       margin-top: -2px;
     }
 
@@ -954,10 +954,17 @@
       width: 100%;
       height: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       word-break: break-word;
+    }
+
+    .aula-block-pending {
+      background-color: #FEF3C7 !important;
+      border: 1px solid #F59E0B !important;
+      color: #B45309 !important;
     }
 
     /* LAYOUT DE LA SECCIÓN AULAS */
@@ -1087,6 +1094,32 @@
       max-width: 480px;
       max-height: 90vh;
       overflow-y: auto;
+    }
+
+    /* ESTILOS DE SWITCH Y TABS DE CONTROL DE PERMISOS */
+    .permission-check-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FAF8FC;
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .permission-check-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .permission-check-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary-purple);
     }
 
     footer {
@@ -1238,7 +1271,7 @@
       <div class="page-title-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
           <h1>🏛️ Reserva y Control de Aulas</h1>
-          <p>Selecciona una Sede y Aula en el panel derecho. Marca y arrastra celdas para reservar un espacio unificado.</p>
+          <p>Selecciona una Sede y Aula en el panel derecho. Marca y arrastra celdas para reservar un espacio unificado. Las solicitudes externas quedarán pendientes de aprobación.</p>
         </div>
         <button class="btn-save" id="btnToggleModoSeleccionAula" onclick="activarModoSeleccionAula()"><i class="fa-solid fa-calendar-plus"></i> Modificar Selección de Aula</button>
       </div>
@@ -1434,7 +1467,7 @@
     <section class="admin-view" id="vistaAdmin">
       <div class="page-title-section">
         <h1 style="color: var(--primary-purple);">🛠️ Panel de Control Total (Programador)</h1>
-        <p>Gestiona la sincronización, accesos a Excel, menú Información, barra superior, requerimientos y Sedes/Aulas con Aforo.</p>
+        <p>Gestiona la sincronización, accesos a Excel, menú Información, barra superior, requerimientos, Sedes/Aulas y Permisos Especiales de Usuarios.</p>
       </div>
 
       <!-- SECCIÓN 0: MONITOR DE ALMACENAMIENTO Y NUBE -->
@@ -1560,6 +1593,27 @@
         <h4 style="margin-bottom: 12px; color: var(--primary-purple);">Sedes y Aulas Registradas:</h4>
         <div id="listaSedesAulasAdminContainer"></div>
       </div>
+
+      <!-- SECCIÓN E: CONTROL DE PERMISOS DE USUARIO POR CREDENCIALES (NUEVO) -->
+      <div class="admin-panel">
+        <h3 style="color: var(--primary-purple);">6. 🔐 Gestión de Accesos y Permisos por Credencial de Usuario</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Habilita o deshabilita accesos especiales (crear procesos, CVs, personalizar o aprobar reservas) a usuarios externos/estándar identificados por su número de documento.</p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+          <select id="permisoTipoDocSelect" class="input-field" style="flex: 1; min-width: 150px;">
+            <option value="DNI">DNI</option>
+            <option value="CE">CE / Carnet Extranjería</option>
+            <option value="PASAPORTE">Pasaporte</option>
+            <option value="RUC">RUC / Institucional</option>
+          </select>
+          <input type="text" id="permisoNumDocInput" class="input-field" style="flex: 1; min-width: 180px;" placeholder="Número de Documento / Credencial">
+          <input type="text" id="permisoUsuarioNombreInput" class="input-field" style="flex: 1.5; min-width: 200px;" placeholder="Nombre Completo del Usuario">
+          <button class="btn-save" onclick="registrarUsuarioPermisos()">➕ Registrar Credencial</button>
+        </div>
+
+        <h4 style="margin-bottom: 12px; color: var(--primary-purple);">Usuarios Configurados y Permisos Activos:</h4>
+        <div id="listaPermisosUsuariosAdminContainer"></div>
+      </div>
     </section>
   </main>
 
@@ -1567,7 +1621,7 @@
   <div class="modal-overlay" id="addReservaAulaModal">
     <div class="modal-box">
       <h3 style="margin-bottom: 12px; color: var(--primary-purple);">🏛️ Reservar Espacio de Aula</h3>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;" id="selectedAulaRangeInfoText">Debes rellenar los 4 campos obligatorios.</p>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;" id="selectedAulaRangeInfoText">Ingresa tus credenciales oficiales para procesar la solicitud de reserva.</p>
       
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <div>
@@ -1575,18 +1629,34 @@
           <input type="text" id="reservaResponsableInput" class="input-field" placeholder="Nombre completo del responsable">
         </div>
 
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 150px;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">2. Credencial Oficial (*):</label>
+            <select id="reservaTipoDocSelect" class="input-field">
+              <option value="DNI">DNI (Nacional)</option>
+              <option value="CE">CE (Carnet Extranjería)</option>
+              <option value="PASAPORTE">Pasaporte</option>
+              <option value="RUC">RUC / Credencial Institucional</option>
+            </select>
+          </div>
+          <div style="flex: 1.2; min-width: 160px;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">3. N° de Documento (*):</label>
+            <input type="text" id="reservaNumDocInput" class="input-field" placeholder="Ej: 72839102">
+          </div>
+        </div>
+
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">2. Tipo de Evento (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">4. Tipo de Evento (*):</label>
           <input type="text" id="reservaTipoEventoInput" class="input-field" placeholder="Ej. Conferencia / Taller / Examen">
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">3. Área (*):</label>
-          <input type="text" id="reservaAreaInput" class="input-field" placeholder="Ej. Dirección Académica / Marketing">
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">5. Área / Entidad Solicitante (*):</label>
+          <input type="text" id="reservaAreaInput" class="input-field" placeholder="Ej. Dirección Académica / Externo">
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">4. Sede (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">6. Sede (*):</label>
           <select id="reservaSedeSelect" class="input-field">
             <option value="">-- Seleccionar Sede --</option>
           </select>
@@ -1595,12 +1665,12 @@
 
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
         <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalReservaAula()">Cancelar</button>
-        <button class="btn-save" onclick="guardarReservaAula()">Confirmar Reserva</button>
+        <button class="btn-save" onclick="guardarReservaAula()">Enviar Solicitud de Reserva</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL VER DETALLE DE RESERVA DE AULA -->
+  <!-- MODAL VER DETALLE DE RESERVA DE AULA Y APROBACIÓN -->
   <div class="modal-overlay" id="viewReservaAulaModal">
     <div class="modal-box">
       <h3 style="margin-bottom: 12px; color: var(--primary-purple);">📋 Detalle de Reserva de Aula</h3>
@@ -1609,17 +1679,24 @@
         <p><strong>🏛️ Sede:</strong> <span id="infoAulaSede">--</span></p>
         <p><strong>🚪 Aula:</strong> <span id="infoAulaNombre">--</span></p>
         <p><strong>👥 Aforo de Aula:</strong> <span id="infoAulaAforo">--</span></p>
-        <p><strong>👤 Responsable:</strong> <span id="infoAulaResponsable">--</span></p>
+        <p><strong>👤 Responsable Solicitante:</strong> <span id="infoAulaResponsable">--</span></p>
+        <p><strong>🆔 Credencial Oficial:</strong> <span id="infoAulaCredencialDoc">--</span></p>
         <p><strong>🎯 Tipo de Evento:</strong> <span id="infoAulaTipoEvento">--</span></p>
-        <p><strong>🏢 Área:</strong> <span id="infoAulaArea">--</span></p>
+        <p><strong>🏢 Área / Entidad:</strong> <span id="infoAulaArea">--</span></p>
+        <p><strong>🚦 Estado de Reserva:</strong> <span id="infoAulaEstadoAprobacion">--</span></p>
         <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 6px 0;">
         <p><strong>📅 Día / Hora:</strong> <span id="infoAulaDiaHora">--</span></p>
         <p style="color: var(--primary-purple-dark); font-weight: 600;"><strong>⏱️ Fecha y Hora de Registro (Auditoría):</strong> <br><span id="infoAulaFechaAuditoria">--</span></p>
       </div>
 
       <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-        <button class="btn-danger" onclick="eliminarReservaAulaActual()"><i class="fa-solid fa-trash"></i> Eliminar Reserva</button>
-        <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerReservaAula()">Cerrar</button>
+        <div style="display: flex; gap: 6px;" id="accionesAprobacionReservaGroup">
+          <button class="btn-save" style="background:#22C55E;" onclick="aprobarReservaAulaActual()"><i class="fa-solid fa-check"></i> Aprobar Reserva</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn-danger" onclick="eliminarReservaAulaActual()"><i class="fa-solid fa-trash"></i> Eliminar / Rechazar</button>
+          <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerReservaAula()">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1714,8 +1791,8 @@
   <div class="modal-overlay" id="authEditCandidateModal">
     <div class="modal-box">
       <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Autorizar Edición de Candidato</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de programador para modificar este registro.</p>
-      <input type="password" id="authEditCandidatePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña de autorización">
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresa la contraseña de autorización o número de documento con permisos habilitados.</p>
+      <input type="password" id="authEditCandidatePass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña o documento autorizado">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalAuthEditCandidato()">Cancelar</button>
         <button class="btn-save" onclick="confirmarAuthEditCandidato()">Autorizar Edición</button>
@@ -1878,6 +1955,7 @@
     var horariosDB = [];
     var sedesAulasMaster = [];
     var reservasAulasDB = [];
+    var usuariosPermisosDB = []; // BASE DE DATOS DE CREDENCIALES Y PERMISOS HABILITADOS POR EL PROGRAMADOR
 
     // FUNCIÓN CENTRAL PARA PUBLICAR CAMBIOS A LA NUBE
     function syncToCloud() {
@@ -1891,7 +1969,8 @@
         courses: courses,
         horariosDB: horariosDB,
         sedesAulasMaster: sedesAulasMaster,
-        reservasAulasDB: reservasAulasDB
+        reservasAulasDB: reservasAulasDB,
+        usuariosPermisosDB: usuariosPermisosDB
       });
     }
 
@@ -1918,6 +1997,7 @@
         horariosDB = data.horariosDB || [];
         sedesAulasMaster = data.sedesAulasMaster || [];
         reservasAulasDB = data.reservasAulasDB || [];
+        usuariosPermisosDB = data.usuariosPermisosDB || [];
 
         // RE-RENDERIZAR INTERFAZ COMPLETA
         renderizarDropdownExcel();
@@ -1956,6 +2036,7 @@
           renderizarAdminEtapasGlobales();
           renderizarConfigEtapas();
           renderizarAdminSedesAulas();
+          renderizarAdminUsuariosPermisos();
         }
       }
     });
@@ -2085,6 +2166,17 @@
     var celdasAulaSeleccionadasSet = new Map();
     var sedeFiltroSeleccionada = null;
     var aulaFiltroSeleccionada = null;
+
+    // EVALUADOR DE PERMISOS POR CREDENCIAL O ROL
+    function tienePermisoUsuario(numDoc, clavePermiso) {
+      if (esProgramador) return true;
+      if (!numDoc) return false;
+      var usr = usuariosPermisosDB.find(u => String(u.numDoc).trim().toLowerCase() === String(numDoc).trim().toLowerCase());
+      if (usr && usr.permisos && usr.permisos[clavePermiso] === true) {
+        return true;
+      }
+      return false;
+    }
 
     function getMondayOfCurrentWeek(d) {
       var date = new Date(d);
@@ -2536,7 +2628,7 @@
       cerrarModalVerBloque();
     }
 
-    /* MÓDULO CONTROL Y RESERVA DE AULAS CON AFORO */
+    /* MÓDULO CONTROL Y RESERVA DE AULAS CON AFORO E IDENTIFICACIÓN EXTERNA */
     function activarModoSeleccionAula() {
       modoSeleccionAulaActivo = !modoSeleccionAulaActivo;
       var btn = document.getElementById('btnToggleModoSeleccionAula');
@@ -2803,10 +2895,13 @@
             tdSpan.style.height = (spanFilas * 52) + 'px';
             tdSpan.style.padding = '2px';
 
+            var esPendiente = reservaActual.estadoAprobacion === 'PENDIENTE';
             var unifiedDiv = document.createElement('div');
-            unifiedDiv.className = 'aula-block-unified';
-            unifiedDiv.innerHTML = `🏢 ${reservaActual.area}`;
-            unifiedDiv.title = `Área: ${reservaActual.area} | Sede: ${reservaActual.sede} | Aula: ${reservaActual.aula}`;
+            unifiedDiv.className = `aula-block-unified ${esPendiente ? 'aula-block-pending' : ''}`;
+            
+            var estadoIcono = esPendiente ? '⏳ PENDIENTE' : '🟢 APROBADA';
+            unifiedDiv.innerHTML = `🏢 ${reservaActual.area}<br><small style="font-size:0.7rem; font-weight:600;">${estadoIcono}</small>`;
+            unifiedDiv.title = `Área: ${reservaActual.area} | Sede: ${reservaActual.sede} | Aula: ${reservaActual.aula} | Estado: ${reservaActual.estadoAprobacion || 'APROBADO'}`;
             
             unifiedDiv.onclick = function(e) {
               e.stopPropagation();
@@ -2854,13 +2949,14 @@
 
       var numBloques = celdasAulaSeleccionadasSet.size;
       document.getElementById('selectedAulaRangeInfoText').innerText = 
-        `Reserva para ${numBloques} bloque(s) seleccionado(s). Rellena los 4 campos obligatorios:`;
+        `Reserva para ${numBloques} bloque(s) seleccionado(s). Identifícate con cualquiera de tus credenciales oficiales:`;
 
       if (sedeFiltroSeleccionada) {
         document.getElementById('reservaSedeSelect').value = sedeFiltroSeleccionada;
       }
 
       document.getElementById('reservaResponsableInput').value = '';
+      document.getElementById('reservaNumDocInput').value = '';
       document.getElementById('reservaTipoEventoInput').value = '';
       document.getElementById('reservaAreaInput').value = '';
       document.getElementById('addReservaAulaModal').style.display = 'flex';
@@ -2872,12 +2968,14 @@
 
     function guardarReservaAula() {
       var responsable = document.getElementById('reservaResponsableInput').value.trim();
+      var tipoDoc = document.getElementById('reservaTipoDocSelect').value;
+      var numDoc = document.getElementById('reservaNumDocInput').value.trim();
       var tipoEvento = document.getElementById('reservaTipoEventoInput').value.trim();
       var area = document.getElementById('reservaAreaInput').value.trim();
       var sede = document.getElementById('reservaSedeSelect').value.trim();
 
-      if (!responsable || !tipoEvento || !area || !sede) {
-        return alert('⚠️ ATENCIÓN: Solo se podrá reservar siempre y cuando se rellenen los cuatro cuadros.');
+      if (!responsable || !numDoc || !tipoEvento || !area || !sede) {
+        return alert('⚠️ ATENCIÓN: Solo se podrá reservar si completas todos los campos, incluyendo tus credenciales oficiales (DNI/CE/Pasaporte/RUC).');
       }
 
       var aula = aulaFiltroSeleccionada || document.getElementById('selectAulaFiltro').value;
@@ -2903,12 +3001,15 @@
       });
 
       var fechaAuditoriaReg = getRelojFechaTexto();
+      var requiereAprobacion = !esProgramador;
 
       mapaPorFecha.forEach(function(val, fIso) {
         val.horas.sort((a,b) => a - b);
         reservasAulasDB.push({
           id: Date.now() + Math.random(),
           responsable: responsable,
+          tipoDoc: tipoDoc,
+          numDoc: numDoc,
           tipoEvento: tipoEvento,
           area: area,
           sede: sede,
@@ -2917,13 +3018,20 @@
           diaNombre: val.diaNombre,
           fechaIso: fIso,
           horasArray: val.horas,
-          fechaAuditoria: fechaAuditoriaReg
+          fechaAuditoria: fechaAuditoriaReg,
+          estadoAprobacion: requiereAprobacion ? 'PENDIENTE' : 'APROBADO'
         });
       });
 
       syncToCloud();
       cerrarModalReservaAula();
       activarModoSeleccionAula();
+      
+      if (requiereAprobacion) {
+        alert('📌 Solicitud de Reserva Registrada. Tu pedido ha sido enviado con éxito e identificado con tus credenciales. Queda en estado PENDIENTE DE APROBACIÓN.');
+      } else {
+        alert('📌 Reserva confirmada y aprobada directamente.');
+      }
     }
 
     function verDetalleReservaAula(idReserva) {
@@ -2939,12 +3047,36 @@
       document.getElementById('infoAulaNombre').innerText = res.aula;
       document.getElementById('infoAulaAforo').innerText = res.aforo || 'No especificado';
       document.getElementById('infoAulaResponsable').innerText = res.responsable;
+      document.getElementById('infoAulaCredencialDoc').innerText = `${res.tipoDoc || 'DOC'}: ${res.numDoc || 'No especificado'}`;
       document.getElementById('infoAulaTipoEvento').innerText = res.tipoEvento;
       document.getElementById('infoAulaArea').innerText = res.area;
+      
+      var estadoTexto = res.estadoAprobacion === 'PENDIENTE' ? '⏳ PENDIENTE DE APROBACIÓN' : '🟢 APROBADA';
+      document.getElementById('infoAulaEstadoAprobacion').innerText = estadoTexto;
+
       document.getElementById('infoAulaDiaHora').innerText = `${res.diaNombre} (${res.fechaIso}) de ${String(minH).padStart(2,'0')}:00 a ${String(maxH).padStart(2,'0')}:00`;
       document.getElementById('infoAulaFechaAuditoria').innerText = res.fechaAuditoria || 'Registrado previamente';
 
+      var btnAprobarGroup = document.getElementById('accionesAprobacionReservaGroup');
+      if (res.estadoAprobacion === 'PENDIENTE') {
+        btnAprobarGroup.style.display = 'flex';
+      } else {
+        btnAprobarGroup.style.display = 'none';
+      }
+
       document.getElementById('viewReservaAulaModal').style.display = 'flex';
+    }
+
+    function aprobarReservaAulaActual() {
+      if (!activeAulaReservaIdToDelete) return;
+      var res = reservasAulasDB.find(r => r.id === activeAulaReservaIdToDelete);
+      if (!res) return;
+
+      res.estadoAprobacion = 'APROBADO';
+      res.fechaAprobacionAuditoria = getRelojFechaTexto();
+      syncToCloud();
+      cerrarModalVerReservaAula();
+      alert('🟢 La reserva del aula ha sido aprobada exitosamente.');
     }
 
     function cerrarModalVerReservaAula() {
@@ -2954,7 +3086,7 @@
 
     function eliminarReservaAulaActual() {
       if (!activeAulaReservaIdToDelete) return;
-      if (!confirm('¿Seguro que deseas eliminar esta reserva de aula?')) return;
+      if (!confirm('¿Seguro que deseas eliminar o cancelar esta reserva de aula?')) return;
 
       reservasAulasDB = reservasAulasDB.filter(function(r){ return r.id !== activeAulaReservaIdToDelete; });
       syncToCloud();
@@ -3058,6 +3190,98 @@
         sedesAulasMaster[idxSede].aulas.splice(idxAula, 1);
         syncToCloud();
       }
+    }
+
+    /* PROGRAMADOR: GESTIÓN Y CHECKS DE PERMISOS POR USUARIOS / CREDENCIALES */
+    function renderizarAdminUsuariosPermisos() {
+      var container = document.getElementById('listaPermisosUsuariosAdminContainer');
+      container.innerHTML = '';
+
+      if (usuariosPermisosDB.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No hay credenciales ni permisos asignados aún.</p>';
+        return;
+      }
+
+      usuariosPermisosDB.forEach(function(u, idx) {
+        var p = u.permisos || {};
+
+        container.innerHTML += `
+          <div class="check-item" style="flex-direction:column; align-items:flex-start; gap:10px; background:#FFF; border:1px solid var(--border-color); padding:14px; border-radius:10px;">
+            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+              <div>
+                <strong style="color:var(--primary-purple); font-size:0.95rem;">👤 ${u.nombre}</strong> 
+                <span style="font-size:0.8rem; color:var(--text-muted); margin-left:8px;">(${u.tipoDoc}: ${u.numDoc})</span>
+              </div>
+              <button class="btn-danger" onclick="eliminarUsuarioPermisos(${idx})">❌ Quitar Credencial</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:8px; width:100%;">
+              <div class="permission-check-group">
+                <label for="p_proc_${idx}">➕ Crear Cursos y Procesos</label>
+                <input type="checkbox" id="p_proc_${idx}" ${p.crearProcesos ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'crearProcesos', this.checked)">
+              </div>
+              <div class="permission-check-group">
+                <label for="p_custom_${idx}">✏️ Personalizar Etapas y Procesos</label>
+                <input type="checkbox" id="p_custom_${idx}" ${p.personalizarProcesos ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'personalizarProcesos', this.checked)">
+              </div>
+              <div class="permission-check-group">
+                <label for="p_cv_${idx}">➕ Registrar Candidatos y CVs</label>
+                <input type="checkbox" id="p_cv_${idx}" ${p.agregarCVs ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'agregarCVs', this.checked)">
+              </div>
+              <div class="permission-check-group">
+                <label for="p_appr_${idx}">🏛️ Aprobar Reservas de Aulas</label>
+                <input type="checkbox" id="p_appr_${idx}" ${p.aprobarReservas ? 'checked' : ''} onchange="actualizarCheckPermiso(${idx}, 'aprobarReservas', this.checked)">
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function registrarUsuarioPermisos() {
+      var tipoDoc = document.getElementById('permisoTipoDocSelect').value;
+      var numDoc = document.getElementById('permisoNumDocInput').value.trim();
+      var nombre = document.getElementById('permisoUsuarioNombreInput').value.trim();
+
+      if (!numDoc || !nombre) {
+        return alert('Por favor ingresa el número de documento y el nombre del usuario.');
+      }
+
+      var existe = usuariosPermisosDB.some(u => String(u.numDoc).trim().toLowerCase() === numDoc.toLowerCase());
+      if (existe) {
+        return alert('Este número de documento ya está registrado en el sistema.');
+      }
+
+      usuariosPermisosDB.push({
+        id: Date.now(),
+        tipoDoc: tipoDoc,
+        numDoc: numDoc,
+        nombre: nombre,
+        permisos: {
+          crearProcesos: false,
+          personalizarProcesos: false,
+          agregarCVs: false,
+          aprobarReservas: false
+        }
+      });
+
+      syncToCloud();
+      document.getElementById('permisoNumDocInput').value = '';
+      document.getElementById('permisoUsuarioNombreInput').value = '';
+    }
+
+    function actualizarCheckPermiso(idxUser, clavePermiso, estado) {
+      if (usuariosPermisosDB[idxUser]) {
+        if (!usuariosPermisosDB[idxUser].permisos) usuariosPermisosDB[idxUser].permisos = {};
+        usuariosPermisosDB[idxUser].permisos[clavePermiso] = estado;
+        syncToCloud();
+      }
+    }
+
+    function eliminarUsuarioPermisos(idxUser) {
+      if (!confirm('¿Quitar las credenciales y permisos asignados a este usuario?')) return;
+      usuariosPermisosDB.splice(idxUser, 1);
+      syncToCloud();
     }
 
     /* PROCESOS Y OTROS MÓDULOS DE CURSOS */
@@ -3445,6 +3669,7 @@
       renderizarAdminEtapasGlobales();
       renderizarConfigEtapas();
       renderizarAdminSedesAulas();
+      renderizarAdminUsuariosPermisos();
     }
 
     function cambiarModoDetalle(modo) {
@@ -3716,11 +3941,11 @@
 
     function confirmarAuthEditCandidato() {
       var pass = document.getElementById('authEditCandidatePass').value.trim();
-      if (pass === 'L@zaro0697') {
+      if (pass === 'L@zaro0697' || tienePermisoUsuario(pass, 'agregarCVs')) {
         cerrarModalAuthEditCandidato();
         abrirModalEditarCandidato();
       } else {
-        alert('Contraseña de autorización incorrecta.');
+        alert('Contraseña o documento de autorización no reconocido / sin permiso.');
       }
     }
 
@@ -3895,11 +4120,11 @@
 
     function confirmarAuthCourseProcess() {
       var pass = document.getElementById('authCourseProcessPass').value.trim();
-      if (pass === 'L@zaro0697') {
+      if (pass === 'L@zaro0697' || tienePermisoUsuario(pass, 'personalizarProcesos')) {
         cerrarModalAuthCourseProcess();
         abrirModalPersonalizarCursoProceso();
       } else {
-        alert('Contraseña de autorización incorrecta.');
+        alert('Contraseña o documento de autorización no reconocido / sin permiso.');
       }
     }
 
