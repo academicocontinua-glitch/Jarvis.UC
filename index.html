@@ -1129,6 +1129,43 @@
       color: var(--text-muted);
       margin-top: auto;
     }
+
+
+    /* ============================================================
+       INTEGRACIÓN 2026: AUTENTICACIÓN, NOTIFICACIONES, PRESENCIA
+       Y CONTROL DE RESERVAS POR CUENTA INSTITUCIONAL
+       (Bloque agregado sin eliminar estilos existentes)
+       ============================================================ */
+    .jarvis-auth-user-btn { min-width: 150px; justify-content: center; }
+    .jarvis-notification-btn { position: relative; min-width: 48px; justify-content: center; }
+    .jarvis-notification-badge {
+      position: absolute; top: 1px; right: 3px; min-width: 19px; height: 19px;
+      padding: 0 5px; border-radius: 999px; background: #EF4444; color: #FFF;
+      font-size: 0.68rem; font-weight: 800; display: flex; align-items: center;
+      justify-content: center; border: 2px solid var(--primary-purple-dark);
+    }
+    .jarvis-session-pill { display:inline-flex; align-items:center; gap:7px; }
+    .jarvis-online-dot { width:10px; height:10px; border-radius:50%; display:inline-block; background:#EF4444; box-shadow:0 0 0 3px rgba(239,68,68,.12); }
+    .jarvis-online-dot.online { background:#22C55E; box-shadow:0 0 0 3px rgba(34,197,94,.15); }
+    .jarvis-presence-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-top:14px; }
+    .jarvis-presence-card { background:#FFF; border:1px solid var(--border-color); border-radius:10px; padding:13px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .jarvis-presence-name { font-weight:700; color:var(--primary-purple); }
+    .jarvis-presence-status { font-size:.76rem; font-weight:700; display:flex; align-items:center; gap:6px; }
+    .jarvis-account-card { background:#FFF; border:1px solid var(--border-color); border-radius:10px; padding:15px; margin-bottom:10px; }
+    .jarvis-account-header { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+    .jarvis-permissions-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px; margin-top:12px; }
+    .jarvis-permission-toggle { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:#F8F5FC; border:1px solid var(--border-color); border-radius:7px; font-size:.78rem; }
+    .jarvis-permission-toggle input { width:18px; height:18px; accent-color:var(--primary-purple); }
+    .jarvis-pending-filter-active { background:#FEF3C7 !important; color:#92400E !important; border-color:#F59E0B !important; }
+    .jarvis-reservation-extra { background:#F8F5FC; border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-top:2px; }
+    .jarvis-reservation-extra strong { color:var(--primary-purple); }
+    .jarvis-audit-box { background:#FFF7ED; border:1px solid #FDBA74; border-radius:8px; padding:12px; margin-top:12px; }
+    .jarvis-session-required { text-align:center; padding:18px; background:#F8F5FC; border:1px dashed var(--border-color); border-radius:10px; }
+    @media(max-width:760px){
+      .header-info{padding:8px 12px;gap:8px;align-items:flex-start}.time-info{gap:6px;flex-wrap:wrap;justify-content:flex-end}
+      .jarvis-auth-user-btn{min-width:auto}.jarvis-auth-user-btn .jarvis-auth-label{display:none}.jarvis-notification-btn{min-width:40px;padding:8px}
+    }
+
   </style>
 </head>
 <body>
@@ -1146,7 +1183,8 @@
         <div class="sync-status-badge" id="syncBadge"><i class="fa-solid fa-cloud"></i> <span id="syncText">Conectando...</span></div>
         <span id="date">--/--/----</span>
         <span id="clock">00:00:00</span>
-        <button class="tab-btn btn-admin-access" onclick="abrirModalLogin()"><i class="fa-solid fa-user-gear"></i> Usuario</button>
+        <button class="tab-btn btn-admin-access jarvis-auth-user-btn" id="btnSesionUsuario" onclick="abrirModalLogin()"><span id="iconoSesionUsuario">👤</span> <span class="jarvis-auth-label" id="textoSesionUsuario">Iniciar Sesión</span></button>
+        <button class="tab-btn btn-admin-access jarvis-notification-btn" id="btnNotificacionesAulas" onclick="irAPendientesAulas()" title="Reservas pendientes"><i class="fa-solid fa-bell"></i><span class="jarvis-notification-badge" id="contadorNotificacionesAulas" style="display:none;">0</span></button>
       </div>
     </div>
 
@@ -1594,8 +1632,8 @@
         <div id="listaSedesAulasAdminContainer"></div>
       </div>
 
-      <!-- SECCIÓN E: CONTROL DE PERMISOS DE USUARIO POR CREDENCIALES -->
-      <div class="admin-panel">
+      <!-- SECCIÓN E: CONTROL DE PERMISOS DE USUARIO POR CREDENCIALES (LEGACY, CONSERVADA) -->
+      <div id="legacyPermisosUsuariosPanel" class="admin-panel">
         <h3 style="color: var(--primary-purple);">6. 🔐 Gestión de Accesos y Permisos por Credencial de Usuario</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Habilita o deshabilita accesos especiales (crear procesos, CVs, personalizar o aprobar reservas) a usuarios externos/estándar identificados por su número de documento.</p>
 
@@ -1613,6 +1651,19 @@
 
         <h4 style="margin-bottom: 12px; color: var(--primary-purple);">Usuarios Configurados y Permisos Activos:</h4>
         <div id="listaPermisosUsuariosAdminContainer"></div>
+      </div>
+
+      <!-- INTEGRACIÓN NUEVA: CUENTAS OFICIALES Y PRESENCIA -->
+      <div class="admin-panel" id="panelCuentasOficialesSede">
+        <h3 style="color: var(--primary-purple);">7. 🔐 Catálogo Oficial de Encargados de Sede</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;">Las 6 cuentas institucionales controlan directamente la creación, edición y aprobación de reservas. Contraseña común: <strong>Conti0697@</strong>.</p>
+        <div id="catalogoCuentasSedeAdmin"></div>
+      </div>
+
+      <div class="admin-panel" id="panelPresenciaSedes">
+        <h3 style="color: var(--primary-purple);">8. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);">La presencia se registra en Firebase Realtime Database mientras una cuenta oficial mantiene la sesión activa.</p>
+        <div class="jarvis-presence-grid" id="presenciaSedesGrid"></div>
       </div>
     </section>
   </main>
@@ -1661,6 +1712,25 @@
             <option value="">-- Seleccionar Sede --</option>
           </select>
         </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">7. Distribución del espacio (*):</label>
+          <select id="reservaDistribucionSelect" class="input-field">
+            <option value="">-- Seleccionar distribución --</option>
+            <option value="Mesas en U">Mesas en U</option>
+            <option value="Filas de Carpeta">Filas de Carpeta</option>
+            <option value="Espacio Abierto">Espacio Abierto</option>
+            <option value="Auditorio">Auditorio</option>
+            <option value="Mesas Grupales">Mesas Grupales</option>
+            <option value="Aula Tradicional">Aula Tradicional</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">8. Requerimientos Técnicos / Materiales (*):</label>
+          <textarea id="reservaRequerimientosInput" class="textarea-field" placeholder="Ej. 2 micrófonos extra, ecran, proyector, plumones, extensión eléctrica..."></textarea>
+        </div>
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
@@ -1683,6 +1753,8 @@
         <p><strong>🆔 Credencial Oficial:</strong> <span id="infoAulaCredencialDoc">--</span></p>
         <p><strong>🎯 Tipo de Evento:</strong> <span id="infoAulaTipoEvento">--</span></p>
         <p><strong>🏢 Área / Entidad:</strong> <span id="infoAulaArea">--</span></p>
+        <div class="jarvis-reservation-extra"><p><strong>🪑 Distribución:</strong> <span id="infoAulaDistribucion">--</span></p><p style="margin-top:6px;"><strong>🧰 Requerimientos Técnicos / Materiales:</strong><br><span id="infoAulaRequerimientos">--</span></p></div>
+        <div class="jarvis-reservation-extra"><p><strong>👤 Responde:</strong> <span id="infoAulaResponde">--</span></p><p style="margin-top:6px;"><strong>📝 Respuesta / Auditoría:</strong><br><span id="infoAulaRespuestaAuditoria">--</span></p></div>
         <p><strong>🚦 Estado de Reserva:</strong> <span id="infoAulaEstadoAprobacion">--</span></p>
         <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 6px 0;">
         <p><strong>📅 Día / Hora:</strong> <span id="infoAulaDiaHora">--</span></p>
@@ -1694,7 +1766,8 @@
           <button class="btn-save" style="background:#22C55E;" onclick="aprobarReservaAulaActual()"><i class="fa-solid fa-check"></i> Aprobar Reserva</button>
         </div>
         <div style="display: flex; gap: 6px;">
-          <button class="btn-danger" onclick="eliminarReservaAulaActual()"><i class="fa-solid fa-trash"></i> Eliminar / Rechazar</button>
+          <button class="btn-edit" id="btnEditarReservaAulaActual" onclick="abrirEditarReservaAulaActual()"><i class="fa-solid fa-pen"></i> Editar Reserva</button>
+          <button class="btn-danger" onclick="rechazarReservaAulaActual()"><i class="fa-solid fa-xmark"></i> Rechazar Reserva</button>
           <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerReservaAula()">Cerrar</button>
         </div>
       </div>
@@ -1774,10 +1847,47 @@
     </div>
   </div>
 
+  <!-- MODAL EDICIÓN DE RESERVA DE AULA -->
+  <div class="modal-overlay" id="editReservaAulaModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom:12px;color:var(--primary-purple);">✏️ Editar Reserva de Aula</h3>
+      <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Tipo de Evento *</label>
+      <input type="text" id="editReservaTipoEventoInput" class="input-field" style="margin:6px 0 10px;">
+      <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Área / Entidad *</label>
+      <input type="text" id="editReservaAreaInput" class="input-field" style="margin:6px 0 10px;">
+      <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Distribución *</label>
+      <select id="editReservaDistribucionSelect" class="input-field" style="margin:6px 0 10px;">
+        <option value="">-- Seleccionar --</option><option>Mesas en U</option><option>Filas de Carpeta</option><option>Espacio Abierto</option><option>Auditorio</option><option>Mesas Grupales</option><option>Aula Tradicional</option><option>Otro</option>
+      </select>
+      <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Requerimientos Técnicos / Materiales *</label>
+      <textarea id="editReservaRequerimientosInput" class="textarea-field" style="margin-top:6px;" placeholder="Micrófonos, ecran, proyectores, plumones, extensiones, etc."></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+        <button class="tab-btn" style="background:#E2D9F3;color:var(--primary-purple);" onclick="cerrarEditarReservaAula()">Cancelar</button>
+        <button class="btn-save" onclick="guardarEdicionReservaAula()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AUDITORÍA DE RESPUESTA DE RESERVA -->
+  <div class="modal-overlay" id="auditReservaModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom:12px;color:var(--primary-purple);">📝 Respuesta obligatoria de auditoría</h3>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:12px;" id="auditReservaAccionText">Registra quién responde esta solicitud.</p>
+      <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Responde: (Nombre del Encargado) *</label>
+      <input type="text" id="respuestaEncargadoInput" class="input-field" placeholder="Ej. Encargado Cusco - Juan Pérez" style="margin:6px 0 12px;">
+      <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Respuesta / Observación *</label>
+      <textarea id="respuestaAuditoriaInput" class="textarea-field" placeholder="Escribe la respuesta o motivo del rechazo..."></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+        <button class="tab-btn" style="background:#E2D9F3;color:var(--primary-purple);" onclick="cerrarModalAuditReserva()">Cancelar</button>
+        <button class="btn-save" onclick="confirmarRespuestaAuditoriaReserva()">Guardar Respuesta</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL LOGIN PROGRAMADOR -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">Acceso Usuario Programador</h3>
+      <h3 style="margin-bottom: 12px; color: var(--primary-purple);">🔐 Iniciar Sesión / Identifícate</h3><p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px;">Cuentas de sede: admin.cusco, admin.andahuaylas, admin.arequipa, admin.huanuco, admin.huancayo y admin.miraflores. Contraseña común: Conti0697@.</p>
       <input type="text" id="adminUser" class="input-field" style="margin-bottom: 10px;" placeholder="Usuario">
       <input type="password" id="adminPass" class="input-field" style="margin-bottom: 16px;" placeholder="Contraseña">
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
@@ -1970,7 +2080,8 @@
         horariosDB: horariosDB,
         sedesAulasMaster: sedesAulasMaster,
         reservasAulasDB: reservasAulasDB,
-        usuariosPermisosDB: usuariosPermisosDB
+        usuariosPermisosDB: usuariosPermisosDB,
+        cuentasSedeDB: cuentasSedeDB
       });
     }
 
@@ -1998,6 +2109,7 @@
         sedesAulasMaster = data.sedesAulasMaster || [];
         reservasAulasDB = data.reservasAulasDB || [];
         usuariosPermisosDB = data.usuariosPermisosDB || [];
+        if (data.cuentasSedeDB) cuentasSedeDB = data.cuentasSedeDB;
 
         // RE-RENDERIZAR INTERFAZ COMPLETA
         renderizarDropdownExcel();
@@ -2821,6 +2933,7 @@
       reservasAulasDB.forEach(function(res) {
         if (sedeFiltroSeleccionada && res.sede !== sedeFiltroSeleccionada) return;
         if (aulaFiltroSeleccionada && res.aula !== aulaFiltroSeleccionada) return;
+        if (filtroPendientesAulas && res.estadoAprobacion !== 'PENDIENTE') return;
 
         if (matrizReservas[res.fechaIso]) {
           res.horasArray.forEach(function(h) {
@@ -2987,7 +3100,12 @@
           fechaIso: fIso,
           horasArray: val.horas,
           fechaAuditoria: fechaAuditoriaReg,
-          estadoAprobacion: requiereAprobacion ? 'PENDIENTE' : 'APROBADO'
+          distribucion: distribucion,
+          requerimientosTecnicos: requerimientosTecnicos,
+          solicitadoPorCuenta: sesionActual ? sesionActual.username : '',
+          estadoAprobacion: requiereAprobacion ? 'PENDIENTE' : 'APROBADO',
+          responde: requiereAprobacion ? '' : (sesionActual ? sesionActual.displayName : 'Programador Lázaro'),
+          respuestaAuditoria: requiereAprobacion ? '' : 'Aprobada directamente por Programador'
         });
       });
 
@@ -3483,13 +3601,35 @@
 
       if (u === 'Continua' && p === 'L@zaro0697') {
         esProgramador = true;
+        sesionActual = { username: 'Continua', role: 'PROGRAMADOR', displayName: 'Programador Lázaro', sede: 'TODAS' };
         document.getElementById('btnAdmin').style.display = 'inline-flex';
         cerrarModalLogin();
-        alert('Sesión de Programador iniciada.');
-        mostrarAdmin();
-      } else {
-        alert('Credenciales incorrectas');
+        actualizarUISesion();
+        iniciarPresenciaSesion();
+        renderizarAdminCuentasOficiales();
+        renderizarPresenciaSedes();
+        if (accionPendienteTrasLogin === 'RESERVA') { accionPendienteTrasLogin = null; setTimeout(function(){ abrirModalReservaAula(); }, 150); }
+        else if (accionPendienteTrasLogin === 'PENDIENTES') { accionPendienteTrasLogin = null; filtroPendientesAulas = true; mostrarAulas(); }
+        else mostrarAdmin();
+        return;
       }
+
+      var cuenta = cuentasSedeDB.find(function(c){ return c.username.toLowerCase() === u.toLowerCase(); });
+      if (cuenta && p === cuenta.password) {
+        esProgramador = false;
+        sesionActual = { username: cuenta.username, role: 'ENCARGADO', displayName: cuenta.displayName, sede: cuenta.sede };
+        document.getElementById('btnAdmin').style.display = 'none';
+        cerrarModalLogin();
+        actualizarUISesion();
+        iniciarPresenciaSesion();
+        aplicarSedeDeSesion();
+        if (accionPendienteTrasLogin === 'RESERVA') { accionPendienteTrasLogin = null; setTimeout(function(){ abrirModalReservaAula(); }, 150); }
+        else if (accionPendienteTrasLogin === 'PENDIENTES') { accionPendienteTrasLogin = null; filtroPendientesAulas = true; mostrarAulas(); }
+        alert('Sesión iniciada: ' + cuenta.displayName + ' | Sede: ' + cuenta.sede);
+        return;
+      }
+
+      alert('Credenciales incorrectas. Usa una cuenta institucional de sede o la cuenta del Programador.');
     }
 
     function resetTabs() {
@@ -4542,8 +4682,371 @@
       }
     }
 
+
+
+    /* ============================================================
+       INTEGRACIÓN NUEVA - CUENTAS, SESIONES, RESERVAS Y PRESENCIA
+       Todo este bloque se agrega al código existente para conservar
+       las funciones anteriores y ampliar únicamente lo solicitado.
+       ============================================================ */
+    var sesionActual = null;
+    var accionPendienteTrasLogin = null;
+    var filtroPendientesAulas = false;
+    var reservaAuditoriaPendienteId = null;
+    var reservaAuditoriaPendienteAccion = null;
+
+    var CUENTAS_SEDE_OFICIALES = [
+      { username:'admin.cusco', sede:'Cusco', displayName:'Encargado - Cusco', password:'Conti0697@' },
+      { username:'admin.andahuaylas', sede:'Andahuaylas', displayName:'Encargado - Andahuaylas', password:'Conti0697@' },
+      { username:'admin.arequipa', sede:'Arequipa', displayName:'Encargado - Arequipa', password:'Conti0697@' },
+      { username:'admin.huanuco', sede:'Huánuco', displayName:'Encargado - Huánuco', password:'Conti0697@' },
+      { username:'admin.huancayo', sede:'Huancayo', displayName:'Encargado - Huancayo', password:'Conti0697@' },
+      { username:'admin.miraflores', sede:'Miraflores', displayName:'Encargado - Miraflores', password:'Conti0697@' }
+    ];
+    var cuentasSedeDB = JSON.parse(JSON.stringify(CUENTAS_SEDE_OFICIALES));
+
+    function asegurarCatalogoCuentasSede() {
+      if (!Array.isArray(cuentasSedeDB) || cuentasSedeDB.length !== CUENTAS_SEDE_OFICIALES.length) {
+        cuentasSedeDB = JSON.parse(JSON.stringify(CUENTAS_SEDE_OFICIALES));
+        syncToCloud();
+        return;
+      }
+      var cambio = false;
+      CUENTAS_SEDE_OFICIALES.forEach(function(base){
+        var existente = cuentasSedeDB.find(function(c){ return c.username === base.username; });
+        if (!existente) { cuentasSedeDB.push(JSON.parse(JSON.stringify(base))); cambio = true; }
+        else {
+          if (!existente.sede) { existente.sede = base.sede; cambio = true; }
+          if (!existente.displayName) { existente.displayName = base.displayName; cambio = true; }
+          if (!existente.password) { existente.password = base.password; cambio = true; }
+          if (!existente.permisos) { existente.permisos = { crearReservas:true, editarReservas:true, aprobarReservas:true }; cambio = true; }
+        }
+      });
+      if (cambio) syncToCloud();
+    }
+
+    function permisosCuentaActual() {
+      if (esProgramador) return { crearReservas:true, editarReservas:true, aprobarReservas:true };
+      var c = cuentasSedeDB.find(function(x){ return sesionActual && x.username === sesionActual.username; });
+      return (c && c.permisos) ? c.permisos : { crearReservas:false, editarReservas:false, aprobarReservas:false };
+    }
+
+    function cuentaPuede(clave) { return !!permisosCuentaActual()[clave]; }
+
+    function actualizarUISesion() {
+      var btn = document.getElementById('btnSesionUsuario');
+      var icon = document.getElementById('iconoSesionUsuario');
+      var txt = document.getElementById('textoSesionUsuario');
+      if (!btn || !icon || !txt) return;
+      if (!sesionActual) {
+        icon.textContent = '👤'; txt.textContent = 'Iniciar Sesión'; btn.title = 'Identifícate para realizar reservas';
+        return;
+      }
+      if (sesionActual.role === 'PROGRAMADOR') { icon.textContent = '🛠️'; txt.textContent = 'Programador Lázaro'; }
+      else { icon.textContent = '👨‍💼'; txt.textContent = sesionActual.displayName; }
+      btn.title = 'Sesión activa: ' + sesionActual.displayName;
+    }
+
+    function cerrarSesionJarvis() {
+      detenerPresenciaSesion();
+      sesionActual = null;
+      esProgramador = false;
+      document.getElementById('btnAdmin').style.display = 'none';
+      actualizarUISesion();
+      sedeFiltroSeleccionada = null;
+      aulaFiltroSeleccionada = null;
+      filtroPendientesAulas = false;
+      mostrarInicio();
+    }
+
+    // Reutilizamos el botón superior para iniciar/cerrar sesión sin eliminar el anterior.
+    document.getElementById('btnSesionUsuario').onclick = function(){
+      if (sesionActual) {
+        if (confirm('¿Deseas cerrar la sesión de ' + sesionActual.displayName + '?')) cerrarSesionJarvis();
+      } else abrirModalLogin();
+    };
+
+    function normalizarSedeJarvis(valor) {
+      return String(valor || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    }
+
+    function sedesCoincidenJarvis(a,b) {
+      return normalizarSedeJarvis(a) === normalizarSedeJarvis(b);
+    }
+
+    function aplicarSedeDeSesion() {
+      if (!sesionActual || sesionActual.role !== 'ENCARGADO') return;
+      var selectSede = document.getElementById('selectSedeAulaFiltro');
+      if (selectSede) {
+        var encontrada = Array.from(selectSede.options).find(function(o){ return sedesCoincidenJarvis(o.value, sesionActual.sede); });
+        if (encontrada) { selectSede.value = encontrada.value; alCambiarSedeFiltro(true); }
+      }
+    }
+
+    function renderizarOpcionesSedesAulasFiltro() {
+      var selectSede = document.getElementById('selectSedeAulaFiltro');
+      var selectAula = document.getElementById('selectAulaFiltro');
+      var selectSedeModal = document.getElementById('reservaSedeSelect');
+      if (!selectSede || !selectAula) return;
+      selectSede.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
+      selectAula.innerHTML = '<option value="">-- Seleccionar Aula --</option>';
+      if (selectSedeModal) selectSedeModal.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
+
+      var lista = sedesAulasMaster || [];
+      if (sesionActual && sesionActual.role === 'ENCARGADO') {
+        lista = lista.filter(function(s){ return sedesCoincidenJarvis(s.nombre, sesionActual.sede); });
+        // Si la sede todavía no fue creada en el catálogo, permitimos mostrar la cuenta y evitamos mezclar sedes.
+        if (!lista.length) lista = [{ nombre: sesionActual.sede, aulas: [] }];
+      }
+
+      lista.forEach(function(s){
+        selectSede.innerHTML += '<option value="'+s.nombre+'">'+s.nombre+'</option>';
+        if (selectSedeModal) selectSedeModal.innerHTML += '<option value="'+s.nombre+'">'+s.nombre+'</option>';
+      });
+
+      if (sesionActual && sesionActual.role === 'ENCARGADO') {
+        var sedeOpt = Array.from(selectSede.options).find(function(o){ return sedesCoincidenJarvis(o.value,sesionActual.sede); });
+        if (sedeOpt) { selectSede.value = sedeOpt.value; }
+      } else if (sedeFiltroSeleccionada) selectSede.value = sedeFiltroSeleccionada;
+
+      alCambiarSedeFiltro(false);
+      renderizarArbolSedesAulas();
+    }
+
+    // Asegura que el encargado nunca pueda cambiar de sede manualmente.
+    var alCambiarSedeFiltroOriginal = alCambiarSedeFiltro;
+    alCambiarSedeFiltro = function(resetAula) {
+      if (sesionActual && sesionActual.role === 'ENCARGADO') {
+        var select = document.getElementById('selectSedeAulaFiltro');
+        if (select) {
+          var encontrada = Array.from(select.options).find(function(o){ return sedesCoincidenJarvis(o.value, sesionActual.sede); });
+          if (encontrada) select.value = encontrada.value;
+        }
+      }
+      return alCambiarSedeFiltroOriginal(resetAula);
+    };
+
+    function abrirModalReservaAula() {
+      if (!sesionActual) {
+        accionPendienteTrasLogin = 'RESERVA';
+        abrirModalLogin();
+        alert('🔐 Debes iniciar sesión antes de realizar una reserva de aula.');
+        return;
+      }
+      if (!cuentaPuede('crearReservas')) return alert('⛔ Tu cuenta no tiene permiso para crear reservas. Solicita al Programador que habilite este permiso.');
+      if (celdasAulaSeleccionadasSet.size === 0) return alert('Por favor selecciona las celdas de horario que deseas reservar.');
+      if (!aulaFiltroSeleccionada && !document.getElementById('selectAulaFiltro').value) return alert('Por favor selecciona primero una Sede y un Aula.');
+      var numBloques = celdasAulaSeleccionadasSet.size;
+      document.getElementById('selectedAulaRangeInfoText').innerText = 'Reserva para ' + numBloques + ' bloque(s). Sesión: ' + sesionActual.displayName + '.';
+      document.getElementById('reservaResponsableInput').value = sesionActual.displayName;
+      document.getElementById('reservaNumDocInput').value = sesionActual.username;
+      document.getElementById('reservaTipoEventoInput').value = '';
+      document.getElementById('reservaAreaInput').value = '';
+      document.getElementById('reservaDistribucionSelect').value = '';
+      document.getElementById('reservaRequerimientosInput').value = '';
+      var selSede = document.getElementById('reservaSedeSelect');
+      if (sesionActual.role === 'ENCARGADO') { selSede.value = sesionActual.sede; selSede.disabled = true; }
+      else { selSede.disabled = false; selSede.value = sedeFiltroSeleccionada || ''; }
+      document.getElementById('addReservaAulaModal').style.display = 'flex';
+    }
+
+    function guardarReservaAula() {
+      if (!sesionActual) { accionPendienteTrasLogin='RESERVA'; cerrarModalReservaAula(); abrirModalLogin(); return; }
+      if (!cuentaPuede('crearReservas')) return alert('⛔ Tu cuenta no tiene permiso para crear reservas.');
+      var responsable = document.getElementById('reservaResponsableInput').value.trim();
+      var tipoDoc = document.getElementById('reservaTipoDocSelect').value;
+      var numDoc = document.getElementById('reservaNumDocInput').value.trim();
+      var tipoEvento = document.getElementById('reservaTipoEventoInput').value.trim();
+      var area = document.getElementById('reservaAreaInput').value.trim();
+      var sede = document.getElementById('reservaSedeSelect').value.trim();
+      var distribucion = document.getElementById('reservaDistribucionSelect').value.trim();
+      var requerimientosTecnicos = document.getElementById('reservaRequerimientosInput').value.trim();
+      if (!responsable || !numDoc || !tipoEvento || !area || !sede || !distribucion || !requerimientosTecnicos) return alert('⚠️ Completa todos los campos obligatorios de la reserva, incluida la distribución y los requerimientos técnicos/materiales.');
+      if (sesionActual.role === 'ENCARGADO' && !sedesCoincidenJarvis(sede,sesionActual.sede)) return alert('⛔ Tu cuenta solo puede reservar en la sede ' + sesionActual.sede + '.');
+      var aula = aulaFiltroSeleccionada || document.getElementById('selectAulaFiltro').value;
+      if (!aula) return alert('Por favor selecciona un Aula.');
+      var aforoEncontrado = 'No especificado';
+      var sObj = sedesAulasMaster.find(function(s){ return sedesCoincidenJarvis(s.nombre,sede); });
+      if (sObj && sObj.aulas) { var aObj=sObj.aulas.find(function(a){return (typeof a==='object'?a.nombre:a)===aula;}); if(aObj&&typeof aObj==='object'&&aObj.aforo) aforoEncontrado=aObj.aforo+' Personas'; }
+      var mapaPorFecha = new Map();
+      celdasAulaSeleccionadasSet.forEach(function(item){ if(!mapaPorFecha.has(item.fechaIso)) mapaPorFecha.set(item.fechaIso,{diaNombre:item.diaNombre,horas:[]}); mapaPorFecha.get(item.fechaIso).horas.push(item.hora); });
+      var fechaAuditoriaReg=getRelojFechaTexto();
+      var requiereAprobacion = sesionActual.role !== 'PROGRAMADOR';
+      mapaPorFecha.forEach(function(val,fIso){
+        val.horas.sort(function(a,b){return a-b;});
+        reservasAulasDB.push({id:Date.now()+Math.random(),responsable:responsable,tipoDoc:tipoDoc,numDoc:numDoc,tipoEvento:tipoEvento,area:area,sede:sede,aula:aula,aforo:aforoEncontrado,diaNombre:val.diaNombre,fechaIso:fIso,horasArray:val.horas,fechaAuditoria:fechaAuditoriaReg,distribucion:distribucion,requerimientosTecnicos:requerimientosTecnicos,solicitadoPorCuenta:sesionActual.username,estadoAprobacion:requiereAprobacion?'PENDIENTE':'APROBADO',responde:requiereAprobacion?'':sesionActual.displayName,respuestaAuditoria:requiereAprobacion?'':'Aprobada directamente por Programador',fechaAprobacionAuditoria:requiereAprobacion?'':fechaAuditoriaReg});
+      });
+      syncToCloud(); cerrarModalReservaAula(); activarModoSeleccionAula(); actualizarContadorNotificaciones();
+      alert(requiereAprobacion?'📌 Solicitud registrada en PENDIENTE DE APROBACIÓN.':'📌 Reserva confirmada y aprobada por el Programador.');
+    }
+
+    function verDetalleReservaAula(idReserva) {
+      var res=reservasAulasDB.find(function(item){return item.id===idReserva;}); if(!res)return;
+      activeAulaReservaIdToDelete=idReserva;
+      var minH=Math.min.apply(null,res.horasArray), maxH=Math.max.apply(null,res.horasArray)+1;
+      document.getElementById('infoAulaSede').innerText=res.sede; document.getElementById('infoAulaNombre').innerText=res.aula; document.getElementById('infoAulaAforo').innerText=res.aforo||'No especificado'; document.getElementById('infoAulaResponsable').innerText=res.responsable; document.getElementById('infoAulaCredencialDoc').innerText=(res.tipoDoc||'CUENTA')+': '+(res.numDoc||'No especificado'); document.getElementById('infoAulaTipoEvento').innerText=res.tipoEvento; document.getElementById('infoAulaArea').innerText=res.area; document.getElementById('infoAulaDistribucion').innerText=res.distribucion||'No registrado'; document.getElementById('infoAulaRequerimientos').innerText=res.requerimientosTecnicos||'No registrado'; document.getElementById('infoAulaResponde').innerText=res.responde||'Pendiente'; document.getElementById('infoAulaRespuestaAuditoria').innerText=res.respuestaAuditoria||'Pendiente';
+      var estadoTexto=res.estadoAprobacion==='PENDIENTE'?'⏳ PENDIENTE DE APROBACIÓN':(res.estadoAprobacion==='RECHAZADA'?'🔴 RECHAZADA':'🟢 APROBADA'); document.getElementById('infoAulaEstadoAprobacion').innerText=estadoTexto;
+      document.getElementById('infoAulaDiaHora').innerText=res.diaNombre+' ('+res.fechaIso+') de '+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00'; document.getElementById('infoAulaFechaAuditoria').innerText=res.fechaAuditoria||'Registrado previamente';
+      var grupo=document.getElementById('accionesAprobacionReservaGroup');
+      var puedeResponder=sesionActual && cuentaPuede('aprobarReservas') && res.estadoAprobacion==='PENDIENTE' && (sesionActual.role==='PROGRAMADOR'||sedesCoincidenJarvis(res.sede,sesionActual.sede));
+      grupo.style.display=puedeResponder?'flex':'none';
+      var btnEditar=document.getElementById('btnEditarReservaAulaActual');
+      if(btnEditar) btnEditar.style.display=(sesionActual && cuentaPuede('editarReservas') && (sesionActual.role==='PROGRAMADOR'||sedesCoincidenJarvis(res.sede,sesionActual.sede)))?'inline-flex':'none';
+      document.getElementById('viewReservaAulaModal').style.display='flex';
+    }
+
+    function abrirEditarReservaAulaActual(){
+      if(!sesionActual || !cuentaPuede('editarReservas')) return alert('⛔ Tu cuenta no tiene permiso para editar reservas.');
+      var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;}); if(!res)return;
+      if(sesionActual.role!=='PROGRAMADOR' && !sedesCoincidenJarvis(res.sede,sesionActual.sede)) return alert('⛔ Esta reserva pertenece a otra sede.');
+      document.getElementById('editReservaTipoEventoInput').value=res.tipoEvento||'';
+      document.getElementById('editReservaAreaInput').value=res.area||'';
+      document.getElementById('editReservaDistribucionSelect').value=res.distribucion||'';
+      document.getElementById('editReservaRequerimientosInput').value=res.requerimientosTecnicos||'';
+      document.getElementById('editReservaAulaModal').style.display='flex';
+    }
+    function cerrarEditarReservaAula(){document.getElementById('editReservaAulaModal').style.display='none';}
+    function guardarEdicionReservaAula(){
+      if(!sesionActual || !cuentaPuede('editarReservas')) return alert('⛔ No tienes permiso para editar reservas.');
+      var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;}); if(!res)return;
+      var tipo=document.getElementById('editReservaTipoEventoInput').value.trim(), area=document.getElementById('editReservaAreaInput').value.trim(), dist=document.getElementById('editReservaDistribucionSelect').value.trim(), req=document.getElementById('editReservaRequerimientosInput').value.trim();
+      if(!tipo||!area||!dist||!req)return alert('⚠️ Completa todos los campos obligatorios.');
+      if(sesionActual.role!=='PROGRAMADOR' && !sedesCoincidenJarvis(res.sede,sesionActual.sede))return alert('⛔ Esta reserva pertenece a otra sede.');
+      res.tipoEvento=tipo; res.area=area; res.distribucion=dist; res.requerimientosTecnicos=req; res.ultimaEdicionPor=sesionActual.displayName; res.fechaUltimaEdicion=getRelojFechaTexto();
+      syncToCloud(); cerrarEditarReservaAula(); verDetalleReservaAula(res.id); alert('✏️ Reserva actualizada correctamente.');
+    }
+
+    function abrirAuditoriaReserva(accion){
+      if(!sesionActual || !cuentaPuede('aprobarReservas')) return alert('⛔ Tu cuenta no tiene permiso para aprobar o rechazar reservas.');
+      var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;}); if(!res)return;
+      if(sesionActual.role!=='PROGRAMADOR' && !sedesCoincidenJarvis(res.sede,sesionActual.sede)) return alert('⛔ Esta reserva pertenece a otra sede.');
+      reservaAuditoriaPendienteId=res.id; reservaAuditoriaPendienteAccion=accion;
+      document.getElementById('auditReservaAccionText').innerText=accion==='APROBAR'?'Estás aprobando esta solicitud. Registra obligatoriamente quién responde y la respuesta.':'Estás rechazando esta solicitud. Registra obligatoriamente quién responde y el motivo.';
+      document.getElementById('respuestaEncargadoInput').value=sesionActual.displayName; document.getElementById('respuestaAuditoriaInput').value=''; document.getElementById('auditReservaModal').style.display='flex';
+    }
+    function cerrarModalAuditReserva(){document.getElementById('auditReservaModal').style.display='none';reservaAuditoriaPendienteId=null;reservaAuditoriaPendienteAccion=null;}
+    function confirmarRespuestaAuditoriaReserva(){
+      var nombre=document.getElementById('respuestaEncargadoInput').value.trim(), respuesta=document.getElementById('respuestaAuditoriaInput').value.trim();
+      if(!nombre||!respuesta)return alert('⚠️ Los campos "Responde" y "Respuesta / Observación" son obligatorios.');
+      var res=reservasAulasDB.find(function(r){return r.id===reservaAuditoriaPendienteId;}); if(!res)return cerrarModalAuditReserva();
+      res.responde=nombre; res.respuestaAuditoria=respuesta; res.fechaAprobacionAuditoria=getRelojFechaTexto(); res.estadoAprobacion=reservaAuditoriaPendienteAccion==='APROBAR'?'APROBADO':'RECHAZADA';
+      syncToCloud(); cerrarModalAuditReserva(); cerrarModalVerReservaAula(); actualizarContadorNotificaciones(); renderizarTablaCalendarioAulas(); alert(res.estadoAprobacion==='APROBADO'?'🟢 Reserva aprobada con auditoría registrada.':'🔴 Reserva rechazada con auditoría registrada.');
+    }
+    function aprobarReservaAulaActual(){abrirAuditoriaReserva('APROBAR');}
+    function rechazarReservaAulaActual(){abrirAuditoriaReserva('RECHAZAR');}
+    function eliminarReservaAulaActual(){ return rechazarReservaAulaActual(); }
+
+    function irAPendientesAulas(){
+      if(!sesionActual){accionPendienteTrasLogin='PENDIENTES';abrirModalLogin();return;}
+      filtroPendientesAulas=true; mostrarAulas(); actualizarContadorNotificaciones();
+      var btn=document.getElementById('btnNotificacionesAulas'); if(btn) btn.classList.add('jarvis-pending-filter-active');
+    }
+
+    function actualizarContadorNotificaciones(){
+      var pendientes=(reservasAulasDB||[]).filter(function(r){
+        if(r.estadoAprobacion!=='PENDIENTE') return false;
+        if(sesionActual && sesionActual.role==='ENCARGADO') return sedesCoincidenJarvis(r.sede,sesionActual.sede);
+        return true;
+      });
+      var count=pendientes.length, badge=document.getElementById('contadorNotificacionesAulas');
+      if(badge){badge.innerText=count>99?'99+':String(count);badge.style.display=count?'flex':'none';}
+    }
+
+    // Presencia Firebase Realtime Database: online/offline por cuenta oficial.
+    var presenciaRefSesion=null;
+    function iniciarPresenciaSesion(){
+      if(!sesionActual || !db) return;
+      detenerPresenciaSesion();
+      var key=sesionActual.username.replace(/[^a-zA-Z0-9_-]/g,'_');
+      presenciaRefSesion=db.ref('jarvisPresence/'+key);
+      var datos={username:sesionActual.username,displayName:sesionActual.displayName,sede:sesionActual.sede,role:sesionActual.role,lastSeen:firebase.database.ServerValue.TIMESTAMP};
+      presenciaRefSesion.onDisconnect().set({username:sesionActual.username,displayName:sesionActual.displayName,sede:sesionActual.sede,role:sesionActual.role,online:false,lastSeen:firebase.database.ServerValue.TIMESTAMP});
+      presenciaRefSesion.set(Object.assign({},datos,{online:true}));
+      presenciaRefSesion.on('value',function(){renderizarPresenciaSedes();});
+    }
+    function detenerPresenciaSesion(){
+      if(presenciaRefSesion){try{presenciaRefSesion.onDisconnect().cancel();presenciaRefSesion.remove();}catch(e){} presenciaRefSesion=null;}
+    }
+    function renderizarPresenciaSedes(){
+      var grid=document.getElementById('presenciaSedesGrid'); if(!grid)return;
+      grid.innerHTML='';
+      CUENTAS_SEDE_OFICIALES.forEach(function(c){
+        var key=c.username.replace(/[^a-zA-Z0-9_-]/g,'_');
+        db.ref('jarvisPresence/'+key).once('value').then(function(snap){
+          var d=snap.val()||{}; var online=d.online===true; var existing=document.getElementById('pres_'+key);
+          var html='<div class="jarvis-presence-card" id="pres_'+key+'"><div><div class="jarvis-presence-name">'+c.sede+'</div><div style="font-size:.73rem;color:var(--text-muted);">'+c.username+'</div></div><div class="jarvis-presence-status"><span class="jarvis-online-dot '+(online?'online':'')+'"></span>'+(online?'ONLINE':'OFFLINE')+'</div></div>';
+          if(existing) existing.outerHTML=html; else grid.insertAdjacentHTML('beforeend',html);
+        });
+      });
+    }
+
+    function renderizarAdminCuentasOficiales(){
+      var cont=document.getElementById('catalogoCuentasSedeAdmin'); if(!cont)return; cont.innerHTML='';
+      CUENTAS_SEDE_OFICIALES.forEach(function(base,idx){
+        var c=cuentasSedeDB.find(function(x){return x.username===base.username;})||base;
+        var p=c.permisos||{crearReservas:true,editarReservas:true,aprobarReservas:true};
+        cont.innerHTML += '<div class="jarvis-account-card"><div class="jarvis-account-header"><div><strong style="color:var(--primary-purple);">👨‍💼 '+c.displayName+'</strong><div style="font-size:.75rem;color:var(--text-muted);">Cuenta: '+c.username+' | Sede: '+c.sede+' | Contraseña común</div></div><span class="jarvis-online-dot" id="cuentaDot_'+idx+'"></span></div><div class="jarvis-permissions-grid"><label class="jarvis-permission-toggle">➕ Crear reservas <input type="checkbox" '+(p.crearReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'crearReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✏️ Editar reservas <input type="checkbox" '+(p.editarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'editarReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✅ Aprobar / Rechazar <input type="checkbox" '+(p.aprobarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'aprobarReservas\',this.checked)"></label></div></div>';
+      });
+      renderizarPresenciaSedes();
+    }
+    function cambiarPermisoCuentaSede(username,clave,valor){
+      if(!esProgramador)return alert('Solo el Programador puede modificar los permisos institucionales.');
+      var c=cuentasSedeDB.find(function(x){return x.username===username;}); if(!c)return;
+      if(!c.permisos)c.permisos={crearReservas:true,editarReservas:true,aprobarReservas:true}; c.permisos[clave]=!!valor; syncToCloud();
+    }
+
+    // Sobrescribe la vista del Panel Programador para incluir el nuevo catálogo sin tocar el resto.
+    var mostrarAdminOriginalIntegracion=mostrarAdmin;
+    mostrarAdmin=function(){
+      if(!esProgramador)return;
+      mostrarAdminOriginalIntegracion();
+      renderizarAdminCuentasOficiales(); renderizarPresenciaSedes();
+    };
+
+    // Bloqueo adicional de navegación administrativa para usuarios de sede.
+    var mostrarAulasOriginalIntegracion=mostrarAulas;
+    mostrarAulas=function(){
+      resetTabs(); document.getElementById('vistaAulas').style.display='block'; document.getElementById('btnAulas').classList.add('active');
+      renderizarOpcionesSedesAulasFiltro(); renderizarTablaCalendarioAulas();
+      if(filtroPendientesAulas){var btn=document.getElementById('btnNotificacionesAulas');if(btn)btn.classList.add('jarvis-pending-filter-active');}
+    };
+
+    // Evita que una sesión de encargado vea reservas de otras sedes en el calendario.
+    var renderizarTablaCalendarioAulasOriginalIntegracion=renderizarTablaCalendarioAulas;
+    renderizarTablaCalendarioAulas=function(){
+      var originalSede=sedeFiltroSeleccionada;
+      if(sesionActual && sesionActual.role==='ENCARGADO') sedeFiltroSeleccionada=sesionActual.sede;
+      renderizarTablaCalendarioAulasOriginalIntegracion();
+      if(sesionActual && sesionActual.role==='ENCARGADO') sedeFiltroSeleccionada=sesionActual.sede;
+      actualizarContadorNotificaciones();
+    };
+
+    // El contador se actualiza con cada cambio en la base de datos.
+    db.ref('jarvisData/reservasAulasDB').on('value',function(snapshot){
+      var arr=snapshot.val();
+      if(arr) reservasAulasDB=Array.isArray(arr)?arr:Object.keys(arr).map(function(k){return arr[k];});
+      actualizarContadorNotificaciones();
+      if(document.getElementById('vistaAulas') && document.getElementById('vistaAulas').style.display==='block') renderizarTablaCalendarioAulas();
+    });
+
+    // Presencia en vivo: escucha cambios de cada cuenta.
+    CUENTAS_SEDE_OFICIALES.forEach(function(c){
+      var key=c.username.replace(/[^a-zA-Z0-9_-]/g,'_');
+      db.ref('jarvisPresence/'+key).on('value',function(){ if(document.getElementById('vistaAdmin') && document.getElementById('vistaAdmin').style.display==='block') renderizarPresenciaSedes(); });
+    });
+
+    // Inicio de sesión visual y datos iniciales.
+    asegurarCatalogoCuentasSede();
+    actualizarUISesion();
+    actualizarContadorNotificaciones();
+
     window.onload = function() {
       mostrarInicio();
+      asegurarCatalogoCuentasSede();
+      actualizarUISesion();
+      actualizarContadorNotificaciones();
+      renderizarAdminCuentasOficiales();
+      renderizarPresenciaSedes();
     };
   </script>
 </body>
