@@ -1181,6 +1181,116 @@
       overflow-y: auto;
     }
 
+
+    /* MEJORA CALENDARIOS 2026: selección de 30 minutos y barra superior */
+    .selection-action-bar-top {
+      position: sticky !important;
+      top: 0;
+      bottom: auto !important;
+      border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.16) !important;
+    }
+    .calendar-table .calendar-cell.jarvis-half-hour-cell {
+      height: 26px;
+      min-height: 26px;
+    }
+    .calendar-table .time-col.jarvis-half-hour-label {
+      height: 26px;
+      padding: 3px 6px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+    .aula-chip-btn {
+      width: 100%;
+      min-height: 58px;
+      box-sizing: border-box;
+      padding: 7px 8px;
+      margin: 3px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      line-height: 1.15;
+      white-space: normal;
+    }
+    .aula-chip-name {
+      display: block;
+      font-weight: 700;
+      text-align: center;
+      width: 100%;
+      overflow-wrap: anywhere;
+    }
+    .aula-chip-capacity {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      text-align: center;
+      opacity: .82;
+    }
+    .aula-chip-btn.selected .aula-chip-capacity { opacity: .95; }
+    .aula-now-line { z-index: 30; }
+    .aula-block-unified.jarvis-30min-block { min-height: 20px; }
+    /* Vista compacta: una fila por hora, con dos zonas internas de 30 minutos. */
+    .aula-hour-cell { position:relative; vertical-align:top; }
+    .aula-hour-wrapper { position:relative; width:100%; height:54px; display:flex; flex-direction:column; overflow:hidden; }
+    .aula-half-zone { position:relative; flex:1 1 50%; min-height:27px; box-sizing:border-box; border-bottom:1px dashed rgba(107,0,215,.12); overflow:hidden; transition:background .12s ease, box-shadow .12s ease; }
+    .aula-half-zone:last-child { border-bottom:none; }
+    .aula-half-selectable:hover { background:rgba(107,0,215,.08); box-shadow:inset 0 0 0 1px rgba(107,0,215,.22); cursor:crosshair; }
+    /* No mostramos 00/30 dentro de las celdas. La hora seleccionada se informa en la barra superior. */
+    .aula-half-hover-label { display:none !important; }
+    .aula-half-zone.cell-drag-selected { background:rgba(107,0,215,.22) !important; box-shadow:none !important; border-bottom-color:transparent; z-index:4; }
+    /* Unifica visualmente los bloques consecutivos seleccionados. */
+    .aula-half-zone.aula-selection-start {
+      border-top-left-radius:8px; border-top-right-radius:8px;
+      box-shadow:inset 2px 2px 0 rgba(107,0,215,.45), inset -2px 0 0 rgba(107,0,215,.45) !important;
+    }
+    .aula-half-zone.aula-selection-middle {
+      border-radius:0;
+      box-shadow:inset 2px 0 0 rgba(107,0,215,.45), inset -2px 0 0 rgba(107,0,215,.45) !important;
+    }
+    .aula-half-zone.aula-selection-end {
+      border-bottom-left-radius:8px; border-bottom-right-radius:8px;
+      box-shadow:inset 2px 0 0 rgba(107,0,215,.45), inset -2px -2px 0 rgba(107,0,215,.45) !important;
+    }
+    .aula-half-zone.aula-selection-single {
+      border-radius:8px;
+      box-shadow:inset 0 0 0 2px rgba(107,0,215,.45) !important;
+    }
+    .aula-half-zone.aula-selection-label-host { overflow:visible !important; }
+    .aula-selection-range-label {
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      z-index:8; pointer-events:none; white-space:nowrap;
+      font-size:.69rem; font-weight:800; line-height:1.15; text-align:center;
+      color:#4C1D95; background:rgba(255,255,255,.94);
+      border:1px solid rgba(107,0,215,.22);
+      border-radius:6px; padding:4px 9px; box-sizing:border-box;
+      box-shadow:0 2px 5px rgba(0,0,0,.12);
+    }
+    .aula-half-occupied { background:transparent; }
+    .aula-half-occupied .aula-block-unified { height:100%; min-height:25px; box-sizing:border-box; margin:0; border-radius:5px; display:flex; flex-direction:column; justify-content:center; }
+    .aula-half-zone.jarvis-past-cell, .aula-half-zone.jarvis-past-cell:hover { background:rgba(120,120,120,.045); cursor:not-allowed; }
+    .aula-half-zone.jarvis-now-half { overflow:visible; }
+    .aula-half-zone .aula-now-line { left:0; right:0; height:2px; position:absolute; }
+    /* Progreso del tiempo actual: pinta de forma continua la parte de la media hora que ya transcurrió. */
+    .aula-half-zone .aula-now-progress {
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      height:0;
+      background:rgba(107,0,215,.14);
+      z-index:18;
+      pointer-events:none;
+      transition:height .35s linear;
+    }
+    .aula-half-zone .aula-now-line {
+      z-index:20;
+    }
+    .aula-half-zone .aula-now-progress + .aula-now-line {
+      z-index:20;
+    }
+
     /* ESTILOS DE SWITCH Y TABS DE CONTROL DE PERMISOS */
     .permission-check-group {
       display: flex;
@@ -1418,6 +1528,14 @@
           </div>
 
           <div class="calendar-container" id="calendarAulaContainerDiv">
+            <div class="selection-action-bar selection-action-bar-top" id="selectionAulaActionBar">
+              <span id="selectedAulaCountText">0 bloques seleccionados</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="tab-btn" style="background: rgba(255,255,255,0.2); color: #FFF;" onclick="limpiarSeleccionMultipleAula()">Limpiar Selección</button>
+                <button class="btn-save" style="background: #22C55E;" onclick="abrirModalReservaAula()">📌 Reservar Espacio de Aula</button>
+              </div>
+            </div>
+
             <table class="calendar-table">
               <thead>
                 <tr id="calendarAulaTheadTr">
@@ -1434,13 +1552,6 @@
               <tbody id="calendarAulaTbody"></tbody>
             </table>
 
-            <div class="selection-action-bar" id="selectionAulaActionBar">
-              <span id="selectedAulaCountText">0 celdas seleccionadas</span>
-              <div style="display: flex; gap: 8px;">
-                <button class="tab-btn" style="background: rgba(255,255,255,0.2); color: #FFF;" onclick="limpiarSeleccionMultipleAula()">Limpiar Selección</button>
-                <button class="btn-save" style="background: #22C55E;" onclick="abrirModalReservaAula()">📌 Reservar Espacio de Aula</button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -2424,6 +2535,15 @@
       }
     });
 
+    // Actualiza la barra de hora actual sin modificar ningún dato de Firebase.
+    setInterval(function(){
+      if(isDraggingSchedule || isDraggingAulaSchedule) return;
+      try {
+        if(document.getElementById('vistaHorarios') && document.getElementById('vistaHorarios').style.display==='block') renderizarTablaCalendario();
+        if(document.getElementById('vistaAulas') && document.getElementById('vistaAulas').style.display==='block') renderizarTablaCalendarioAulas();
+      } catch(e) { console.warn('JARVIS reloj calendario:',e); }
+    }, 60000);
+
     // RELOJ Y AUDITORÍA
     function getRelojFechaTexto() {
       var now = new Date();
@@ -2703,6 +2823,14 @@
           tdCell.dataset.diaNombre = diaNombre;
           tdCell.dataset.fechaIso = dateIsoString;
           tdCell.dataset.hora = hora;
+
+          // Barra roja tipo Google Calendar: avanza minuto a minuto dentro de la celda actual.
+          if (esFechaHoyJarvis(dateIsoString) && hora === new Date().getHours()) {
+            var ahora = new Date();
+            var porcentaje = Math.max(0, Math.min(100, (ahora.getMinutes() / 60) * 100));
+            tdCell.classList.add('jarvis-now-cell');
+            tdCell.insertAdjacentHTML('afterbegin', '<div class="jarvis-now-line" style="top:'+porcentaje+'%;"></div><span class="jarvis-now-label" style="top:calc('+porcentaje+'% + 3px);">AHORA</span>');
+          }
 
           tdCell.onmousedown = function(e) {
             if (!modoSeleccionHorarioActivo) return;
@@ -3057,29 +3185,88 @@
     }
 
     function toggleSeleccionCeldaAula(diaNombre, fechaIso, hora) {
+      hora = Number(hora);
       if (celdaAulaEsPasada(fechaIso, hora)) return;
-      var key = fechaIso + "_" + hora;
+      var key = fechaIso + "_" + claveHoraAulaJarvis(hora);
       if (celdasAulaSeleccionadasSet.has(key)) {
         celdasAulaSeleccionadasSet.delete(key);
       } else {
         celdasAulaSeleccionadasSet.set(key, {
           diaNombre: diaNombre,
           fechaIso: fechaIso,
-          hora: parseInt(hora)
+          hora: hora
         });
       }
       actualizarEstilosCeldasSeleccionadasAula();
     }
 
     function actualizarEstilosCeldasSeleccionadasAula() {
-      var cells = document.querySelectorAll('#calendarAulaTbody .calendar-cell');
+      var cells = document.querySelectorAll('#calendarAulaTbody .aula-half-zone');
       cells.forEach(function(c) {
-        var key = c.dataset.fechaIso + "_" + c.dataset.hora;
-        if (celdasAulaSeleccionadasSet.has(key)) {
-          c.classList.add('cell-drag-selected');
-        } else {
-          c.classList.remove('cell-drag-selected');
+        var slot = Number(c.dataset.hora) + Number(c.dataset.mitad || 0);
+        var key = c.dataset.fechaIso + "_" + claveHoraAulaJarvis(slot);
+        c.classList.toggle('cell-drag-selected', celdasAulaSeleccionadasSet.has(key));
+        c.classList.remove('aula-selection-start','aula-selection-middle','aula-selection-end','aula-selection-single');
+        var oldLabel = c.querySelector('.aula-selection-range-label');
+        if (oldLabel) oldLabel.remove();
+      });
+
+      /*
+       * Convierte cada grupo consecutivo de medias horas en un único bloque
+       * visual. Así, si se marca 08:00, 08:30 y 09:00, se percibe como una
+       * sola selección y el primer cuadro muestra 08:00 → 09:30.
+       */
+      var seleccionPorFecha = {};
+      celdasAulaSeleccionadasSet.forEach(function(item){
+        if (!seleccionPorFecha[item.fechaIso]) seleccionPorFecha[item.fechaIso] = [];
+        seleccionPorFecha[item.fechaIso].push(Number(item.hora));
+      });
+
+      Object.keys(seleccionPorFecha).forEach(function(fecha){
+        var slots = seleccionPorFecha[fecha].sort(function(a,b){ return a-b; });
+        if (!slots.length) return;
+
+        var grupos = [];
+        var inicio = slots[0];
+        var anterior = slots[0];
+        for (var gi=1; gi<slots.length; gi++) {
+          if (Math.abs(slots[gi] - anterior - 0.5) > 0.001) {
+            grupos.push({inicio:inicio, fin:anterior});
+            inicio = slots[gi];
+          }
+          anterior = slots[gi];
         }
+        grupos.push({inicio:inicio, fin:anterior});
+
+        grupos.forEach(function(g){
+          var rangoSlots = [];
+          for (var h=g.inicio; h<=g.fin+0.001; h+=0.5) rangoSlots.push(Number(h.toFixed(1)));
+          rangoSlots.forEach(function(slot, idx){
+            var selector = '#calendarAulaTbody .aula-half-zone[data-fecha-iso="' + fecha + '"]';
+            var zonas = document.querySelectorAll(selector);
+            var zona = null;
+            zonas.forEach(function(z){
+              var zslot = Number(z.dataset.hora) + Number(z.dataset.mitad || 0);
+              if (Math.abs(zslot-slot) < 0.001) zona = z;
+            });
+            if (!zona) return;
+            if (rangoSlots.length === 1) zona.classList.add('aula-selection-single');
+            else if (idx === 0) zona.classList.add('aula-selection-start');
+            else if (idx === rangoSlots.length-1) zona.classList.add('aula-selection-end');
+            else zona.classList.add('aula-selection-middle');
+
+            /* El rango se muestra en el centro geométrico del bloque,
+               no en la primera celda. Así permanece centrado tanto si la
+               selección mide 30 minutos como varias horas. */
+            if (idx === Math.floor((rangoSlots.length - 1) / 2)) {
+              zona.classList.add('aula-selection-label-host');
+              var label = document.createElement('div');
+              label.className = 'aula-selection-range-label';
+              label.textContent = formatearHoraJarvis(g.inicio) + ' → ' + formatearHoraJarvis(g.fin + 0.5);
+              zona.appendChild(label);
+            }
+          });
+        });
       });
 
       var count = celdasAulaSeleccionadasSet.size;
@@ -3088,7 +3275,46 @@
 
       if (count > 0 && modoSeleccionAulaActivo) {
         bar.style.display = 'flex';
-        text.innerText = count + " " + (count === 1 ? 'bloque seleccionado' : 'bloques seleccionados');
+
+        /*
+         * La grilla sigue teniendo una fila visual por hora.
+         * La precisión de 30 minutos se maneja internamente y se comunica
+         * aquí como horario real: 08:00 → 09:30, sin escribir 00/30 dentro
+         * de las celdas.
+         */
+        var grupos = {};
+        celdasAulaSeleccionadasSet.forEach(function(item){
+          var key = item.fechaIso;
+          if (!grupos[key]) grupos[key] = [];
+          grupos[key].push(Number(item.hora));
+        });
+
+        var rangos = [];
+        Object.keys(grupos).sort().forEach(function(fecha){
+          var slots = grupos[fecha].sort(function(a,b){return a-b;});
+          if (!slots.length) return;
+          var inicio = slots[0];
+          var anterior = slots[0];
+          for (var i=1; i<slots.length; i++) {
+            if (Math.abs(slots[i] - anterior - 0.5) > 0.001) {
+              rangos.push({fecha:fecha,inicio:inicio,fin:anterior+0.5});
+              inicio = slots[i];
+            }
+            anterior = slots[i];
+          }
+          rangos.push({fecha:fecha,inicio:inicio,fin:anterior+0.5});
+        });
+
+        var totalMinutos = count * 30;
+        var duracionTexto = totalMinutos >= 60
+          ? Math.floor(totalMinutos/60) + ' h' + (totalMinutos%60 ? ' ' + (totalMinutos%60) + ' min' : '')
+          : totalMinutos + ' min';
+
+        var rangoTexto = rangos.map(function(r){
+          return formatearHoraJarvis(r.inicio) + ' → ' + formatearHoraJarvis(r.fin);
+        }).join('  |  ');
+
+        text.innerText = 'Horario: ' + rangoTexto + ' · ' + duracionTexto;
       } else {
         bar.style.display = 'none';
       }
@@ -3203,7 +3429,9 @@
             var esSeleccionada = (s.nombre === sedeFiltroSeleccionada && nomAula === aulaFiltroSeleccionada);
 
             html += '<button class="aula-chip-btn ' + (esSeleccionada ? 'selected' : '') + '" onclick="seleccionarSedeAulaDesdeTree(\'' + s.nombre + '\', \'' + nomAula + '\')">' +
-              '🚪 ' + nomAula + aforoAula + '</button>';
+              '<span class="aula-chip-name">🚪 ' + nomAula + '</span>' +
+              '<span class="aula-chip-capacity">' + (aforoAula ? aforoAula : '(Aforo no especificado)') + '</span>' +
+              '</button>';
           });
         } else {
           html += '<span style="font-size:0.75rem; color:var(--text-muted);">Sin aulas registradas</span>';
@@ -3221,8 +3449,43 @@
 
     function celdaAulaEsPasada(fechaIso, hora) {
       var partes=String(fechaIso).split('-');
-      var fecha=new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]), Number(hora), 0, 0, 0);
+      var hNum=Number(hora);
+      var horasEnteras=Math.floor(hNum);
+      var minutos=Math.round((hNum-horasEnteras)*60);
+      var fecha=new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]), horasEnteras, minutos, 0, 0);
       return fecha.getTime() < Date.now();
+    }
+
+    function formatearHoraJarvis(hora) {
+      var n=Number(hora);
+      if(!Number.isFinite(n)) return '--:--';
+      var h=Math.floor(n);
+      var m=Math.round((n-h)*60);
+      if(m>=60){ h++; m=0; }
+      return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+    }
+
+    function obtenerSlotsReservaAula(res) {
+      var arr=Array.isArray(res && res.horasArray) ? res.horasArray.map(Number).filter(Number.isFinite).sort(function(a,b){return a-b;}) : [];
+      if(!arr.length) return [];
+      if(res && res.unidadTiempo === '30MIN') return arr;
+      // Reservas antiguas guardaban una celda por hora (7,8,9...). Las convertimos
+      // visualmente a dos medias horas para no perder ni modificar datos históricos.
+      var tieneMedias=arr.some(function(h){ return Math.abs(h-Math.round(h))>0.001; });
+      if(tieneMedias) return arr;
+      var expandida=[];
+      arr.forEach(function(h){ expandida.push(h,h+0.5); });
+      return expandida.filter(function(v,i,a){ return a.indexOf(v)===i; }).sort(function(a,b){return a-b;});
+    }
+
+    function claveHoraAulaJarvis(hora) {
+      return Number(hora).toFixed(1);
+    }
+
+    function minutosDuracionReservaAula(res) {
+      var slots=obtenerSlotsReservaAula(res);
+      if(!slots.length) return 0;
+      return slots.length*30;
     }
 
     function esFechaHoyJarvis(fechaIso) { return fechaIso === isoLocalJarvis(new Date()); }
@@ -3259,13 +3522,15 @@
         var dayDate = new Date(monday);
         dayDate.setDate(dayDate.getDate() + idx);
         fechasDiasSemana.push(dayDate);
-
-        theadTr.innerHTML += '<th>' + diaNombre + '<span class="th-day-date">' + formatFechaHeader(dayDate) + '</span></th>';
+        var headerClass=esFechaHoyJarvis(isoLocalJarvis(dayDate))?' class="jarvis-today-header"':'';
+        theadTr.innerHTML += '<th'+headerClass+'>' + diaNombre + (esFechaHoyJarvis(isoLocalJarvis(dayDate))?' <span style="font-size:.62rem; font-weight:800;">HOY</span>':'') + '<span class="th-day-date">' + formatFechaHeader(dayDate) + '</span></th>';
       });
 
       var tbody = document.getElementById('calendarAulaTbody');
       tbody.innerHTML = '';
 
+      // La vista sigue mostrando SOLO una fila por hora para mantener el calendario compacto.
+      // Cada celda contiene internamente dos zonas de 30 minutos (00 y 30), visibles al pasar el cursor.
       var matrizReservas = {};
       DIAS_SEMANA.forEach(function(diaNombre, idx) {
         var dateIsoString = fechasDiasSemana[idx].toISOString().split('T')[0];
@@ -3273,21 +3538,83 @@
       });
 
       reservasAulasDB.forEach(function(res) {
-        // Una reserva RECHAZADA permanece en Firebase como historial/notificación,
-        // pero deja inmediatamente libre la celda del calendario.
         if (res.estadoAprobacion === 'RECHAZADA') return;
         if (sedeFiltroSeleccionada && res.sede !== sedeFiltroSeleccionada) return;
         if (aulaFiltroSeleccionada && res.aula !== aulaFiltroSeleccionada) return;
         if (filtroPendientesAulas && res.estadoAprobacion !== 'PENDIENTE') return;
+        if (!matrizReservas[res.fechaIso]) return;
 
-        if (matrizReservas[res.fechaIso]) {
-          res.horasArray.forEach(function(h) {
-            matrizReservas[res.fechaIso][h] = res;
-          });
-        }
+        obtenerSlotsReservaAula(res).forEach(function(slot) {
+          matrizReservas[res.fechaIso][claveHoraAulaJarvis(slot)] = res;
+        });
       });
 
-      var celdasIgnoradas = new Set();
+      function crearZonaMedia(diaNombre, fechaIso, hora, reserva, mitad, esHoy, esPasada) {
+        var zona = document.createElement('div');
+        zona.className = 'aula-half-zone' + (mitad === 0.5 ? ' aula-half-zone-bottom' : '');
+        zona.dataset.diaNombre = diaNombre;
+        zona.dataset.fechaIso = fechaIso;
+        zona.dataset.hora = hora;
+        zona.dataset.mitad = mitad;
+
+        var slot = Number(hora) + Number(mitad);
+        var key = fechaIso + "_" + claveHoraAulaJarvis(slot);
+        var seleccionada = celdasAulaSeleccionadasSet.has(key);
+        var ocupado = !!reserva;
+
+        if (seleccionada) zona.classList.add('cell-drag-selected');
+        if (esPasada) zona.classList.add('jarvis-past-cell');
+        if (ocupado) zona.classList.add('aula-half-occupied');
+        else if (!esPasada) zona.classList.add('aula-half-selectable');
+
+        if (esHoy && !esPasada) {
+          var ahora = new Date();
+          var horaActualDecimal = ahora.getHours() + ahora.getMinutes()/60;
+          if (horaActualDecimal >= slot && horaActualDecimal < slot + 0.5) {
+            var pctNow = ((horaActualDecimal - slot) / 0.5) * 100;
+            zona.classList.add('jarvis-now-half');
+            /* La barra y el relleno se actualizan cada minuto. El relleno cubre
+               exactamente el porcentaje de la media hora que ya transcurrió. */
+            zona.insertAdjacentHTML('afterbegin','<div class="aula-now-progress" style="height:'+pctNow+'%;"></div><div class="jarvis-now-line aula-now-line" style="top:'+pctNow+'%;"></div>');
+          }
+        }
+
+        if (reserva) {
+          var esPendiente = reserva.estadoAprobacion === 'PENDIENTE';
+          var esRechazada = reserva.estadoAprobacion === 'RECHAZADA';
+          var unifiedDiv = document.createElement('div');
+          unifiedDiv.className = "aula-block-unified aula-block-30min " + (esPendiente ? 'aula-block-pending ' : '') + (esRechazada ? 'aula-block-rejected' : '');
+          var estadoIcono = esPendiente ? '⏳ PENDIENTE' : (esRechazada ? '🔴 RECHAZADA' : '🟢 APROBADA');
+          unifiedDiv.innerHTML = '🏢 ' + reserva.area + '<br><small style="font-size:0.68rem; font-weight:600;">' + formatearHoraJarvis(slot) + ' · ' + estadoIcono + '</small>';
+          unifiedDiv.title = "Área: " + reserva.area + " | Sede: " + reserva.sede + " | Aula: " + reserva.aula + " | Horario: " + formatearHoraJarvis(slot) + " | Estado: " + (reserva.estadoAprobacion || 'APROBADO');
+          unifiedDiv.onclick = function(e){ e.stopPropagation(); verDetalleReservaAula(reserva.id); };
+          zona.appendChild(unifiedDiv);
+        } else if (!esPasada) {
+          /* La celda no muestra 00/30. Al pasar el cursor, el navegador puede
+             mostrar el intervalo completo sin recargar visualmente el calendario. */
+          zona.title = 'Seleccionar ' + formatearHoraJarvis(slot) + ' - ' + formatearHoraJarvis(slot + 0.5);
+        }
+
+        zona.onmousedown = function(e) {
+          if (ocupado) return;
+          if (!modoSeleccionAulaActivo || celdaAulaEsPasada(fechaIso, slot)) return;
+          e.preventDefault();
+          isDraggingAulaSchedule = true;
+          toggleSeleccionCeldaAula(diaNombre, fechaIso, slot);
+        };
+        zona.onmouseenter = function() {
+          if (ocupado) return;
+          if (isDraggingAulaSchedule && modoSeleccionAulaActivo && !celdaAulaEsPasada(fechaIso, slot)) {
+            var k = fechaIso + "_" + claveHoraAulaJarvis(slot);
+            if (!celdasAulaSeleccionadasSet.has(k)) {
+              celdasAulaSeleccionadasSet.set(k, {diaNombre:diaNombre, fechaIso:fechaIso, hora:slot});
+              actualizarEstilosCeldasSeleccionadasAula();
+            }
+          }
+        };
+
+        return zona;
+      }
 
       HORAS_JORNADA.forEach(function(hora) {
         var tr = document.createElement('tr');
@@ -3298,84 +3625,24 @@
 
         DIAS_SEMANA.forEach(function(diaNombre, idx) {
           var dateIsoString = fechasDiasSemana[idx].toISOString().split('T')[0];
-          var keyIgnorar = dateIsoString + "_" + hora;
+          var reserva00 = matrizReservas[dateIsoString][claveHoraAulaJarvis(hora)];
+          var reserva30 = matrizReservas[dateIsoString][claveHoraAulaJarvis(Number(hora)+0.5)];
+          var esHoy = esFechaHoyJarvis(dateIsoString);
+          var pasada00 = celdaAulaEsPasada(dateIsoString, hora);
+          var pasada30 = celdaAulaEsPasada(dateIsoString, Number(hora)+0.5);
 
-          if (celdasIgnoradas.has(keyIgnorar)) {
-            return;
-          }
+          var td = document.createElement('td');
+          td.className = 'calendar-cell aula-hour-cell' + (esHoy ? ' jarvis-today-cell' : '');
+          td.style.padding = '0';
+          td.style.height = '54px';
 
-          var reservaActual = matrizReservas[dateIsoString][hora];
-
-          if (reservaActual) {
-            var minHora = Math.min(...reservaActual.horasArray);
-            var maxHora = Math.max(...reservaActual.horasArray);
-            var spanFilas = (maxHora - minHora) + 1;
-
-            for (var hSpan = minHora; hSpan <= maxHora; hSpan++) {
-              celdasIgnoradas.add(dateIsoString + "_" + hSpan);
-            }
-
-            var tdSpan = document.createElement('td');
-            var reservaEsPasada = reservaActual.horasArray.every(function(h){ return celdaAulaEsPasada(dateIsoString,h); });
-            tdSpan.className = 'calendar-cell' + (esFechaHoyJarvis(dateIsoString) ? ' jarvis-today-cell' : '') + (reservaEsPasada ? ' jarvis-past-cell' : '');
-            tdSpan.rowSpan = spanFilas;
-            tdSpan.style.height = (spanFilas * 52) + 'px';
-            tdSpan.style.padding = '2px';
-            if (esFechaHoyJarvis(dateIsoString)) {
-              var ahoraH=new Date().getHours();
-              if (reservaActual.horasArray.indexOf(ahoraH)!==-1 && !celdaAulaEsPasada(dateIsoString,ahoraH)) {
-                tdSpan.classList.add('jarvis-now-cell');
-                tdSpan.insertAdjacentHTML('afterbegin','<div class="jarvis-now-line"></div><span class="jarvis-now-label">AHORA</span>');
-              }
-            }
-
-            var esPendiente = reservaActual.estadoAprobacion === 'PENDIENTE';
-            var esRechazada = reservaActual.estadoAprobacion === 'RECHAZADA';
-            var unifiedDiv = document.createElement('div');
-            unifiedDiv.className = "aula-block-unified " + (esPendiente ? 'aula-block-pending ' : '') + (esRechazada ? 'aula-block-rejected' : '');
-            
-            var estadoIcono = esPendiente ? '⏳ PENDIENTE' : (esRechazada ? '🔴 RECHAZADA' : '🟢 APROBADA');
-            unifiedDiv.innerHTML = '🏢 ' + reservaActual.area + '<br><small style="font-size:0.7rem; font-weight:600;">' + estadoIcono + '</small>';
-            unifiedDiv.title = "Área: " + reservaActual.area + " | Sede: " + reservaActual.sede + " | Aula: " + reservaActual.aula + " | Estado: " + (reservaActual.estadoAprobacion || 'APROBADO');
-            
-            unifiedDiv.onclick = function(e) {
-              e.stopPropagation();
-              verDetalleReservaAula(reservaActual.id);
-            };
-
-            tdSpan.appendChild(unifiedDiv);
-            tr.appendChild(tdSpan);
-
-          } else {
-            var tdCell = document.createElement('td');
-            var esPasada=celdaAulaEsPasada(dateIsoString,hora);
-            var esHoy=esFechaHoyJarvis(dateIsoString);
-            tdCell.className = 'calendar-cell' + (esHoy ? ' jarvis-today-cell' : '') + (esPasada ? ' jarvis-past-cell' : '');
-            if (esHoy && hora === new Date().getHours() && !esPasada) {
-              tdCell.classList.add('jarvis-now-cell');
-              tdCell.innerHTML='<div class="jarvis-now-line"></div><span class="jarvis-now-label">AHORA</span>';
-            }
-            tdCell.dataset.diaNombre = diaNombre;
-            tdCell.dataset.fechaIso = dateIsoString;
-            tdCell.dataset.hora = hora;
-
-            tdCell.onmousedown = function(e) {
-              if (!modoSeleccionAulaActivo || celdaAulaEsPasada(dateIsoString,hora)) return;
-              e.preventDefault();
-              isDraggingAulaSchedule = true;
-              toggleSeleccionCeldaAula(diaNombre, dateIsoString, hora);
-            };
-
-            tdCell.onmouseenter = function() {
-              if (isDraggingAulaSchedule && modoSeleccionAulaActivo && !celdaAulaEsPasada(dateIsoString,hora)) {
-                toggleSeleccionCeldaAula(diaNombre, dateIsoString, hora);
-              }
-            };
-
-            tr.appendChild(tdCell);
-          }
+          var wrapper = document.createElement('div');
+          wrapper.className = 'aula-hour-wrapper';
+          wrapper.appendChild(crearZonaMedia(diaNombre, dateIsoString, hora, reserva00, 0, esHoy, pasada00));
+          wrapper.appendChild(crearZonaMedia(diaNombre, dateIsoString, hora, reserva30, 0.5, esHoy, pasada30));
+          td.appendChild(wrapper);
+          tr.appendChild(td);
         });
-
         tbody.appendChild(tr);
       });
 
@@ -3435,8 +3702,10 @@
       }
 
       var numBloques = celdasAulaSeleccionadasSet.size;
+      var minutosSeleccionados = numBloques * 30;
+      var duracionSeleccionada = minutosSeleccionados >= 60 ? (Math.floor(minutosSeleccionados/60) + ' hora(s)' + (minutosSeleccionados%60 ? ' y ' + (minutosSeleccionados%60) + ' minutos' : '')) : minutosSeleccionados + ' minutos';
       document.getElementById('selectedAulaRangeInfoText').innerText = 
-        "Reserva para " + numBloques + " bloque(s) seleccionado(s). Identifícate con cualquiera de tus credenciales oficiales:";
+        "Reserva para " + duracionSeleccionada + ". Puedes seleccionar cada hora completa o media hora (00/30). Identifícate con cualquiera de tus credenciales oficiales:";
 
       if (sedeFiltroSeleccionada) {
         document.getElementById('reservaSedeSelect').value = sedeFiltroSeleccionada;
@@ -3492,7 +3761,7 @@
       var requiereAprobacion = !esProgramador;
 
       mapaPorFecha.forEach(function(val, fIso) {
-        val.horas.sort((a,b) => a - b);
+        val.horas.sort((a,b) => Number(a) - Number(b));
         reservasAulasDB.push({
           id: Date.now() + Math.random(),
           responsable: responsable,
@@ -3506,6 +3775,7 @@
           diaNombre: val.diaNombre,
           fechaIso: fIso,
           horasArray: val.horas,
+          unidadTiempo: '30MIN',
           fechaAuditoria: fechaAuditoriaReg,
           distribucion: distribucion,
           requerimientosTecnicos: requerimientosTecnicos,
@@ -3533,8 +3803,7 @@
 
       activeAulaReservaIdToDelete = idReserva;
 
-      var minH = Math.min(...res.horasArray);
-      var maxH = Math.max(...res.horasArray) + 1;
+      var slotsDetalle=obtenerSlotsReservaAula(res), minH=slotsDetalle.length?Math.min.apply(null,slotsDetalle):0, maxH=slotsDetalle.length?Math.max.apply(null,slotsDetalle)+0.5:0;
 
       document.getElementById('infoAulaSede').innerText = res.sede;
       document.getElementById('infoAulaNombre').innerText = res.aula;
@@ -5372,7 +5641,7 @@
       var requiereAprobacion = sesionActual.role !== 'PROGRAMADOR';
       mapaPorFecha.forEach(function(val,fIso){
         val.horas.sort(function(a,b){return a-b;});
-        reservasAulasDB.push({id:Date.now()+Math.random(),responsable:responsable,tipoDoc:tipoDoc,numDoc:numDoc,tipoEvento:tipoEvento,area:area,sede:sede,aula:aula,aforo:aforoEncontrado,diaNombre:val.diaNombre,fechaIso:fIso,horasArray:val.horas,fechaAuditoria:fechaAuditoriaReg,distribucion:distribucion,requerimientosTecnicos:requerimientosTecnicos,solicitadoPorCuenta:sesionActual.username,estadoAprobacion:requiereAprobacion?'PENDIENTE':'APROBADO',responde:requiereAprobacion?'':sesionActual.displayName,respuestaAuditoria:requiereAprobacion?'':'Aprobada directamente por Programador',fechaAprobacionAuditoria:requiereAprobacion?'':fechaAuditoriaReg});
+        reservasAulasDB.push({id:Date.now()+Math.random(),responsable:responsable,tipoDoc:tipoDoc,numDoc:numDoc,tipoEvento:tipoEvento,area:area,sede:sede,aula:aula,aforo:aforoEncontrado,diaNombre:val.diaNombre,fechaIso:fIso,horasArray:val.horas,unidadTiempo:'30MIN',fechaAuditoria:fechaAuditoriaReg,distribucion:distribucion,requerimientosTecnicos:requerimientosTecnicos,solicitadoPorCuenta:sesionActual.username,estadoAprobacion:requiereAprobacion?'PENDIENTE':'APROBADO',responde:requiereAprobacion?'':sesionActual.displayName,respuestaAuditoria:requiereAprobacion?'':'Aprobada directamente por Programador',fechaAprobacionAuditoria:requiereAprobacion?'':fechaAuditoriaReg});
       });
       syncToCloud(); cerrarModalReservaAula(); activarModoSeleccionAula(); actualizarContadorNotificaciones();
       alert(requiereAprobacion?'📌 Solicitud registrada en PENDIENTE DE APROBACIÓN.':'📌 Reserva confirmada y aprobada por el Programador.');
@@ -5382,10 +5651,10 @@
     function verDetalleReservaAula(idReserva) {
       var res=reservasAulasDB.find(function(item){return item.id===idReserva;}); if(!res)return;
       activeAulaReservaIdToDelete=idReserva;
-      var minH=Math.min.apply(null,res.horasArray), maxH=Math.max.apply(null,res.horasArray)+1;
+      var slotsDetalle=obtenerSlotsReservaAula(res), minH=slotsDetalle.length?Math.min.apply(null,slotsDetalle):0, maxH=slotsDetalle.length?Math.max.apply(null,slotsDetalle)+0.5:0;
       document.getElementById('infoAulaSede').innerText=res.sede; document.getElementById('infoAulaNombre').innerText=res.aula; document.getElementById('infoAulaAforo').innerText=res.aforo||'No especificado'; document.getElementById('infoAulaResponsable').innerText=res.responsable; document.getElementById('infoAulaTipoEvento').innerText=res.tipoEvento; document.getElementById('infoAulaArea').innerText=res.area; document.getElementById('infoAulaDistribucion').innerText=res.distribucion||'No registrado'; document.getElementById('infoAulaRequerimientos').innerText=res.requerimientosTecnicos||'No registrado'; document.getElementById('infoAulaResponde').innerText=res.responde||'Pendiente'; document.getElementById('infoAulaRespuestaAuditoria').innerText=res.respuestaAuditoria||'Pendiente';
       var estadoTexto=res.estadoAprobacion==='PENDIENTE'?'⏳ PENDIENTE DE APROBACIÓN':(res.estadoAprobacion==='RECHAZADA'?'🔴 RECHAZADA':'🟢 APROBADA'); document.getElementById('infoAulaEstadoAprobacion').innerText=estadoTexto;
-      document.getElementById('infoAulaDiaHora').innerText=res.diaNombre+' ('+res.fechaIso+') de '+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00'; document.getElementById('infoAulaFechaAuditoria').innerText=res.fechaAuditoria||'Registrado previamente';
+      document.getElementById('infoAulaDiaHora').innerText=res.diaNombre+' ('+res.fechaIso+') de '+formatearHoraJarvis(minH)+' a '+formatearHoraJarvis(maxH); document.getElementById('infoAulaFechaAuditoria').innerText=res.fechaAuditoria||'Registrado previamente';
       var grupo=document.getElementById('accionesAprobacionReservaGroup');
       // El Programador tiene alcance global. El encargado solo puede procesar
       // solicitudes pertenecientes a su propia sede.
@@ -5506,9 +5775,8 @@
       }
       pendientes.sort(function(a,b){ return String(a.fechaIso||'').localeCompare(String(b.fechaIso||'')); });
       lista.innerHTML=pendientes.map(function(r){
-        var minH=Math.min.apply(null,r.horasArray||[0]);
-        var maxH=Math.max.apply(null,r.horasArray||[0])+1;
-        var hora=String(minH).padStart(2,'0')+':00 - '+String(maxH).padStart(2,'0')+':00';
+        var slotsNotif=obtenerSlotsReservaAula(r), minH=slotsNotif.length?Math.min.apply(null,slotsNotif):0, maxH=slotsNotif.length?Math.max.apply(null,slotsNotif)+0.5:0;
+        var hora=formatearHoraJarvis(minH)+' - '+formatearHoraJarvis(maxH);
         var textoFecha=r.fechaIso||'Sin fecha';
         return '<div class="jarvis-notification-item" onclick="abrirNotificacionReserva(\''+String(r.id).replace(/'/g,'\\\'')+'\')">' +
           '<div class="jarvis-notification-item-title">📌 Solicitud de reserva</div>' +
@@ -5658,7 +5926,7 @@
     }
 
     function construirCorreoReservaHTML(res,estado){
-      var minH=Math.min.apply(null,res.horasArray||[0]), maxH=Math.max.apply(null,res.horasArray||[0])+1;
+      var slotsCorreo=obtenerSlotsReservaAula(res), minH=slotsCorreo.length?Math.min.apply(null,slotsCorreo):0, maxH=slotsCorreo.length?Math.max.apply(null,slotsCorreo)+0.5:0;
       var color=estado==='ACEPTADO'?'#15803D':'#B91C1C';
       var bg=estado==='ACEPTADO'?'#ECFDF5':'#FEF2F2';
       var motivo=res.respuestaAuditoria||'';
@@ -5675,7 +5943,7 @@
       if(!inicializarEmailJARVIS())return Promise.resolve({ok:false,reason:'EMAILJS_NO_DISPONIBLE: no fue posible inicializar EmailJS con el Public Key configurado.'});
       var minH=Math.min.apply(null,res.horasArray||[0]);
       var maxH=Math.max.apply(null,res.horasArray||[0])+1;
-      var horario=String(minH).padStart(2,'0')+':00 - '+String(maxH).padStart(2,'0')+':00';
+      var horario=formatearHoraJarvis(minH)+' - '+formatearHoraJarvis(maxH);
       var params={
         to_email:email,
         email:email,
@@ -5808,25 +6076,13 @@
       var box = document.getElementById('programadorCeldaActions');
       var sel = document.getElementById('programadorCeldaSelect');
       if (!box || !sel) return;
-
-      /*
-       * La eliminación individual de una celda puede hacerla:
-       * 1) el PROGRAMADOR, con alcance global; o
-       * 2) el ENCARGADO de la sede propietaria de la reserva.
-       * Esto es independiente de quién haya solicitado la reserva.
-       */
-      var puedeLiberarCelda = !!(sesionActual && res && (
-        sesionActual.role === 'PROGRAMADOR' ||
-        (sesionActual.role === 'ENCARGADO' && sedesCoincidenJarvis(res.sede, sesionActual.sede))
-      ));
-
-      if (!puedeLiberarCelda || !Array.isArray(res.horasArray) || !res.horasArray.length) {
+      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR' || !res || !Array.isArray(res.horasArray) || !res.horasArray.length) {
         box.style.display = 'none';
         sel.innerHTML = '';
         return;
       }
-      sel.innerHTML = res.horasArray.slice().sort(function(a,b){return a-b;}).map(function(h){
-        return '<option value="'+h+'">🕐 '+String(h).padStart(2,'0')+':00</option>';
+      sel.innerHTML = obtenerSlotsReservaAula(res).map(function(h){
+        return '<option value="'+h+'">🕐 '+formatearHoraJarvis(h)+'</option>';
       }).join('');
       box.style.display = 'flex';
     }
@@ -5848,29 +6104,22 @@
     };
 
     function eliminarCeldaReservaAulaActual(){
+      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR') {
+        return alert('⛔ Solo el Programador puede eliminar celdas reservadas.');
+      }
       var res = reservasAulasDB.find(function(r){ return r.id === activeAulaReservaIdToDelete; });
       if (!res || !Array.isArray(res.horasArray)) return;
-
-      /* El Programador puede liberar cualquier sede. El Encargado solo puede
-         liberar celdas de reservas cuya sede propietaria sea la suya.
-         El solicitante puede ser de otra sede y eso no limita al propietario. */
-      var puedeLiberarCelda = !!(sesionActual && (
-        sesionActual.role === 'PROGRAMADOR' ||
-        (sesionActual.role === 'ENCARGADO' && sedesCoincidenJarvis(res.sede, sesionActual.sede))
-      ));
-      if (!puedeLiberarCelda) {
-        return alert('⛔ Solo el Programador o el encargado de la sede propietaria pueden liberar esta celda.');
-      }
       var sel = document.getElementById('programadorCeldaSelect');
       var hora = Number(sel && sel.value);
       if (!Number.isFinite(hora)) return alert('Selecciona la celda que deseas eliminar.');
-      if (!res.horasArray.some(function(h){ return Number(h) === hora; })) return;
+      var slotsActuales = obtenerSlotsReservaAula(res);
+      if (!slotsActuales.some(function(h){ return Math.abs(Number(h)-hora)<0.001; })) return;
 
       var fechaTexto = res.fechaIso || '';
-      var confirmacion = confirm('⚠️ Vas a liberar únicamente la celda '+String(hora).padStart(2,'0')+':00 del '+fechaTexto+'.\n\nLa reserva seguirá registrada con las demás horas.\n\nSede propietaria: '+(res.sede||'')+'\n\n¿Deseas continuar?');
+      var confirmacion = confirm('⚠️ Vas a liberar únicamente la celda '+formatearHoraJarvis(hora)+' del '+fechaTexto+'.\n\nLa reserva seguirá registrada con las demás horas.\n\n¿Deseas continuar?');
       if (!confirmacion) return;
 
-      res.horasArray = res.horasArray.filter(function(h){ return Number(h) !== hora; });
+      res.horasArray = slotsActuales.filter(function(h){ return Math.abs(Number(h)-hora)>=0.001; });
       if (res.horasArray.length === 0) {
         reservasAulasDB = reservasAulasDB.filter(function(r){ return r.id !== res.id; });
         syncToCloud();
@@ -5879,12 +6128,12 @@
       } else {
         syncToCloud();
         prepararAccionesCeldaProgramador(res);
-        var minH=Math.min.apply(null,res.horasArray), maxH=Math.max.apply(null,res.horasArray)+1;
+        var slotsDetalle=obtenerSlotsReservaAula(res), minH=slotsDetalle.length?Math.min.apply(null,slotsDetalle):0, maxH=slotsDetalle.length?Math.max.apply(null,slotsDetalle)+0.5:0;
         var info=document.getElementById('infoAulaDiaHora');
-        if(info) info.innerText=res.diaNombre+' ('+res.fechaIso+') de '+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00';
+        if(info) info.innerText=res.diaNombre+' ('+res.fechaIso+') de '+formatearHoraJarvis(minH)+' a '+formatearHoraJarvis(maxH);
         renderizarTablaCalendarioAulas();
         renderizarPanelNotificacionesAulas();
-        alert('🗑️ Celda '+String(hora).padStart(2,'0')+':00 liberada correctamente.');
+        alert('🗑️ Celda '+formatearHoraJarvis(hora)+' liberada correctamente.');
       }
       actualizarContadorNotificaciones();
     }
@@ -5948,9 +6197,8 @@
       });
       lista.innerHTML=items.map(function(item){
         var r=item.reserva;
-        var minH=Math.min.apply(null,r.horasArray||[0]);
-        var maxH=Math.max.apply(null,r.horasArray||[0])+1;
-        var hora=String(minH).padStart(2,'0')+':00 - '+String(maxH).padStart(2,'0')+':00';
+        var slotsNotif=obtenerSlotsReservaAula(r), minH=slotsNotif.length?Math.min.apply(null,slotsNotif):0, maxH=slotsNotif.length?Math.max.apply(null,slotsNotif)+0.5:0;
+        var hora=formatearHoraJarvis(minH)+' - '+formatearHoraJarvis(maxH);
         if(item.tipo==='RECHAZADA'){
           return '<div class="jarvis-notification-item" style="border-left:4px solid #EF4444;" onclick="abrirNotificacionReserva(\''+String(r.id).replace(/'/g,'\\\'')+'\')">' +
             '<div class="jarvis-notification-item-title" style="color:#B91C1C;">🔴 Reserva rechazada</div>' +
