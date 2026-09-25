@@ -13,6 +13,7 @@
   <!-- FIREBASE SDK (Módulos de la Nube) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <style>
     :root {
@@ -1733,8 +1734,31 @@
         <div id="catalogoCuentasSedeAdmin"></div>
       </div>
 
+      <div class="admin-panel" id="panelCorreoNotificaciones">
+        <h3 style="color: var(--primary-purple);">7. ✉️ Notificaciones por Correo de Reservas</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Configura el servicio de correo. El Programador puede registrar el correo de cada cuenta de sede y JARVIS enviará automáticamente un mensaje cuando una reserva sea <strong>ACEPTADA</strong> o <strong>RECHAZADA</strong>.</p>
+        <div style="background:#F8F5FC;border:1px solid var(--border-color);border-radius:10px;padding:14px;margin-bottom:14px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+            <input id="correoServiceIdInput" class="input-field" placeholder="EmailJS Service ID">
+            <input id="correoTemplateIdInput" class="input-field" placeholder="EmailJS Template ID">
+            <input id="correoPublicKeyInput" class="input-field" placeholder="EmailJS Public Key">
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.85rem;font-weight:600;"><input type="checkbox" id="correoHabilitadoInput"> Activar notificaciones por correo</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <button class="btn-save" onclick="guardarConfiguracionCorreoJARVIS()">💾 Guardar configuración de correo</button>
+            <button class="tab-btn" style="background:#E2D9F3;color:var(--primary-purple);" onclick="probarCorreoJARVIS()">📨 Enviar correo de prueba</button>
+          </div>
+          <div id="estadoConfiguracionCorreoJARVIS" style="margin-top:10px;font-size:.8rem;color:var(--text-muted);"></div>
+        </div>
+        <div style="background:#FFF;border:1px solid var(--border-color);border-radius:10px;padding:14px;">
+          <h4 style="margin:0 0 10px;color:var(--primary-purple);">Correos de las cuentas de sede</h4>
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px;">Escribe el correo una sola vez y pulsa <strong>Guardar correo</strong>. Quedará asociado a la cuenta en Firebase.</p>
+          <div id="catalogoCorreosCuentasAdmin"></div>
+        </div>
+      </div>
+
       <div class="admin-panel" id="panelPresenciaSedes">
-        <h3 style="color: var(--primary-purple);">7. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
+        <h3 style="color: var(--primary-purple);">8. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
         <p style="font-size:0.85rem;color:var(--text-muted);">La presencia se registra en Firebase Realtime Database mientras una cuenta oficial mantiene la sesión activa.</p>
         <div class="jarvis-presence-grid" id="presenciaSedesGrid"></div>
       </div>
@@ -1816,6 +1840,10 @@
           <button class="btn-edit" id="btnEditarReservaAulaActual" onclick="abrirEditarReservaAulaActual()"><i class="fa-solid fa-pen"></i> Editar Reserva</button>
           <button class="btn-danger" id="btnRechazarReservaAulaActual" onclick="rechazarReservaAulaActual()"><i class="fa-solid fa-xmark"></i> Rechazar Reserva</button>
           <button class="btn-danger" id="btnEliminarReservaAulaActual" style="display:none; background:#B91C1C;" onclick="eliminarReservaAulaActual()"><i class="fa-solid fa-trash"></i> Eliminar Reserva</button>
+          <div id="programadorCeldaActions" style="display:none; align-items:center; gap:6px; width:100%; margin-top:6px; flex-wrap:wrap;">
+            <select id="programadorCeldaSelect" class="input-field" style="max-width:170px; padding:8px 10px;"></select>
+            <button class="btn-danger" style="background:#7F1D1D;" onclick="eliminarCeldaReservaAulaActual()"><i class="fa-solid fa-square-minus"></i> Eliminar Celda Reservada</button>
+          </div>
           <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerReservaAula()">Cerrar</button>
         </div>
       </div>
@@ -2199,7 +2227,8 @@
         sedesAulasMaster: sedesAulasMaster,
         reservasAulasDB: reservasAulasDB,
         usuariosPermisosDB: usuariosPermisosDB,
-        cuentasSedeDB: cuentasSedeDB
+        cuentasSedeDB: cuentasSedeDB,
+        configuracionCorreoJARVIS: configuracionCorreoJARVIS
       };
 
       var cambios = {};
@@ -2319,6 +2348,9 @@
         }
         if (Array.isArray(data.usuariosPermisosDB)) usuariosPermisosDB = data.usuariosPermisosDB;
         if (data.cuentasSedeDB) cuentasSedeDB = data.cuentasSedeDB;
+        if (data.configuracionCorreoJARVIS && typeof data.configuracionCorreoJARVIS === 'object') {
+          configuracionCorreoJARVIS = Object.assign({serviceId:'', templateId:'', publicKey:'', habilitado:false}, data.configuracionCorreoJARVIS);
+        }
 
         // Desde este punto ya es seguro escribir cambios.
         // Guardamos una copia del último estado confirmado por Firebase.
@@ -3241,6 +3273,9 @@
       });
 
       reservasAulasDB.forEach(function(res) {
+        // Una reserva RECHAZADA permanece en Firebase como historial/notificación,
+        // pero deja inmediatamente libre la celda del calendario.
+        if (res.estadoAprobacion === 'RECHAZADA') return;
         if (sedeFiltroSeleccionada && res.sede !== sedeFiltroSeleccionada) return;
         if (aulaFiltroSeleccionada && res.aula !== aulaFiltroSeleccionada) return;
         if (filtroPendientesAulas && res.estadoAprobacion !== 'PENDIENTE') return;
@@ -5098,14 +5133,15 @@
     var reservaAuditoriaPendienteAccion = null;
 
     var CUENTAS_SEDE_OFICIALES = [
-      { username:'admin.cusco', sede:'Cusco', displayName:'Encargado - Cusco', password:'Conti0697@' },
-      { username:'admin.andahuaylas', sede:'Andahuaylas', displayName:'Encargado - Andahuaylas', password:'Conti0697@' },
-      { username:'admin.arequipa', sede:'Arequipa', displayName:'Encargado - Arequipa', password:'Conti0697@' },
-      { username:'admin.huanuco', sede:'Huánuco', displayName:'Encargado - Huánuco', password:'Conti0697@' },
-      { username:'admin.huancayo', sede:'Huancayo', displayName:'Encargado - Huancayo', password:'Conti0697@' },
-      { username:'admin.miraflores', sede:'Miraflores', displayName:'Encargado - Miraflores', password:'Conti0697@' }
+      { username:'admin.cusco', sede:'Cusco', displayName:'Encargado - Cusco', password:'Conti0697@', email:'' },
+      { username:'admin.andahuaylas', sede:'Andahuaylas', displayName:'Encargado - Andahuaylas', password:'Conti0697@', email:'' },
+      { username:'admin.arequipa', sede:'Arequipa', displayName:'Encargado - Arequipa', password:'Conti0697@', email:'' },
+      { username:'admin.huanuco', sede:'Huánuco', displayName:'Encargado - Huánuco', password:'Conti0697@', email:'' },
+      { username:'admin.huancayo', sede:'Huancayo', displayName:'Encargado - Huancayo', password:'Conti0697@', email:'' },
+      { username:'admin.miraflores', sede:'Miraflores', displayName:'Encargado - Miraflores', password:'Conti0697@', email:'' }
     ];
     var cuentasSedeDB = JSON.parse(JSON.stringify(CUENTAS_SEDE_OFICIALES));
+    var configuracionCorreoJARVIS = { serviceId:'', templateId:'', publicKey:'', habilitado:false };
 
     function asegurarCatalogoCuentasSede() {
       if (!nubeInicializada) return;
@@ -5123,6 +5159,7 @@
           if (!existente.displayName) { existente.displayName = base.displayName; cambio = true; }
           if (!existente.password) { existente.password = base.password; cambio = true; }
           if (!existente.permisos) { existente.permisos = { crearReservas:true, editarReservas:true, aprobarReservas:true }; cambio = true; }
+          if (typeof existente.email !== 'string') { existente.email = ''; cambio = true; }
         }
       });
       if (cambio) syncToCloud();
@@ -5339,6 +5376,7 @@
       });
       syncToCloud(); cerrarModalReservaAula(); activarModoSeleccionAula(); actualizarContadorNotificaciones();
       alert(requiereAprobacion?'📌 Solicitud registrada en PENDIENTE DE APROBACIÓN.':'📌 Reserva confirmada y aprobada por el Programador.');
+      if(!requiereAprobacion){ reservasAulasDB.slice(-mapaPorFecha.size).forEach(function(r){ enviarCorreoEstadoReserva(r,'ACEPTADO',false); }); }
     }
 
     function verDetalleReservaAula(idReserva) {
@@ -5408,7 +5446,12 @@
       res.responde=nombre; res.respuestaAuditoria=respuesta; res.fechaAprobacionAuditoria=getRelojFechaTexto(); res.estadoAprobacion=reservaAuditoriaPendienteAccion==='APROBAR'?'APROBADO':'RECHAZADA';
       filtroPendientesAulas=false;
       var btnFiltro=document.getElementById('btnNotificacionesAulas'); if(btnFiltro) btnFiltro.classList.remove('jarvis-pending-filter-active');
-      syncToCloud(); cerrarModalAuditReserva(); cerrarModalVerReservaAula(); actualizarContadorNotificaciones(); renderizarTablaCalendarioAulas(); renderizarPanelNotificacionesAulas(); alert(res.estadoAprobacion==='APROBADO'?'🟢 Reserva aprobada con auditoría registrada y reflejada en el calendario.':'🔴 Reserva rechazada con auditoría registrada.');
+      syncToCloud();
+      var estadoCorreo=res.estadoAprobacion==='APROBADO'?'ACEPTADO':'RECHAZADO';
+      enviarCorreoEstadoReserva(res,estadoCorreo,false).then(function(resultadoCorreo){
+        if(resultadoCorreo && resultadoCorreo.ok){ syncToCloud(); }
+      });
+      cerrarModalAuditReserva(); cerrarModalVerReservaAula(); actualizarContadorNotificaciones(); renderizarTablaCalendarioAulas(); renderizarPanelNotificacionesAulas(); alert(res.estadoAprobacion==='APROBADO'?'🟢 Reserva aprobada con auditoría registrada y reflejada en el calendario.':'🔴 Reserva rechazada con auditoría registrada.');
     }
     function aprobarReservaAulaActual(){abrirAuditoriaReserva('APROBAR');}
     function rechazarReservaAulaActual(){abrirAuditoriaReserva('RECHAZAR');}
@@ -5532,10 +5575,112 @@
       CUENTAS_SEDE_OFICIALES.forEach(function(base,idx){
         var c=cuentasSedeDB.find(function(x){return x.username===base.username;})||base;
         var p=c.permisos||{crearReservas:true,editarReservas:true,aprobarReservas:true};
+        if(typeof c.email !== 'string') c.email='';
         cont.innerHTML += '<div class="jarvis-account-card"><div class="jarvis-account-header"><div><strong style="color:var(--primary-purple);">👨‍💼 '+c.displayName+'</strong><div style="font-size:.75rem;color:var(--text-muted);">Cuenta: '+c.username+' | Sede: '+c.sede+' | Credencial institucional configurada</div></div><span class="jarvis-online-dot" id="cuentaDot_'+idx+'"></span></div><div class="jarvis-permissions-grid"><label class="jarvis-permission-toggle">➕ Crear reservas <input type="checkbox" '+(p.crearReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'crearReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✏️ Editar reservas <input type="checkbox" '+(p.editarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'editarReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✅ Aprobar / Rechazar <input type="checkbox" '+(p.aprobarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'aprobarReservas\',this.checked)"></label></div></div>';
       });
       renderizarPresenciaSedes();
+      renderizarCorreosCuentasAdmin();
+      cargarConfiguracionCorreoJARVISEnUI();
     }
+
+    function escaparHtmlCorreoJARVIS(valor){
+      return String(valor==null?'':valor).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    function renderizarCorreosCuentasAdmin(){
+      var cont=document.getElementById('catalogoCorreosCuentasAdmin'); if(!cont)return;
+      cont.innerHTML='';
+      CUENTAS_SEDE_OFICIALES.forEach(function(base){
+        var c=cuentasSedeDB.find(function(x){return x.username===base.username;})||base;
+        var email=typeof c.email==='string'?c.email:'';
+        cont.innerHTML += '<div style="display:grid;grid-template-columns:minmax(170px,1fr) minmax(240px,2fr) auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-color);">'+
+          '<div><strong>'+escaparHtmlCorreoJARVIS(c.sede)+'</strong><div style="font-size:.72rem;color:var(--text-muted);">'+escaparHtmlCorreoJARVIS(c.username)+'</div></div>'+
+          '<input type="email" id="emailCuenta_'+escaparHtmlCorreoJARVIS(c.username).replace(/[^a-zA-Z0-9_-]/g,'_')+'" class="input-field" value="'+escaparHtmlCorreoJARVIS(email)+'" placeholder="correo@ejemplo.com">'+
+          '<button class="btn-save" onclick="guardarCorreoCuentaSede(\''+c.username+'\')">Guardar correo</button></div>';
+      });
+    }
+
+    function guardarCorreoCuentaSede(username){
+      if(!esProgramador)return alert('⛔ Solo el Programador puede registrar correos.');
+      var c=cuentasSedeDB.find(function(x){return x.username===username;}); if(!c)return;
+      var key='emailCuenta_'+username.replace(/[^a-zA-Z0-9_-]/g,'_');
+      var input=document.getElementById(key); if(!input)return;
+      var email=input.value.trim();
+      if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('⚠️ Ingresa un correo electrónico válido.');
+      c.email=email;
+      syncToCloud();
+      renderizarCorreosCuentasAdmin();
+      alert(email?'✅ Correo guardado para '+c.username+'.':'✅ Correo eliminado de '+c.username+'.');
+    }
+
+    function cargarConfiguracionCorreoJARVISEnUI(){
+      var a=document.getElementById('correoServiceIdInput'),b=document.getElementById('correoTemplateIdInput'),c=document.getElementById('correoPublicKeyInput'),d=document.getElementById('correoHabilitadoInput');
+      if(a)a.value=configuracionCorreoJARVIS.serviceId||'';
+      if(b)b.value=configuracionCorreoJARVIS.templateId||'';
+      if(c)c.value=configuracionCorreoJARVIS.publicKey||'';
+      if(d)d.checked=!!configuracionCorreoJARVIS.habilitado;
+      var estado=document.getElementById('estadoConfiguracionCorreoJARVIS');
+      if(estado)estado.innerHTML=configuracionCorreoJARVIS.habilitado?'🟢 Notificaciones activadas.':'⚪ Notificaciones desactivadas.';
+    }
+
+    function guardarConfiguracionCorreoJARVIS(){
+      if(!esProgramador)return alert('⛔ Solo el Programador puede configurar el correo.');
+      var serviceId=(document.getElementById('correoServiceIdInput').value||'').trim();
+      var templateId=(document.getElementById('correoTemplateIdInput').value||'').trim();
+      var publicKey=(document.getElementById('correoPublicKeyInput').value||'').trim();
+      var habilitado=!!document.getElementById('correoHabilitadoInput').checked;
+      if(habilitado && (!serviceId||!templateId||!publicKey))return alert('⚠️ Para activar el correo debes completar Service ID, Template ID y Public Key.');
+      configuracionCorreoJARVIS={serviceId:serviceId,templateId:templateId,publicKey:publicKey,habilitado:habilitado};
+      db.ref('jarvisData').update({configuracionCorreoJARVIS:configuracionCorreoJARVIS}).then(function(){
+        cargarConfiguracionCorreoJARVISEnUI(); alert('✉️ Configuración de correo guardada en Firebase.');
+      }).catch(function(e){alert('⚠️ No se pudo guardar la configuración: '+e.message);});
+    }
+
+    function inicializarEmailJARVIS(){
+      if(!configuracionCorreoJARVIS.habilitado || !configuracionCorreoJARVIS.publicKey || typeof emailjs==='undefined')return false;
+      try{emailjs.init({publicKey:configuracionCorreoJARVIS.publicKey});return true;}catch(e){console.error('JARVIS EmailJS init:',e);return false;}
+    }
+
+    function obtenerCorreoSolicitanteReserva(res){
+      if(!res || !res.solicitadoPorCuenta)return '';
+      var c=cuentasSedeDB.find(function(x){return x.username===res.solicitadoPorCuenta;});
+      return c && typeof c.email==='string' ? c.email.trim() : '';
+    }
+
+    function construirCorreoReservaHTML(res,estado){
+      var minH=Math.min.apply(null,res.horasArray||[0]), maxH=Math.max.apply(null,res.horasArray||[0])+1;
+      var color=estado==='ACEPTADO'?'#15803D':'#B91C1C';
+      var bg=estado==='ACEPTADO'?'#ECFDF5':'#FEF2F2';
+      var motivo=res.respuestaAuditoria||'';
+      return '<div style="font-family:Arial,sans-serif;background:#F6F3FA;padding:24px;color:#24162F;"><div style="max-width:680px;margin:auto;background:#fff;border:1px solid #E5DFF0;border-radius:14px;overflow:hidden;"><div style="padding:18px 22px;background:'+bg+';border-bottom:1px solid #E5DFF0;"><div style="font-size:22px;font-weight:800;color:'+color+';">RESERVA '+estado+'</div><div style="font-size:13px;margin-top:4px;color:#5B5265;">JARVIS · Gestión Continua</div></div><div style="padding:22px;"><h3 style="margin:0 0 14px;color:#5B21B6;">Especificaciones de la reserva</h3><table style="width:100%;border-collapse:collapse;font-size:14px;"><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Responsable</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.responsable)+'</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Sede</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.sede)+'</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Aula</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.aula)+'</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Fecha</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.diaNombre)+' · '+escaparHtmlCorreoJARVIS(res.fechaIso)+'</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Horario</td><td style="padding:8px;border-bottom:1px solid #eee;">'+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Tipo de evento</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.tipoEvento)+'</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Área / Entidad</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.area)+'</td></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;">Distribución</td><td style="padding:8px;border-bottom:1px solid #eee;">'+escaparHtmlCorreoJARVIS(res.distribucion)+'</td></tr><tr><td style="padding:8px;font-weight:700;vertical-align:top;">Requerimientos</td><td style="padding:8px;">'+escaparHtmlCorreoJARVIS(res.requerimientosTecnicos)+'</td></tr></table>'+(estado==='RECHAZADO'?'<div style="margin-top:18px;padding:14px;border-left:4px solid #B91C1C;background:#FEF2F2;"><strong>Motivo / respuesta de auditoría:</strong><div style="margin-top:5px;">'+escaparHtmlCorreoJARVIS(motivo)+'</div></div>':'<div style="margin-top:18px;padding:14px;border-left:4px solid #15803D;background:#ECFDF5;"><strong>Respuesta:</strong><div style="margin-top:5px;">'+escaparHtmlCorreoJARVIS(motivo||'Reserva aprobada correctamente.')+'</div></div>')+'<div style="margin-top:18px;font-size:12px;color:#746A7D;">Respondido por: '+escaparHtmlCorreoJARVIS(res.responde||'JARVIS')+'<br>Fecha de respuesta: '+escaparHtmlCorreoJARVIS(res.fechaAprobacionAuditoria||'')+'</div></div></div></div>';
+    }
+
+    function enviarCorreoEstadoReserva(res,estado,forzar){
+      var email=obtenerCorreoSolicitanteReserva(res);
+      if(!email)return Promise.resolve({ok:false,reason:'SIN_CORREO'});
+      if(!configuracionCorreoJARVIS.habilitado)return Promise.resolve({ok:false,reason:'CORREO_DESACTIVADO'});
+      if(!configuracionCorreoJARVIS.serviceId||!configuracionCorreoJARVIS.templateId||!configuracionCorreoJARVIS.publicKey)return Promise.resolve({ok:false,reason:'CONFIGURACION_INCOMPLETA'});
+      if(!forzar && res.ultimaNotificacionCorreo===estado+'|'+(res.fechaAprobacionAuditoria||''))return Promise.resolve({ok:true,reason:'YA_ENVIADO'});
+      if(!inicializarEmailJARVIS())return Promise.resolve({ok:false,reason:'EMAILJS_NO_DISPONIBLE'});
+      var params={to_email:email,email:email,recipient_email:email,subject:'RESERVA '+estado+' - '+res.sede+' - '+res.aula,estado:estado,estado_reserva:estado,responsable:res.responsable,sede:res.sede,aula:res.aula,fecha:res.fechaIso,dia:res.diaNombre,horario:(Math.min.apply(null,res.horasArray||[0])).toString().padStart(2,'0')+':00 - '+(Math.max.apply(null,res.horasArray||[0])+1).toString().padStart(2,'0')+':00',tipo_evento:res.tipoEvento,area:res.area,motivo:res.respuestaAuditoria||'',message_html:construirCorreoReservaHTML(res,estado)};
+      return emailjs.send(configuracionCorreoJARVIS.serviceId,configuracionCorreoJARVIS.templateId,params).then(function(){
+        res.ultimaNotificacionCorreo=estado+'|'+(res.fechaAprobacionAuditoria||'');
+        res.correoNotificacionEstado='ENVIADO';
+        return {ok:true};
+      }).catch(function(error){console.error('JARVIS - Error enviando correo:',error);return {ok:false,reason:'ERROR_ENVIO',error:error};});
+    }
+
+    function probarCorreoJARVIS(){
+      if(!esProgramador)return alert('⛔ Solo el Programador puede probar el correo.');
+      var email=prompt('Ingresa el correo al que deseas enviar la prueba:','');
+      if(!email)return;
+      var prueba={responsable:'Prueba JARVIS',sede:'Sede de prueba',aula:'Aula de prueba',diaNombre:'Día de prueba',fechaIso:new Date().toISOString().split('T')[0],horasArray:[10,11],tipoEvento:'Prueba de correo',area:'JARVIS',distribucion:'Prueba',requerimientosTecnicos:'Correo de prueba',responde:'Programador',respuestaAuditoria:'Prueba de configuración de correo',fechaAprobacionAuditoria:getRelojFechaTexto(),solicitadoPorCuenta:original.username};
+      var original=cuentasSedeDB.length?cuentasSedeDB[0]:null;
+      if(!original)return alert('No existen cuentas de sede.');
+      var old=original.email; original.email=email;
+      enviarCorreoEstadoReserva(prueba,'ACEPTADO',true).then(function(r){original.email=old; if(r.ok)alert('📨 Correo de prueba enviado correctamente.'); else alert('⚠️ No se pudo enviar la prueba: '+r.reason);});
+    }
+
     function cambiarPermisoCuentaSede(username,clave,valor){
       if(!esProgramador)return alert('Solo el Programador puede modificar los permisos institucionales.');
       var c=cuentasSedeDB.find(function(x){return x.username===username;}); if(!c)return;
@@ -5606,6 +5751,190 @@
         if(document.getElementById('vistaAulas') && document.getElementById('vistaAulas').style.display==='block') renderizarTablaCalendarioAulas();
       }, 60000);
     };
+
+
+    /* ============================================================
+       CONTROL AVANZADO DE CELDAS Y NOTIFICACIONES DE RECHAZO
+       - El Programador puede liberar cualquier celda reservada.
+       - Una reserva rechazada deja libre la celda, pero permanece en Firebase.
+       - El solicitante recibe la notificación con el motivo del rechazo.
+       ============================================================ */
+
+    function prepararAccionesCeldaProgramador(res) {
+      var box = document.getElementById('programadorCeldaActions');
+      var sel = document.getElementById('programadorCeldaSelect');
+      if (!box || !sel) return;
+      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR' || !res || !Array.isArray(res.horasArray) || !res.horasArray.length) {
+        box.style.display = 'none';
+        sel.innerHTML = '';
+        return;
+      }
+      sel.innerHTML = res.horasArray.slice().sort(function(a,b){return a-b;}).map(function(h){
+        return '<option value="'+h+'">🕐 '+String(h).padStart(2,'0')+':00</option>';
+      }).join('');
+      box.style.display = 'flex';
+    }
+
+    var verDetalleReservaAulaBaseCelda = verDetalleReservaAula;
+    verDetalleReservaAula = function(idReserva){
+      verDetalleReservaAulaBaseCelda(idReserva);
+      var res = reservasAulasDB.find(function(r){ return r.id === idReserva; });
+      prepararAccionesCeldaProgramador(res);
+      // El estado rechazado siempre se muestra en rojo en el detalle.
+      if (res) {
+        var estado = document.getElementById('infoAulaEstadoAprobacion');
+        if (estado) {
+          estado.innerText = res.estadoAprobacion === 'PENDIENTE' ? '⏳ PENDIENTE DE APROBACIÓN' :
+            (res.estadoAprobacion === 'RECHAZADA' ? '🔴 RECHAZADA' : '🟢 APROBADA');
+          estado.style.color = res.estadoAprobacion === 'RECHAZADA' ? '#B91C1C' : '';
+        }
+      }
+    };
+
+    function eliminarCeldaReservaAulaActual(){
+      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR') {
+        return alert('⛔ Solo el Programador puede eliminar celdas reservadas.');
+      }
+      var res = reservasAulasDB.find(function(r){ return r.id === activeAulaReservaIdToDelete; });
+      if (!res || !Array.isArray(res.horasArray)) return;
+      var sel = document.getElementById('programadorCeldaSelect');
+      var hora = Number(sel && sel.value);
+      if (!Number.isFinite(hora)) return alert('Selecciona la celda que deseas eliminar.');
+      if (!res.horasArray.some(function(h){ return Number(h) === hora; })) return;
+
+      var fechaTexto = res.fechaIso || '';
+      var confirmacion = confirm('⚠️ Vas a liberar únicamente la celda '+String(hora).padStart(2,'0')+':00 del '+fechaTexto+'.\n\nLa reserva seguirá registrada con las demás horas.\n\n¿Deseas continuar?');
+      if (!confirmacion) return;
+
+      res.horasArray = res.horasArray.filter(function(h){ return Number(h) !== hora; });
+      if (res.horasArray.length === 0) {
+        reservasAulasDB = reservasAulasDB.filter(function(r){ return r.id !== res.id; });
+        syncToCloud();
+        cerrarModalVerReservaAula();
+        alert('🗑️ La última celda fue eliminada y la reserva quedó eliminada del calendario.');
+      } else {
+        syncToCloud();
+        prepararAccionesCeldaProgramador(res);
+        var minH=Math.min.apply(null,res.horasArray), maxH=Math.max.apply(null,res.horasArray)+1;
+        var info=document.getElementById('infoAulaDiaHora');
+        if(info) info.innerText=res.diaNombre+' ('+res.fechaIso+') de '+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00';
+        renderizarTablaCalendarioAulas();
+        renderizarPanelNotificacionesAulas();
+        alert('🗑️ Celda '+String(hora).padStart(2,'0')+':00 liberada correctamente.');
+      }
+      actualizarContadorNotificaciones();
+    }
+
+    /* Rechazo: conserva la solicitud como historial en Firebase, libera sus celdas
+       y deja una notificación dirigida al usuario que la solicitó. */
+    var confirmarRespuestaAuditoriaReservaBaseNotificacion = confirmarRespuestaAuditoriaReserva;
+    confirmarRespuestaAuditoriaReserva = function(){
+      var accion = reservaAuditoriaPendienteAccion;
+      var id = reservaAuditoriaPendienteId;
+      var motivo = document.getElementById('respuestaAuditoriaInput') ? document.getElementById('respuestaAuditoriaInput').value.trim() : '';
+      confirmarRespuestaAuditoriaReservaBaseNotificacion();
+      if (accion === 'RECHAZAR') {
+        var res = reservasAulasDB.find(function(r){ return r.id === id; });
+        if (res) {
+          res.notificacionRechazo = true;
+          res.notificacionMotivo = motivo;
+          res.notificacionFecha = getRelojFechaTexto();
+          res.notificacionVista = false;
+          // La base ya fue actualizada por la función original. Guardamos estos
+          // campos adicionales sin tocar ningún otro módulo.
+          syncToCloud();
+          actualizarContadorNotificaciones();
+          renderizarPanelNotificacionesAulas();
+        }
+      }
+    };
+
+    function obtenerNotificacionesRelevantesAulas(){
+      if (!sesionActual) return [];
+      var arr = [];
+      (reservasAulasDB || []).forEach(function(r){
+        // Solicitudes pendientes: exclusivamente para el administrador propietario de la sede.
+        if (r.estadoAprobacion === 'PENDIENTE' && sesionActual.role === 'ENCARGADO' &&
+            sedesCoincidenJarvis(r.sede, sesionActual.sede)) {
+          arr.push({tipo:'PENDIENTE', reserva:r});
+        }
+        // Rechazos: exclusivamente para quien realizó la solicitud.
+        if (r.estadoAprobacion === 'RECHAZADA' && r.solicitadoPorCuenta &&
+            sesionActual.username && r.solicitadoPorCuenta === sesionActual.username) {
+          arr.push({tipo:'RECHAZADA', reserva:r});
+        }
+      });
+      return arr;
+    }
+
+    renderizarPanelNotificacionesAulas = function(){
+      var lista=document.getElementById('listaNotificacionesAulas');
+      var header=document.querySelector('#panelNotificacionesAulas .jarvis-notification-panel-header');
+      if(!lista) return;
+      var items=obtenerNotificacionesRelevantesAulas();
+      if(header) header.innerText='🔔 Notificaciones de reservas';
+      if(!items.length){
+        lista.innerHTML='<div class="jarvis-notification-empty">No tienes notificaciones de reservas.</div>';
+        return;
+      }
+      items.sort(function(a,b){
+        var da=String(a.reserva.notificacionFecha||a.reserva.fechaAuditoria||a.reserva.fechaIso||'');
+        var db=String(b.reserva.notificacionFecha||b.reserva.fechaAuditoria||b.reserva.fechaIso||'');
+        return db.localeCompare(da);
+      });
+      lista.innerHTML=items.map(function(item){
+        var r=item.reserva;
+        var minH=Math.min.apply(null,r.horasArray||[0]);
+        var maxH=Math.max.apply(null,r.horasArray||[0])+1;
+        var hora=String(minH).padStart(2,'0')+':00 - '+String(maxH).padStart(2,'0')+':00';
+        if(item.tipo==='RECHAZADA'){
+          return '<div class="jarvis-notification-item" style="border-left:4px solid #EF4444;" onclick="abrirNotificacionReserva(\''+String(r.id).replace(/'/g,'\\\'')+'\')">' +
+            '<div class="jarvis-notification-item-title" style="color:#B91C1C;">🔴 Reserva rechazada</div>' +
+            '<div class="jarvis-notification-item-line"><strong>Responsable:</strong> '+escapeHtmlJarvis(r.responsable||'Sin registrar')+'</div>' +
+            '<div class="jarvis-notification-item-line"><strong>Día:</strong> '+escapeHtmlJarvis(r.fechaIso||'Sin fecha')+' ('+escapeHtmlJarvis(r.diaNombre||'')+')</div>' +
+            '<div class="jarvis-notification-item-line"><strong>Hora:</strong> '+escapeHtmlJarvis(hora)+'</div>' +
+            '<div class="jarvis-notification-item-line"><strong>Sede:</strong> '+escapeHtmlJarvis(r.sede||'')+' · <strong>Aula:</strong> '+escapeHtmlJarvis(r.aula||'')+'</div>' +
+            '<div class="jarvis-notification-item-line" style="color:#B91C1C;"><strong>Motivo:</strong> '+escapeHtmlJarvis(r.notificacionMotivo||r.respuestaAuditoria||'Sin motivo registrado')+'</div>' +
+            '</div>';
+        }
+        return '<div class="jarvis-notification-item" onclick="abrirNotificacionReserva(\''+String(r.id).replace(/'/g,'\\\'')+'\')">' +
+          '<div class="jarvis-notification-item-title">📌 Solicitud de reserva</div>' +
+          '<div class="jarvis-notification-item-line"><strong>Responsable:</strong> '+escapeHtmlJarvis(r.responsable||'Sin registrar')+'</div>' +
+          '<div class="jarvis-notification-item-line"><strong>Día:</strong> '+escapeHtmlJarvis(r.fechaIso||'Sin fecha')+' ('+escapeHtmlJarvis(r.diaNombre||'')+')</div>' +
+          '<div class="jarvis-notification-item-line"><strong>Hora:</strong> '+escapeHtmlJarvis(hora)+'</div>' +
+          '<div class="jarvis-notification-item-line"><strong>Sede:</strong> '+escapeHtmlJarvis(r.sede||'')+' · <strong>Aula:</strong> '+escapeHtmlJarvis(r.aula||'')+'</div>' +
+          '</div>';
+      }).join('');
+    };
+
+    actualizarContadorNotificaciones = function(){
+      var notifs=obtenerNotificacionesRelevantesAulas().filter(function(item){
+        if(item.tipo!=='RECHAZADA') return true;
+        try { return localStorage.getItem('jarvis_rechazo_visto_'+String(item.reserva.id))!=='1'; } catch(e){ return !item.reserva.notificacionVista; }
+      });
+      var count=notifs.length;
+      var badge=document.getElementById('contadorNotificacionesAulas');
+      if(badge){ badge.innerText=count; badge.style.display=count>0?'inline-flex':'none'; }
+      renderizarPanelNotificacionesAulas();
+    };
+
+    /* Al abrir una notificación de rechazo, mostramos el detalle y marcamos
+       únicamente esa notificación como vista en el navegador. */
+    var abrirNotificacionReservaBase = abrirNotificacionReserva;
+    abrirNotificacionReserva = function(id){
+      var res=reservasAulasDB.find(function(r){return String(r.id)===String(id);});
+      if(res && res.estadoAprobacion==='RECHAZADA' && sesionActual && res.solicitadoPorCuenta===sesionActual.username){
+        res.notificacionVista=true;
+        try { localStorage.setItem('jarvis_rechazo_visto_'+String(res.id),'1'); } catch(e){}
+      }
+      abrirNotificacionReservaBase(id);
+      actualizarContadorNotificaciones();
+    };
+
+    // Si la sesión se restaura o Firebase actualiza las reservas, recalculamos
+    // inmediatamente las notificaciones relevantes.
+    try { actualizarContadorNotificaciones(); } catch(e){}
+
   </script>
 </body>
 </html>
