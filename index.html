@@ -1286,6 +1286,8 @@
       box-shadow: none !important;
       position: relative;
       z-index: 5;
+      background: var(--primary-purple) !important;
+      color: #FFFFFF !important;
     }
     .aula-half-zone.aula-reserva-inicio .aula-block-unified {
       border-top-left-radius: 6px !important;
@@ -1307,15 +1309,15 @@
       pointer-events: none;
       white-space: nowrap;
       text-align: center;
-      font-size: .69rem;
+      font-size: .72rem;
       font-weight: 800;
       line-height: 1.15;
       color: #FFFFFF;
-      background: rgba(76, 0, 153, .82);
-      border: 1px solid rgba(255,255,255,.55);
-      border-radius: 6px;
-      padding: 4px 9px;
-      box-shadow: 0 2px 5px rgba(0,0,0,.18);
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none !important;
     }
     .aula-reserva-unificada .aula-reserva-contenido-secundario {
       display: none !important;
@@ -3626,8 +3628,7 @@
           var esRechazada = reserva.estadoAprobacion === 'RECHAZADA';
           var unifiedDiv = document.createElement('div');
           unifiedDiv.className = "aula-block-unified aula-block-30min " + (esPendiente ? 'aula-block-pending ' : '') + (esRechazada ? 'aula-block-rejected' : '');
-          var estadoIcono = esPendiente ? '⏳ PENDIENTE' : (esRechazada ? '🔴 RECHAZADA' : '🟢 APROBADA');
-          unifiedDiv.innerHTML = '🏢 ' + reserva.area + '<br><small style="font-size:0.68rem; font-weight:600;">' + formatearHoraJarvis(slot) + ' · ' + estadoIcono + '</small>';
+          unifiedDiv.innerHTML = '';
           unifiedDiv.title = "Área: " + reserva.area + " | Sede: " + reserva.sede + " | Aula: " + reserva.aula + " | Horario: " + formatearHoraJarvis(slot) + " | Estado: " + (reserva.estadoAprobacion || 'APROBADO');
           unifiedDiv.onclick = function(e){ e.stopPropagation(); verDetalleReservaAula(reserva.id); };
           zona.appendChild(unifiedDiv);
@@ -3752,7 +3753,7 @@
         if (zonaCentro) {
           var label=document.createElement('div');
           label.className='aula-reserva-rango-label';
-          label.textContent=formatearHoraJarvis(slots[0])+' → '+formatearHoraJarvis(slots[slots.length-1]+0.5);
+          label.textContent=formatearHoraJarvis(slots[0])+' - '+formatearHoraJarvis(slots[slots.length-1]+0.5);
           zonaCentro.appendChild(label);
         }
 
