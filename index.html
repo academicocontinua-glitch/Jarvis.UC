@@ -1628,6 +1628,7 @@
           <button class="btn-save" onclick="agregarAulaMaster()">➕ Asignar Aula a Sede</button>
         </div>
 
+        <div style="background:#FFF7ED;border:1px solid #FDBA74;color:#9A3412;padding:10px 12px;border-radius:8px;font-size:0.8rem;margin-bottom:12px;">🛡️ <strong>Protección de información:</strong> las Sedes y Salones/Aulas existentes se conservan en Firebase. Las nuevas modificaciones del sistema no reemplazan ni eliminan este catálogo.</div>
         <h4 style="margin-bottom: 12px; color: var(--primary-purple);">Sedes y Aulas Registradas:</h4>
         <div id="listaSedesAulasAdminContainer"></div>
       </div>
@@ -1680,55 +1681,30 @@
           <input type="text" id="reservaResponsableInput" class="input-field" placeholder="Nombre completo del responsable">
         </div>
 
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 150px;">
-            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">2. Credencial Oficial (*):</label>
-            <select id="reservaTipoDocSelect" class="input-field">
-              <option value="DNI">DNI (Nacional)</option>
-              <option value="CE">CE (Carnet Extranjería)</option>
-              <option value="PASAPORTE">Pasaporte</option>
-              <option value="RUC">RUC / Credencial Institucional</option>
-            </select>
-          </div>
-          <div style="flex: 1.2; min-width: 160px;">
-            <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">3. N° de Documento (*):</label>
-            <input type="text" id="reservaNumDocInput" class="input-field" placeholder="Ej: 72839102">
-          </div>
-        </div>
-
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">4. Tipo de Evento (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">2. Tipo de Evento (*):</label>
           <input type="text" id="reservaTipoEventoInput" class="input-field" placeholder="Ej. Conferencia / Taller / Examen">
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">5. Área / Entidad Solicitante (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">3. Área / Entidad Solicitante (*):</label>
           <input type="text" id="reservaAreaInput" class="input-field" placeholder="Ej. Dirección Académica / Externo">
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">6. Sede (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">4. Sede (*):</label>
           <select id="reservaSedeSelect" class="input-field">
             <option value="">-- Seleccionar Sede --</option>
           </select>
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">7. Distribución del espacio (*):</label>
-          <select id="reservaDistribucionSelect" class="input-field">
-            <option value="">-- Seleccionar distribución --</option>
-            <option value="Mesas en U">Mesas en U</option>
-            <option value="Filas de Carpeta">Filas de Carpeta</option>
-            <option value="Espacio Abierto">Espacio Abierto</option>
-            <option value="Auditorio">Auditorio</option>
-            <option value="Mesas Grupales">Mesas Grupales</option>
-            <option value="Aula Tradicional">Aula Tradicional</option>
-            <option value="Otro">Otro</option>
-          </select>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">5. Distribución del espacio (*):</label>
+          <input type="text" id="reservaDistribucionInput" class="input-field" placeholder="Ej. Mesas en U, filas de carpeta, espacio abierto, auditorio...">
         </div>
 
         <div>
-          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">8. Requerimientos Técnicos / Materiales (*):</label>
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--primary-purple);">6. Requerimientos Técnicos / Materiales (*):</label>
           <textarea id="reservaRequerimientosInput" class="textarea-field" placeholder="Ej. 2 micrófonos extra, ecran, proyector, plumones, extensión eléctrica..."></textarea>
         </div>
       </div>
@@ -1750,7 +1726,6 @@
         <p><strong>🚪 Aula:</strong> <span id="infoAulaNombre">--</span></p>
         <p><strong>👥 Aforo de Aula:</strong> <span id="infoAulaAforo">--</span></p>
         <p><strong>👤 Responsable Solicitante:</strong> <span id="infoAulaResponsable">--</span></p>
-        <p><strong>🆔 Credencial Oficial:</strong> <span id="infoAulaCredencialDoc">--</span></p>
         <p><strong>🎯 Tipo de Evento:</strong> <span id="infoAulaTipoEvento">--</span></p>
         <p><strong>🏢 Área / Entidad:</strong> <span id="infoAulaArea">--</span></p>
         <div class="jarvis-reservation-extra"><p><strong>🪑 Distribución:</strong> <span id="infoAulaDistribucion">--</span></p><p style="margin-top:6px;"><strong>🧰 Requerimientos Técnicos / Materiales:</strong><br><span id="infoAulaRequerimientos">--</span></p></div>
@@ -1856,9 +1831,7 @@
       <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Área / Entidad *</label>
       <input type="text" id="editReservaAreaInput" class="input-field" style="margin:6px 0 10px;">
       <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Distribución *</label>
-      <select id="editReservaDistribucionSelect" class="input-field" style="margin:6px 0 10px;">
-        <option value="">-- Seleccionar --</option><option>Mesas en U</option><option>Filas de Carpeta</option><option>Espacio Abierto</option><option>Auditorio</option><option>Mesas Grupales</option><option>Aula Tradicional</option><option>Otro</option>
-      </select>
+      <input type="text" id="editReservaDistribucionInput" class="input-field" style="margin:6px 0 10px;" placeholder="Ej. Mesas en U, filas de carpeta, espacio abierto, auditorio...">
       <label style="font-size:.85rem;font-weight:600;color:var(--primary-purple);">Requerimientos Técnicos / Materiales *</label>
       <textarea id="editReservaRequerimientosInput" class="textarea-field" style="margin-top:6px;" placeholder="Micrófonos, ecran, proyectores, plumones, extensiones, etc."></textarea>
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
@@ -2067,9 +2040,18 @@
     var reservasAulasDB = [];
     var usuariosPermisosDB = []; // BASE DE DATOS DE CREDENCIALES Y PERMISOS HABILITADOS POR EL PROGRAMADOR
 
+    // Catálogo existente de Sedes y Salones: se conserva y se normaliza, nunca se reemplaza por un catálogo inventado.
+    protegerCatalogoSedesYAulas();
+
     // FUNCIÓN CENTRAL PARA PUBLICAR CAMBIOS A LA NUBE
     function syncToCloud() {
-      db.ref('jarvisData').set({
+      /*
+       * IMPORTANTE: usamos update() y NO set().
+       * Así JARVIS solo actualiza los módulos que administra este archivo y
+       * no elimina accidentalmente otros datos existentes en Firebase.
+       * Esto protege especialmente las Sedes, Salones/Aulas y demás información.
+       */
+      db.ref('jarvisData').update({
         excelLinksMaster: excelLinksMaster,
         infoLinksMaster: infoLinksMaster,
         customTabsMaster: customTabsMaster,
@@ -2098,6 +2080,7 @@
       }
 
       if (data) {
+        protegerCatalogoSedesYAulas();
         excelLinksMaster = data.excelLinksMaster || [];
         infoLinksMaster = data.infoLinksMaster || [];
         customTabsMaster = data.customTabsMaster || [];
@@ -2105,10 +2088,19 @@
         esquemaEtapasMaster = data.esquemaEtapasMaster || esquemaEtapasMaster;
         candidatosDB = data.candidatosDB || [];
         courses = data.courses || [];
-        horariosDB = data.horariosDB || [];
-        sedesAulasMaster = data.sedesAulasMaster || [];
-        reservasAulasDB = data.reservasAulasDB || [];
-        usuariosPermisosDB = data.usuariosPermisosDB || [];
+        horariosDB = Array.isArray(data.horariosDB) ? data.horariosDB : horariosDB;
+        /* No borrar Sedes/Salones si Firebase no devuelve temporalmente ese campo. */
+        if (Array.isArray(data.sedesAulasMaster)) {
+          sedesAulasMaster = data.sedesAulasMaster;
+        } else if (data.sedesAulasMaster && typeof data.sedesAulasMaster === 'object') {
+          sedesAulasMaster = Object.keys(data.sedesAulasMaster).map(function(k){ return data.sedesAulasMaster[k]; });
+        }
+        if (Array.isArray(data.reservasAulasDB)) {
+          reservasAulasDB = data.reservasAulasDB;
+        } else if (data.reservasAulasDB && typeof data.reservasAulasDB === 'object') {
+          reservasAulasDB = Object.keys(data.reservasAulasDB).map(function(k){ return data.reservasAulasDB[k]; });
+        }
+        if (Array.isArray(data.usuariosPermisosDB)) usuariosPermisosDB = data.usuariosPermisosDB;
         if (data.cuentasSedeDB) cuentasSedeDB = data.cuentasSedeDB;
 
         // RE-RENDERIZAR INTERFAZ COMPLETA
@@ -3037,7 +3029,6 @@
       }
 
       document.getElementById('reservaResponsableInput').value = '';
-      document.getElementById('reservaNumDocInput').value = '';
       document.getElementById('reservaTipoEventoInput').value = '';
       document.getElementById('reservaAreaInput').value = '';
       document.getElementById('addReservaAulaModal').style.display = 'flex';
@@ -3049,14 +3040,16 @@
 
     function guardarReservaAula() {
       var responsable = document.getElementById('reservaResponsableInput').value.trim();
-      var tipoDoc = document.getElementById('reservaTipoDocSelect').value;
-      var numDoc = document.getElementById('reservaNumDocInput').value.trim();
       var tipoEvento = document.getElementById('reservaTipoEventoInput').value.trim();
       var area = document.getElementById('reservaAreaInput').value.trim();
       var sede = document.getElementById('reservaSedeSelect').value.trim();
+      var distribucion = document.getElementById('reservaDistribucionInput').value.trim();
+      var requerimientosTecnicos = document.getElementById('reservaRequerimientosInput').value.trim();
+      var tipoDoc = 'CUENTA';
+      var numDoc = (sesionActual && sesionActual.username) ? sesionActual.username : '';
 
-      if (!responsable || !numDoc || !tipoEvento || !area || !sede) {
-        return alert('⚠️ ATENCIÓN: Solo se podrá reservar si completas todos los campos, incluyendo tus credenciales oficiales (DNI/CE/Pasaporte/RUC).');
+      if (!responsable || !tipoEvento || !area || !sede || !distribucion || !requerimientosTecnicos) {
+        return alert('⚠️ ATENCIÓN: Completa todos los campos obligatorios de la reserva.');
       }
 
       var aula = aulaFiltroSeleccionada || document.getElementById('selectAulaFiltro').value;
@@ -3181,6 +3174,7 @@
 
     /* PROGRAMADOR: GESTIÓN DE SEDES Y AULAS CON AFORO */
     function renderizarAdminSedesAulas() {
+      protegerCatalogoSedesYAulas();
       var selectSedeAula = document.getElementById('selectSedeParaAulaAdmin');
       var container = document.getElementById('listaSedesAulasAdminContainer');
       selectSedeAula.innerHTML = '<option value="">-- Seleccionar Sede --</option>';
@@ -4685,6 +4679,31 @@
 
 
     /* ============================================================
+       PROTECCIÓN DE DATOS DE SEDES Y SALONES / AULAS
+       No crea ni elimina salones existentes. Solo garantiza que la estructura
+       recibida desde Firebase siga siendo compatible con el sistema.
+       ============================================================ */
+    function protegerCatalogoSedesYAulas() {
+      if (!Array.isArray(sedesAulasMaster)) {
+        if (sedesAulasMaster && typeof sedesAulasMaster === 'object') {
+          sedesAulasMaster = Object.keys(sedesAulasMaster).map(function(k){ return sedesAulasMaster[k]; });
+        } else {
+          sedesAulasMaster = [];
+        }
+      }
+      sedesAulasMaster.forEach(function(sede) {
+        if (!sede) return;
+        if (!Array.isArray(sede.aulas)) {
+          if (sede.aulas && typeof sede.aulas === 'object') {
+            sede.aulas = Object.keys(sede.aulas).map(function(k){ return sede.aulas[k]; });
+          } else {
+            sede.aulas = [];
+          }
+        }
+      });
+    }
+
+    /* ============================================================
        INTEGRACIÓN NUEVA - CUENTAS, SESIONES, RESERVAS Y PRESENCIA
        Todo este bloque se agrega al código existente para conservar
        las funciones anteriores y ampliar únicamente lo solicitado.
@@ -4839,10 +4858,9 @@
       var numBloques = celdasAulaSeleccionadasSet.size;
       document.getElementById('selectedAulaRangeInfoText').innerText = 'Reserva para ' + numBloques + ' bloque(s). Sesión: ' + sesionActual.displayName + '.';
       document.getElementById('reservaResponsableInput').value = sesionActual.displayName;
-      document.getElementById('reservaNumDocInput').value = sesionActual.username;
       document.getElementById('reservaTipoEventoInput').value = '';
       document.getElementById('reservaAreaInput').value = '';
-      document.getElementById('reservaDistribucionSelect').value = '';
+      document.getElementById('reservaDistribucionInput').value = '';
       document.getElementById('reservaRequerimientosInput').value = '';
       var selSede = document.getElementById('reservaSedeSelect');
       if (sesionActual.role === 'ENCARGADO') { selSede.value = sesionActual.sede; selSede.disabled = true; }
@@ -4854,13 +4872,15 @@
       if (!sesionActual) { accionPendienteTrasLogin='RESERVA'; cerrarModalReservaAula(); abrirModalLogin(); return; }
       if (!cuentaPuede('crearReservas')) return alert('⛔ Tu cuenta no tiene permiso para crear reservas.');
       var responsable = document.getElementById('reservaResponsableInput').value.trim();
-      var tipoDoc = document.getElementById('reservaTipoDocSelect').value;
-      var numDoc = document.getElementById('reservaNumDocInput').value.trim();
       var tipoEvento = document.getElementById('reservaTipoEventoInput').value.trim();
       var area = document.getElementById('reservaAreaInput').value.trim();
       var sede = document.getElementById('reservaSedeSelect').value.trim();
-      var distribucion = document.getElementById('reservaDistribucionSelect').value.trim();
+      var distribucion = document.getElementById('reservaDistribucionInput').value.trim();
       var requerimientosTecnicos = document.getElementById('reservaRequerimientosInput').value.trim();
+      /* Compatibilidad con reservas antiguas: la información de credencial se conserva
+         en Firebase si ya existía, pero ya no se solicita ni se muestra en el formulario. */
+      var tipoDoc = 'CUENTA';
+      var numDoc = (sesionActual && sesionActual.username) ? sesionActual.username : '';
       if (!responsable || !numDoc || !tipoEvento || !area || !sede || !distribucion || !requerimientosTecnicos) return alert('⚠️ Completa todos los campos obligatorios de la reserva, incluida la distribución y los requerimientos técnicos/materiales.');
       if (sesionActual.role === 'ENCARGADO' && !sedesCoincidenJarvis(sede,sesionActual.sede)) return alert('⛔ Tu cuenta solo puede reservar en la sede ' + sesionActual.sede + '.');
       var aula = aulaFiltroSeleccionada || document.getElementById('selectAulaFiltro').value;
@@ -4884,7 +4904,7 @@
       var res=reservasAulasDB.find(function(item){return item.id===idReserva;}); if(!res)return;
       activeAulaReservaIdToDelete=idReserva;
       var minH=Math.min.apply(null,res.horasArray), maxH=Math.max.apply(null,res.horasArray)+1;
-      document.getElementById('infoAulaSede').innerText=res.sede; document.getElementById('infoAulaNombre').innerText=res.aula; document.getElementById('infoAulaAforo').innerText=res.aforo||'No especificado'; document.getElementById('infoAulaResponsable').innerText=res.responsable; document.getElementById('infoAulaCredencialDoc').innerText=(res.tipoDoc||'CUENTA')+': '+(res.numDoc||'No especificado'); document.getElementById('infoAulaTipoEvento').innerText=res.tipoEvento; document.getElementById('infoAulaArea').innerText=res.area; document.getElementById('infoAulaDistribucion').innerText=res.distribucion||'No registrado'; document.getElementById('infoAulaRequerimientos').innerText=res.requerimientosTecnicos||'No registrado'; document.getElementById('infoAulaResponde').innerText=res.responde||'Pendiente'; document.getElementById('infoAulaRespuestaAuditoria').innerText=res.respuestaAuditoria||'Pendiente';
+      document.getElementById('infoAulaSede').innerText=res.sede; document.getElementById('infoAulaNombre').innerText=res.aula; document.getElementById('infoAulaAforo').innerText=res.aforo||'No especificado'; document.getElementById('infoAulaResponsable').innerText=res.responsable; document.getElementById('infoAulaTipoEvento').innerText=res.tipoEvento; document.getElementById('infoAulaArea').innerText=res.area; document.getElementById('infoAulaDistribucion').innerText=res.distribucion||'No registrado'; document.getElementById('infoAulaRequerimientos').innerText=res.requerimientosTecnicos||'No registrado'; document.getElementById('infoAulaResponde').innerText=res.responde||'Pendiente'; document.getElementById('infoAulaRespuestaAuditoria').innerText=res.respuestaAuditoria||'Pendiente';
       var estadoTexto=res.estadoAprobacion==='PENDIENTE'?'⏳ PENDIENTE DE APROBACIÓN':(res.estadoAprobacion==='RECHAZADA'?'🔴 RECHAZADA':'🟢 APROBADA'); document.getElementById('infoAulaEstadoAprobacion').innerText=estadoTexto;
       document.getElementById('infoAulaDiaHora').innerText=res.diaNombre+' ('+res.fechaIso+') de '+String(minH).padStart(2,'0')+':00 a '+String(maxH).padStart(2,'0')+':00'; document.getElementById('infoAulaFechaAuditoria').innerText=res.fechaAuditoria||'Registrado previamente';
       var grupo=document.getElementById('accionesAprobacionReservaGroup');
@@ -4901,7 +4921,7 @@
       if(sesionActual.role!=='PROGRAMADOR' && !sedesCoincidenJarvis(res.sede,sesionActual.sede)) return alert('⛔ Esta reserva pertenece a otra sede.');
       document.getElementById('editReservaTipoEventoInput').value=res.tipoEvento||'';
       document.getElementById('editReservaAreaInput').value=res.area||'';
-      document.getElementById('editReservaDistribucionSelect').value=res.distribucion||'';
+      document.getElementById('editReservaDistribucionInput').value=res.distribucion||'';
       document.getElementById('editReservaRequerimientosInput').value=res.requerimientosTecnicos||'';
       document.getElementById('editReservaAulaModal').style.display='flex';
     }
@@ -4909,7 +4929,7 @@
     function guardarEdicionReservaAula(){
       if(!sesionActual || !cuentaPuede('editarReservas')) return alert('⛔ No tienes permiso para editar reservas.');
       var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;}); if(!res)return;
-      var tipo=document.getElementById('editReservaTipoEventoInput').value.trim(), area=document.getElementById('editReservaAreaInput').value.trim(), dist=document.getElementById('editReservaDistribucionSelect').value.trim(), req=document.getElementById('editReservaRequerimientosInput').value.trim();
+      var tipo=document.getElementById('editReservaTipoEventoInput').value.trim(), area=document.getElementById('editReservaAreaInput').value.trim(), dist=document.getElementById('editReservaDistribucionInput').value.trim(), req=document.getElementById('editReservaRequerimientosInput').value.trim();
       if(!tipo||!area||!dist||!req)return alert('⚠️ Completa todos los campos obligatorios.');
       if(sesionActual.role!=='PROGRAMADOR' && !sedesCoincidenJarvis(res.sede,sesionActual.sede))return alert('⛔ Esta reserva pertenece a otra sede.');
       res.tipoEvento=tipo; res.area=area; res.distribucion=dist; res.requerimientosTecnicos=req; res.ultimaEdicionPor=sesionActual.displayName; res.fechaUltimaEdicion=getRelojFechaTexto();
