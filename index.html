@@ -1258,6 +1258,21 @@
       text-align:center; font-size:.74rem; font-weight:800; color:#075985;
     }
     .aula-half-zone.aula-half-occupied .aula-range-label small { display:none !important; }
+    /* Estado visual: PENDIENTE siempre amarillo; solo APROBADA usa celeste. */
+    .aula-half-zone.aula-half-occupied .aula-block-unified.aula-block-pending {
+      background:#FEF3C7 !important;
+      border:none !important;
+      color:#B45309 !important;
+    }
+    .aula-half-zone.aula-half-occupied .aula-block-unified.aula-block-pending .aula-range-label {
+      color:#B45309 !important;
+      font-weight:800;
+    }
+    .aula-half-zone.aula-half-occupied .aula-block-unified.aula-block-rejected {
+      background:#FEE2E2 !important;
+      border:none !important;
+      color:#B91C1C !important;
+    }
     /* Unifica visualmente los bloques consecutivos seleccionados. */
     .aula-half-zone.aula-selection-start {
       border-top-left-radius:8px; border-top-right-radius:8px;
@@ -1964,7 +1979,7 @@
           <button class="btn-danger" id="btnEliminarReservaAulaActual" style="display:none; background:#B91C1C;" onclick="eliminarReservaAulaActual()"><i class="fa-solid fa-trash"></i> Eliminar Reserva</button>
           <div id="programadorCeldaActions" style="display:none; align-items:center; gap:6px; width:100%; margin-top:6px; flex-wrap:wrap;">
             <select id="programadorCeldaSelect" class="input-field" style="max-width:170px; padding:8px 10px;"></select>
-            <button class="btn-danger" style="background:#7F1D1D;" onclick="eliminarCeldaReservaAulaActual()"><i class="fa-solid fa-square-minus"></i> Eliminar Celda Reservada</button>
+            <button id="btnLiberarCeldaReservaAulaActual" class="btn-danger" style="background:#7F1D1D;" onclick="eliminarCeldaReservaAulaActual()"><i class="fa-solid fa-square-minus"></i> Liberar Celda Reservada</button>
           </div>
           <button class="tab-btn" style="background:#E2D9F3; color:var(--primary-purple);" onclick="cerrarModalVerReservaAula()">Cerrar</button>
         </div>
@@ -3611,7 +3626,13 @@
           var inicioReserva = slotsReservaDia.length ? slotsReservaDia[0] : slot;
           var finReserva = slotsReservaDia.length ? slotsReservaDia[slotsReservaDia.length - 1] + 0.5 : slot + 0.5;
           if (esCentro) {
-            unifiedDiv.innerHTML = '<span class="aula-range-label">' + formatearHoraJarvis(inicioReserva) + ' - ' + formatearHoraJarvis(finReserva) + '</span>';
+            if (esPendiente) {
+              unifiedDiv.innerHTML = '<span class="aula-range-label">PENDIENTE</span>';
+            } else if (esRechazada) {
+              unifiedDiv.innerHTML = '<span class="aula-range-label">RECHAZADA</span>';
+            } else {
+              unifiedDiv.innerHTML = '<span class="aula-range-label">' + formatearHoraJarvis(inicioReserva) + ' - ' + formatearHoraJarvis(finReserva) + '</span>';
+            }
           } else {
             unifiedDiv.innerHTML = '';
           }
@@ -5689,7 +5710,11 @@
       var btnRechazar=document.getElementById('btnRechazarReservaAulaActual');
       if(btnRechazar) btnRechazar.style.display=(sesionActual && (sesionActual.role==='PROGRAMADOR' || (sesionActual.role==='ENCARGADO' && cuentaPuede('aprobarReservas') && sedesCoincidenJarvis(res.sede,sesionActual.sede))) && res.estadoAprobacion==='PENDIENTE')?'inline-flex':'none';
       var btnEliminar=document.getElementById('btnEliminarReservaAulaActual');
-      if(btnEliminar) btnEliminar.style.display=(sesionActual && sesionActual.role==='PROGRAMADOR')?'inline-flex':'none';
+      if(btnEliminar) {
+        var puedeLiberar = !!(sesionActual && (sesionActual.role==='PROGRAMADOR' || (sesionActual.role==='ENCARGADO' && sedesCoincidenJarvis(res.sede,sesionActual.sede))));
+        btnEliminar.style.display=puedeLiberar?'inline-flex':'none';
+        btnEliminar.innerHTML='<i class="fa-solid fa-trash"></i> '+(sesionActual && sesionActual.role==='PROGRAMADOR'?'Eliminar Reserva':'Liberar Reserva');
+      }
       document.getElementById('viewReservaAulaModal').style.display='flex';
     }
 
@@ -5756,20 +5781,28 @@
     function aprobarReservaAulaActual(){abrirAuditoriaReserva('APROBAR');}
     function rechazarReservaAulaActual(){abrirAuditoriaReserva('RECHAZAR');}
 
-    // SOLO EL PROGRAMADOR puede eliminar físicamente una reserva de Firebase.
-    // Rechazar una reserva NO la elimina: queda registrada como RECHAZADA.
+    // El Programador puede liberar cualquier reserva.
+    // El administrador/encargado puede liberar cualquier reserva que pertenezca a su propia sede,
+    // aunque la solicitud haya sido realizada por otra sede.
+    function usuarioPuedeLiberarReservaAula(res){
+      if(!sesionActual || !res) return false;
+      if(sesionActual.role==='PROGRAMADOR') return true;
+      return sesionActual.role==='ENCARGADO' && sedesCoincidenJarvis(res.sede,sesionActual.sede);
+    }
+
     function eliminarReservaAulaActual(){
-      if(!sesionActual || sesionActual.role!=='PROGRAMADOR') return alert('⛔ Solo el Programador puede eliminar reservas.');
+      if(!activeAulaReservaIdToDelete) return;
       var res=reservasAulasDB.find(function(r){return r.id===activeAulaReservaIdToDelete;});
       if(!res) return;
-      if(!confirm('⚠️ Esta acción eliminará definitivamente la reserva de Firebase.\n\nSede: '+res.sede+'\nAula: '+res.aula+'\nResponsable: '+res.responsable+'\n\n¿Deseas continuar?')) return;
+      if(!usuarioPuedeLiberarReservaAula(res)) return alert('⛔ Solo el administrador de la sede correspondiente puede liberar esta reserva.');
+      if(!confirm('⚠️ Vas a liberar esta reserva del calendario.\n\nSede: '+res.sede+'\nAula: '+res.aula+'\nResponsable: '+res.responsable+'\n\n¿Deseas continuar?')) return;
       reservasAulasDB=reservasAulasDB.filter(function(r){return r.id!==activeAulaReservaIdToDelete;});
       syncToCloud();
       cerrarModalVerReservaAula();
       actualizarContadorNotificaciones();
       renderizarTablaCalendarioAulas();
       renderizarPanelNotificacionesAulas();
-      alert('🗑️ Reserva eliminada definitivamente por el Programador.');
+      alert('🗑️ Reserva liberada correctamente.');
     }
 
     function togglePanelNotificacionesAulas(event){
@@ -6097,7 +6130,7 @@
       var box = document.getElementById('programadorCeldaActions');
       var sel = document.getElementById('programadorCeldaSelect');
       if (!box || !sel) return;
-      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR' || !res || !Array.isArray(res.horasArray) || !res.horasArray.length) {
+      if (!sesionActual || !res || !usuarioPuedeLiberarReservaAula(res) || !Array.isArray(res.horasArray) || !res.horasArray.length) {
         box.style.display = 'none';
         sel.innerHTML = '';
         return;
@@ -6125,10 +6158,11 @@
     };
 
     function eliminarCeldaReservaAulaActual(){
-      if (!sesionActual || sesionActual.role !== 'PROGRAMADOR') {
-        return alert('⛔ Solo el Programador puede eliminar celdas reservadas.');
-      }
       var res = reservasAulasDB.find(function(r){ return r.id === activeAulaReservaIdToDelete; });
+      if (!usuarioPuedeLiberarReservaAula(res)) {
+        return alert('⛔ Solo el administrador de la sede correspondiente puede liberar esta celda.');
+      }
+
       if (!res || !Array.isArray(res.horasArray)) return;
       var sel = document.getElementById('programadorCeldaSelect');
       var hora = Number(sel && sel.value);
