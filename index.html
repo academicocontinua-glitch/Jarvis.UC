@@ -1663,7 +1663,7 @@
 
       <!-- MENÚ DESPLEGABLE DE EXCEL -->
       <div class="dropdown" id="dropdownExcel">
-        <button class="tab-btn" id="btnExcel">📊 Excel ▼</button>
+        <button class="tab-btn" id="btnExcel" onclick="abrirExcelProtegidoJARVIS(event)">📊 Excel ▼</button>
         <div class="dropdown-content" id="excelDropdownContent">
           <div class="dropdown-inner-box" id="excelDropdownInner"></div>
         </div>
@@ -1846,8 +1846,8 @@
             <p style="color: var(--text-muted);">Seguimiento continuo desde la creación hasta la programación</p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn-pdf" onclick="exportarTodasBitacorasPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácoras Globales (PDF)</button>
-            <button class="btn-save" onclick="openModal()">➕ Agregar Curso</button>
+            <button class="btn-pdf" id="btnDescargarBitacorasGlobales" onclick="exportarTodasBitacorasPDF()" style="display:none;"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácoras Globales (PDF)</button>
+            <button class="btn-save" id="btnAgregarCursoProceso" onclick="openModal()" style="display:none;">➕ Agregar Curso</button>
           </div>
         </div>
 
@@ -1866,14 +1866,14 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
           <button class="tab-btn" style="background: #E2D9F3; color: var(--primary-purple); font-weight: 600;" onclick="volverAListaCursos()">⬅️ Volver a Cursos</button>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn-edit" id="btnEditarProcesoCurso" style="display: inline-flex;" onclick="solicitarPersonalizarProcesoCurso()"><i class="fa-solid fa-sliders"></i> Personalizar Proceso de este Curso</button>
-            <button class="btn-pdf" onclick="exportarBitacoraIndividualPDF()"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácora de este Curso (PDF)</button>
+            <button class="btn-edit" id="btnEditarProcesoCurso" style="display:none;" onclick="solicitarPersonalizarProcesoCurso()"><i class="fa-solid fa-sliders"></i> Personalizar Proceso de este Curso</button>
+            <button class="btn-pdf" id="btnDescargarBitacoraCurso" onclick="exportarBitacoraIndividualPDF()" style="display:none;"><i class="fa-solid fa-file-pdf"></i> Descargar Bitácora de este Curso (PDF)</button>
           </div>
         </div>
         
         <div class="subview-nav">
           <button class="subview-btn active" id="btnSubChecklist" onclick="cambiarModoDetalle('CHECKLIST')">Checklist por Etapas</button>
-          <button class="subview-btn" id="btnSubBitacora" onclick="cambiarModoDetalle('BITACORA')">📋 Bitácora de Progreso</button>
+          <button class="subview-btn" id="btnSubBitacora" onclick="cambiarModoDetalle('BITACORA')" style="display:none;">📋 Bitácora de Progreso</button>
         </div>
 
         <div id="secDetalleChecklist">
@@ -1891,6 +1891,7 @@
           <div class="checklist-panel">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
               <div>
+                <div id="displayCourseLugar" style="color:var(--primary-purple); font-size:0.85rem; font-weight:700; margin-bottom:4px;">📍 Sede: No definida</div>
                 <h2 id="displayCourseName" style="color: var(--primary-purple);">Curso: --</h2>
                 <p style="color: var(--text-muted); margin-bottom: 12px;">Propuesto por: <strong id="displayProposer">--</strong></p>
               </div>
@@ -2383,6 +2384,11 @@
       <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Agrega o elimina etapas y ajusta los requerimientos de forma exclusiva para este curso.</p>
       
       <div style="background: var(--bg-body); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+        <label for="selectCourseSedeCustom" style="font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; display: block; color: var(--primary-purple);">📍 LUGAR</label>
+        <select id="selectCourseSedeCustom" class="input-field" style="margin-bottom: 14px;" onchange="guardarLugarCursoActual()">
+          <option value="">-- Seleccionar Sede --</option>
+        </select>
+        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: -8px; margin-bottom: 14px;">Selecciona la sede donde se realizará este taller, curso o programa.</div>
         <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--primary-purple);">1. Administrar Etapas del Curso:</label>
         <div style="display: flex; gap: 8px; margin-bottom: 10px;">
           <input type="text" id="inputCustomCourseStageName" class="input-field" placeholder="Nombre de nueva etapa (ej: Evaluación)">
@@ -2848,7 +2854,13 @@
       }
 
       if (dropExcel) {
-        dropExcel.addEventListener('mouseenter', function() { posicionarYMostrar(btnExcel, contentExcel); });
+        dropExcel.addEventListener('mouseenter', function() {
+          if (!sesionActual) {
+            contentExcel.style.display = 'none';
+            return;
+          }
+          posicionarYMostrar(btnExcel, contentExcel);
+        });
         dropExcel.addEventListener('mouseleave', function() { contentExcel.style.display = 'none'; });
       }
 
@@ -4414,6 +4426,10 @@
     }
 
     function exportarCandidatosPDF() {
+      if (!sesionActual) {
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para exportar la información confidencial de CVs.');
+        return;
+      }
       if (candidatosDB.length === 0) return alert('No hay candidatos guardados para exportar.');
 
       var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Copia de Seguridad - Registro de Candidatos / CVs</h2>';
@@ -4433,6 +4449,10 @@
     }
 
     function exportarBitacoraIndividualPDF() {
+      if (!sesionActual) {
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para descargar la bitácora confidencial del curso.');
+        return;
+      }
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -4473,6 +4493,10 @@
     }
 
     function exportarTodasBitacorasPDF() {
+      if (!sesionActual) {
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para descargar las bitácoras confidenciales de los cursos.');
+        return;
+      }
       if (courses.length === 0) return alert('No hay cursos guardados para exportar.');
 
       var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Reporte General de Bitácoras de Cursos</h2>';
@@ -4518,7 +4542,16 @@
 
     function renderizarDropdownExcel() {
       var container = document.getElementById('excelDropdownInner');
+      if (!container) return;
       container.innerHTML = '';
+
+      /* Los Excel son información confidencial: nunca se muestran a visitantes
+         sin sesión activa. El acceso se habilita únicamente después de
+         identificarse en JARVIS. */
+      if (!sesionActual) {
+        container.innerHTML = '<span style="padding:12px; color:#E9D5FF; font-size:0.82rem; display:block; font-weight:600;">🔐 Inicia sesión para acceder a los Excel institucionales.</span>';
+        return;
+      }
 
       if (excelLinksMaster.length === 0) {
         container.innerHTML = '<span style="padding:10px; color:#E9D5FF; font-size:0.8rem; display:block;">Sin opciones guardadas</span>';
@@ -4528,9 +4561,39 @@
       excelLinksMaster.forEach(function(item) {
         var linkElement = document.createElement('a');
         linkElement.innerHTML = item.label;
-        linkElement.onclick = function() { abrirLinkWeb(item.link); };
+        linkElement.onclick = function() { abrirExcelLinkProtegidoJARVIS(item.link); };
         container.appendChild(linkElement);
       });
+    }
+
+    function abrirExcelProtegidoJARVIS(event) {
+      if (event) event.stopPropagation();
+      if (!sesionActual) {
+        var content = document.getElementById('excelDropdownContent');
+        if (content) content.style.display = 'none';
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para acceder a los Excel institucionales.');
+        return false;
+      }
+      var content = document.getElementById('excelDropdownContent');
+      var btn = document.getElementById('btnExcel');
+      if (content && btn) {
+        var rect = btn.getBoundingClientRect();
+        content.style.top = (rect.bottom - 4) + 'px';
+        content.style.left = rect.left + 'px';
+        content.style.display = 'block';
+      }
+      renderizarDropdownExcel();
+      return true;
+    }
+
+    function abrirExcelLinkProtegidoJARVIS(url) {
+      if (!sesionActual) {
+        var content = document.getElementById('excelDropdownContent');
+        if (content) content.style.display = 'none';
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para acceder a los Excel institucionales.');
+        return;
+      }
+      abrirLinkWeb(url);
     }
 
     function renderizarDropdownInfo() {
@@ -4582,6 +4645,7 @@
         document.getElementById('btnAdmin').style.display = 'inline-flex';
         cerrarModalLogin();
         actualizarUISesion();
+        renderizarDropdownExcel();
         iniciarPresenciaSesion();
         renderizarAdminCuentasOficiales();
         renderizarPresenciaSedes();
@@ -4600,6 +4664,7 @@
         document.getElementById('btnAdmin').style.display = 'none';
         cerrarModalLogin();
         actualizarUISesion();
+        renderizarDropdownExcel();
         iniciarPresenciaSesion();
         aplicarSedeDeSesion();
         if (accionPendienteTrasLogin === 'RESERVA') { accionPendienteTrasLogin = null; setTimeout(function(){ abrirModalReservaAula(); }, 150); }
@@ -4840,10 +4905,35 @@
       '</div>';
     }
 
+    /* ============================================================
+       MODO SOLO LECTURA PARA PERSONAS EXTERNAS
+       ============================================================ */
+    function procesosSoloLecturaJARVIS() { return !sesionActual; }
+    function exigirSesionProcesoJARVIS(mensaje) {
+      if (sesionActual) return true;
+      exigirSesionParaEscrituraJARVIS(mensaje || '🔐 Inicia sesión para modificar este seguimiento.');
+      return false;
+    }
+    function actualizarControlesProcesosJARVIS() {
+      var puedeEditar = !!sesionActual;
+      var btnAgregar = document.getElementById('btnAgregarCursoProceso');
+      var btnEditar = document.getElementById('btnEditarProcesoCurso');
+      var btnBitacora = document.getElementById('btnSubBitacora');
+      var btnPdfGlobal = document.getElementById('btnDescargarBitacorasGlobales');
+      var btnPdfCurso = document.getElementById('btnDescargarBitacoraCurso');
+      if (btnAgregar) btnAgregar.style.display = puedeEditar ? 'inline-flex' : 'none';
+      if (btnEditar) btnEditar.style.display = puedeEditar ? 'inline-flex' : 'none';
+      /* La bitácora y cualquier exportación de seguimientos son confidenciales. */
+      if (btnBitacora) btnBitacora.style.display = puedeEditar ? 'inline-flex' : 'none';
+      if (btnPdfGlobal) btnPdfGlobal.style.display = puedeEditar ? 'inline-flex' : 'none';
+      if (btnPdfCurso) btnPdfCurso.style.display = puedeEditar ? 'inline-flex' : 'none';
+    }
+
     function mostrarProcesos() {
       resetTabs();
       document.getElementById('vistaProcesos').style.display = 'block';
       document.getElementById('btnProcesos').classList.add('active');
+      actualizarControlesProcesosJARVIS();
       renderBarraFiltroEtapas();
       renderCourses();
     }
@@ -4864,6 +4954,12 @@
     }
 
     function mostrarBuscador() {
+      /* Los CVs contienen información personal/confidencial: el buscador
+         completo solo está disponible para usuarios autenticados. */
+      if (!sesionActual) {
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para acceder al Buscador de CVs.');
+        return;
+      }
       resetTabs();
       document.getElementById('vistaBuscador').style.display = 'block';
       document.getElementById('btnBuscador').classList.add('active');
@@ -4885,6 +4981,10 @@
     }
 
     function cambiarModoDetalle(modo) {
+      if (modo === 'BITACORA' && !sesionActual) {
+        exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para consultar la bitácora confidencial del seguimiento.');
+        return;
+      }
       var btnCheck = document.getElementById('btnSubChecklist');
       var btnBit = document.getElementById('btnSubBitacora');
       var secCheck = document.getElementById('secDetalleChecklist');
@@ -4941,6 +5041,11 @@
     }
 
     function renderizarBitacoraProgreso() {
+      if (!sesionActual) {
+        var contBloqueado = document.getElementById('bitacoraStagesContainer');
+        if (contBloqueado) contBloqueado.innerHTML = '<div class="jarvis-session-required">🔐 La bitácora de progreso es información confidencial y requiere iniciar sesión.</div>';
+        return;
+      }
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5087,6 +5192,7 @@
     }
 
     function solicitarEliminarCurso(idCurso, event) {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para eliminar un seguimiento.')) return;
       event.stopPropagation();
       courseToDeleteId = idCurso;
       document.getElementById('deleteCourseModal').style.display = 'flex';
@@ -5099,6 +5205,7 @@
     }
 
     function confirmarEliminarCurso() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para eliminar un seguimiento.')) return;
       var pass = document.getElementById('deleteCoursePass').value.trim();
       if (pass === 'L@zaro0697') {
         courses = courses.filter(function(c){ return c.id !== courseToDeleteId; });
@@ -5287,6 +5394,7 @@
     }
 
     function solicitarPersonalizarProcesoCurso() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para modificar el seguimiento del curso.')) return;
       if (esProgramador) {
         abrirModalPersonalizarCursoProceso();
       } else {
@@ -5309,7 +5417,37 @@
       }
     }
 
+    function cargarSedesEnSelectorCursoActual() {
+      var select = document.getElementById('selectCourseSedeCustom');
+      if (!select) return;
+
+      var valorActual = select.value;
+      var opciones = '<option value="">-- Seleccionar Sede --</option>';
+      var sedes = Array.isArray(sedesAulasMaster) ? sedesAulasMaster : [];
+
+      sedes.forEach(function(sede) {
+        var nombre = (sede && (sede.nombre || sede.name || sede.sede)) ? (sede.nombre || sede.name || sede.sede) : '';
+        if (!nombre) return;
+        opciones += '<option value="' + String(nombre).replace(/"/g, '&quot;') + '">' + String(nombre).replace(/</g, '&lt;') + '</option>';
+      });
+
+      select.innerHTML = opciones;
+      if (valorActual) select.value = valorActual;
+    }
+
+    function guardarLugarCursoActual() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para modificar la sede del curso.')) return;
+      var course = courses.find(function(c){ return c.id === activeCourseId; });
+      var select = document.getElementById('selectCourseSedeCustom');
+      if (!course || !select) return;
+
+      course.lugar = select.value || '';
+      syncToCloud();
+      renderCourses();
+    }
+
     function abrirModalPersonalizarCursoProceso() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para modificar este seguimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5321,6 +5459,9 @@
       }
 
       reindexarEtapasCurso(course);
+      cargarSedesEnSelectorCursoActual();
+      var selectSede = document.getElementById('selectCourseSedeCustom');
+      if (selectSede) selectSede.value = course.lugar || '';
       syncToCloud();
 
       renderizarEtapasPersonalizadasCurso();
@@ -5377,6 +5518,7 @@
     }
 
     function agregarEtapaPersonalizadaCurso() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para agregar una etapa.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5399,6 +5541,7 @@
     }
 
     function eliminarEtapaPersonalizadaCurso(idEtapa) {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para eliminar una etapa.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5449,6 +5592,7 @@
     }
 
     function agregarRequerimientoPersonalizadoCurso() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para agregar un requerimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5477,6 +5621,7 @@
     }
 
     function eliminarRequerimientoPersonalizadoCurso(numEtapa, index) {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para eliminar un requerimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course || !course.customEsquema || !course.customEsquema[numEtapa]) return;
 
@@ -5486,6 +5631,9 @@
     }
 
     function toggleRegistro() {
+      // El registro de nuevos CVs es una acción exclusiva para usuarios con sesión activa.
+      // Las personas externas pueden consultar el buscador, pero no abrir el formulario de alta.
+      if (!exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para registrar un nuevo CV.')) return;
       var sec = document.getElementById('secRegistro');
       sec.style.display = (sec.style.display === 'none') ? 'flex' : 'none';
     }
@@ -5624,8 +5772,10 @@
         if (pctTotal >= 35 && pctTotal <= 70) barColor = '#EAB308';
         else if (pctTotal > 70) barColor = '#22C55E';
 
+        var botonEliminarCurso = sesionActual ? '<button class="course-card-delete-btn" onclick="solicitarEliminarCurso(' + c.id + ', event)">🗑️ Eliminar</button>' : '';
         grid.innerHTML += '<div class="course-card" onclick="openCourseDetail(' + c.id + ')">' +
-          '<button class="course-card-delete-btn" onclick="solicitarEliminarCurso(' + c.id + ', event)">🗑️ Eliminar</button>' +
+          botonEliminarCurso +
+          '<div style="color:var(--primary-purple); font-size:0.82rem; font-weight:700; margin-bottom:4px; padding-right:90px;">📍 Sede: ' + (c.lugar ? c.lugar : 'No definida') + '</div>' +
           '<h3 style="padding-right: 80px;">' + c.name + '</h3>' +
           '<p style="color:var(--text-muted); font-size:0.83rem; margin-bottom:8px;">Propuesto por: ' + c.proposer + '</p>' +
           '<div style="background:#F8F5FC; padding:8px 10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:12px; font-size:0.8rem;">' +
@@ -5637,7 +5787,10 @@
       });
     }
 
-    function openModal() { document.getElementById('addModal').style.display = 'flex'; }
+    function openModal() {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para agregar un curso o programa.')) return;
+      document.getElementById('addModal').style.display = 'flex';
+    }
     function closeModal() { document.getElementById('addModal').style.display = 'none'; }
 
     function saveCourse() {
@@ -5660,6 +5813,7 @@
         bitacoraNotes: {}, 
         customEsquema: null, 
         customEtapas: null,
+        lugar: '',
         stageStartTimes: timeObj 
       });
 
@@ -5676,6 +5830,8 @@
 
       document.getElementById('displayCourseName').innerText = "Curso: " + course.name;
       document.getElementById('displayProposer').innerText = course.proposer;
+      var detalleLugar = document.getElementById('displayCourseLugar');
+      if (detalleLugar) detalleLugar.innerText = '📍 Sede: ' + (course.lugar || 'No definida');
       document.getElementById('subvistaListaCursos').style.display = 'none';
       document.getElementById('subvistaDetalleCurso').style.display = 'block';
 
@@ -5755,19 +5911,20 @@
           var val = course.tasks ? course.tasks[item.id] : '';
           var meta = (course.taskMeta && course.taskMeta[item.id]) || { responsable: '', fecha: '' };
 
+          var readonlyAttrs = procesosSoloLecturaJARVIS() ? ' disabled readonly' : '';
           var metaFieldsHtml = '<div class="check-item-meta"><label>👤 Responsable: ' +
-            '<input type="text" id="resp_' + item.id + '" placeholder="Nombre..." value="' + (meta.responsable || '') + '" onchange="guardarMetaTarea(\'' + item.id + '\')"></label>' +
-            '<label>📅 Fecha: <input type="date" id="fecha_' + item.id + '" value="' + (meta.fecha || '') + '" onchange="guardarMetaTarea(\'' + item.id + '\')"></label></div>';
+            '<input type="text" id="resp_' + item.id + '" placeholder="Nombre..." value="' + (meta.responsable || '') + '"' + readonlyAttrs + ' onchange="guardarMetaTarea(\'' + item.id + '\')"></label>' +
+            '<label>📅 Fecha: <input type="date" id="fecha_' + item.id + '" value="' + (meta.fecha || '') + '"' + readonlyAttrs + ' onchange="guardarMetaTarea(\'' + item.id + '\')"></label></div>';
 
           if (item.type === 'TEXT') {
             container.innerHTML += '<div class="check-item"><div class="check-item-main" style="flex-direction: column; align-items: stretch;">' +
               '<span class="check-item-label">📝 ' + item.label + '</span>' +
-              '<textarea class="textarea-req-item" placeholder="Escribe la información solicitada aquí..." onchange="guardarTareaEntrada(\'' + item.id + '\', this.value, \'' + item.type + '\')">' + (val || '') + '</textarea></div>' +
+              '<textarea class="textarea-req-item"' + (procesosSoloLecturaJARVIS() ? ' disabled readonly' : '') + ' placeholder="Escribe la información solicitada aquí..." onchange="guardarTareaEntrada(\'' + item.id + '\', this.value, \'' + item.type + '\')">' + (val || '') + '</textarea></div>' +
               metaFieldsHtml + '</div>';
           } else if (item.type === 'STATUS') {
             container.innerHTML += '<div class="check-item"><div class="check-item-main">' +
               '<span class="check-item-label">🚦 ' + item.label + '</span>' +
-              '<select class="select-status-item status-' + (val || 'NINGUNO') + '" onchange="guardarTareaEntrada(\'' + item.id + '\', this.value, \'' + item.type + '\')">' +
+              '<select class="select-status-item status-' + (val || 'NINGUNO') + '"' + (procesosSoloLecturaJARVIS() ? ' disabled' : '') + ' onchange="guardarTareaEntrada(\'' + item.id + '\', this.value, \'' + item.type + '\')">' +
               '<option value="">-- Seleccionar Estado --</option>' +
               '<option value="BUENO" ' + (val === 'BUENO' ? 'selected' : '') + '>🟢 BUENO</option>' +
               '<option value="REGULAR" ' + (val === 'REGULAR' ? 'selected' : '') + '>🟡 REGULAR</option>' +
@@ -5775,7 +5932,7 @@
               '</select></div>' + metaFieldsHtml + '</div>';
           } else {
             container.innerHTML += '<div class="check-item"><div class="check-item-main"><label class="check-item-label">' +
-              '<input type="checkbox" ' + (val === true ? 'checked' : '') + ' onchange="guardarTareaEntrada(\'' + item.id + '\', this.checked, \'' + item.type + '\')">' +
+              '<input type="checkbox" ' + (val === true ? 'checked' : '') + (procesosSoloLecturaJARVIS() ? ' disabled' : '') + ' onchange="guardarTareaEntrada(\'' + item.id + '\', this.checked, \'' + item.type + '\')">' +
               '<span>' + item.label + '</span></label></div>' + metaFieldsHtml + '</div>';
           }
         });
@@ -5792,6 +5949,7 @@
     }
 
     function guardarMetaTarea(taskKey) {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para modificar este seguimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
       if (!course.taskMeta) course.taskMeta = {};
@@ -5808,6 +5966,7 @@
     }
 
     function guardarTareaEntrada(taskKey, valor, tipo) {
+      if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para avanzar o modificar este seguimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5850,7 +6009,7 @@
 
       if (pctActual === 100) {
         var indexActual = etapas.findIndex(e => e.id === course.currentStage);
-        if (course.unlockedStage === course.currentStage && indexActual < etapas.length - 1) {
+        if (!procesosSoloLecturaJARVIS() && course.unlockedStage === course.currentStage && indexActual < etapas.length - 1) {
           var siguienteEtapaId = etapas[indexActual + 1].id;
           course.unlockedStage = siguienteEtapaId;
           
@@ -5960,6 +6119,7 @@
       else { icon.textContent = '👨‍💼'; txt.textContent = sesionActual.displayName; }
       btn.title = 'Sesión activa: ' + sesionActual.displayName;
       try { renderizarDashboardJARVIS(); } catch(e) {}
+      try { actualizarControlesProcesosJARVIS(); } catch(e) {}
     }
 
     // PERSISTENCIA DE SESIÓN: mantiene la sesión al actualizar o recargar la página.
@@ -6017,6 +6177,7 @@
 
         document.getElementById('btnAdmin').style.display = esProgramador ? 'inline-flex' : 'none';
         actualizarUISesion();
+        renderizarDropdownExcel();
         iniciarPresenciaSesion();
         if (!esProgramador) aplicarSedeDeSesion();
         sesionPersistidaRestaurada = true;
@@ -6031,7 +6192,14 @@
       sesionActual = null;
       esProgramador = false;
       document.getElementById('btnAdmin').style.display = 'none';
+      var excelContent = document.getElementById('excelDropdownContent');
+      if (excelContent) excelContent.style.display = 'none';
+      renderizarDropdownExcel();
       actualizarUISesion();
+      actualizarControlesProcesosJARVIS();
+      if (document.getElementById('subvistaDetalleCurso') && document.getElementById('subvistaDetalleCurso').style.display === 'block') {
+        cambiarModoDetalle('CHECKLIST');
+      }
       sedeFiltroSeleccionada = null;
       aulaFiltroSeleccionada = null;
       filtroPendientesAulas = false;
