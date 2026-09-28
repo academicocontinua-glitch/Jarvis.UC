@@ -2579,6 +2579,13 @@
           renderizarTablaCalendarioAulas();
         }
 
+        // FASE 1 - Actualizar el Dashboard en tiempo real cuando Firebase
+        // recibe/modifica una solicitud de reserva. Esto mantiene sincronizado
+        // el KPI de "Solicitudes pendientes" con el contador de notificaciones.
+        if (document.getElementById('vistaHome') && document.getElementById('vistaHome').style.display === 'flex') {
+          renderizarDashboardJARVIS();
+        }
+
         if (document.getElementById('vistaBuscador').style.display === 'block') {
           renderizarCandidatos();
         }
@@ -6318,6 +6325,10 @@
         if (ultimoEstadoNube) ultimoEstadoNube.reservasAulasDB=clonarParaNube(reservasAulasDB);
       }
       actualizarContadorNotificaciones();
+      // El Dashboard también debe reaccionar al cambio de reservas sin
+      // necesidad de recargar la página. Así el KPI de pendientes se actualiza
+      // al mismo tiempo que la notificación.
+      if(document.getElementById('dashboardJARVIS')) renderizarDashboardJARVIS();
       if(document.getElementById('vistaAulas') && document.getElementById('vistaAulas').style.display==='block') renderizarTablaCalendarioAulas();
     });
 
