@@ -2093,15 +2093,29 @@
         <div id="listaSedesAulasAdminContainer"></div>
       </div>
 
+      <!-- USUARIOS DE CONFIANZA -->
+      <div class="admin-panel" id="panelUsuariosConfianza">
+        <h3 style="color: var(--primary-purple);">6. 🔐 Usuarios de Confianza y Permisos Personalizados</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Crea accesos individuales para personas autorizadas. Cada usuario puede tener permisos distintos y puede ser desactivado sin eliminar su registro.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:12px;">
+          <input id="confianzaUsuarioInput" class="input-field" placeholder="Usuario (ej. juan.perez)">
+          <input id="confianzaNombreInput" class="input-field" placeholder="Nombre completo">
+          <input id="confianzaPasswordInput" class="input-field" type="password" placeholder="Contraseña">
+          <input id="confianzaSedeInput" class="input-field" placeholder="Sede / Área (opcional)">
+        </div>
+        <button class="btn-save" onclick="crearUsuarioConfianzaJARVIS()">➕ Crear usuario autorizado</button>
+        <div id="listaUsuariosConfianzaAdmin" style="margin-top:16px;"></div>
+      </div>
+
       <!-- INTEGRACIÓN NUEVA: CUENTAS OFICIALES Y PRESENCIA -->
       <div class="admin-panel" id="panelCuentasOficialesSede">
-        <h3 style="color: var(--primary-purple);">6. 🔐 Catálogo Oficial de Encargados de Sede</h3>
+        <h3 style="color: var(--primary-purple);">7. 🔐 Catálogo Oficial de Encargados de Sede</h3>
         <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;">Las 6 cuentas institucionales controlan directamente la creación, edición y aprobación de reservas. Las credenciales se gestionan internamente.</p>
         <div id="catalogoCuentasSedeAdmin"></div>
       </div>
 
       <div class="admin-panel" id="panelCorreoNotificaciones">
-        <h3 style="color: var(--primary-purple);">7. ✉️ Notificaciones por Correo de Reservas</h3>
+        <h3 style="color: var(--primary-purple);">8. ✉️ Notificaciones por Correo de Reservas</h3>
         <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Configura el servicio de correo. El Programador puede registrar el correo de cada cuenta de sede y JARVIS enviará automáticamente un mensaje cuando una reserva sea <strong>ACEPTADA</strong> o <strong>RECHAZADA</strong>.</p>
         <div style="background:#F8F5FC;border:1px solid var(--border-color);border-radius:10px;padding:14px;margin-bottom:14px;">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
@@ -2124,7 +2138,7 @@
       </div>
 
       <div class="admin-panel" id="panelPresenciaSedes">
-        <h3 style="color: var(--primary-purple);">8. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
+        <h3 style="color: var(--primary-purple);">9. 🟢 Semáforo de Actividad en Vivo por Sede</h3>
         <p style="font-size:0.85rem;color:var(--text-muted);">La presencia se registra en Firebase Realtime Database mientras una cuenta oficial mantiene la sesión activa.</p>
         <div class="jarvis-presence-grid" id="presenciaSedesGrid"></div>
       </div>
@@ -2505,6 +2519,7 @@
     var sedesAulasMaster = [];
     var reservasAulasDB = [];
     var usuariosPermisosDB = []; // BASE DE DATOS DE CREDENCIALES Y PERMISOS HABILITADOS POR EL PROGRAMADOR
+    var usuariosConfianzaDB = []; // USUARIOS DE CONFIANZA CREADOS POR EL PROGRAMADOR
 
     // ============================================================
     // SEGURIDAD DE PERSISTENCIA EN FIREBASE
@@ -2553,6 +2568,7 @@
         'sedesAulasMaster',
         'reservasAulasDB',
         'usuariosPermisosDB',
+        'usuariosConfianzaDB',
         'cuentasSedeDB'
       ];
 
@@ -2592,6 +2608,7 @@
         sedesAulasMaster: sedesAulasMaster,
         reservasAulasDB: reservasAulasDB,
         usuariosPermisosDB: usuariosPermisosDB,
+        usuariosConfianzaDB: usuariosConfianzaDB,
         cuentasSedeDB: cuentasSedeDB,
         configuracionCorreoJARVIS: configuracionCorreoJARVIS
       };
@@ -2712,6 +2729,7 @@
           reservasAulasDB = Object.keys(data.reservasAulasDB).map(function(k){ return data.reservasAulasDB[k]; });
         }
         if (Array.isArray(data.usuariosPermisosDB)) usuariosPermisosDB = data.usuariosPermisosDB;
+        if (Array.isArray(data.usuariosConfianzaDB)) usuariosConfianzaDB = data.usuariosConfianzaDB;
         if (data.cuentasSedeDB) cuentasSedeDB = data.cuentasSedeDB;
         if (data.configuracionCorreoJARVIS && typeof data.configuracionCorreoJARVIS === 'object') {
           configuracionCorreoJARVIS = Object.assign({serviceId:'', templateId:'', publicKey:'', habilitado:false}, data.configuracionCorreoJARVIS);
@@ -4497,6 +4515,7 @@
         exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para descargar las bitácoras confidenciales de los cursos.');
         return;
       }
+      if (!exigirPermisoConfianzaJARVIS('descargarBitacora','⛔ Tu cuenta no tiene permiso para descargar bitácoras.')) return;
       if (courses.length === 0) return alert('No hay cursos guardados para exportar.');
 
       var html = '<h2 style="color:#6B00D7; font-size: 16px; margin-bottom: 16px;">Reporte General de Bitácoras de Cursos</h2>';
@@ -4548,8 +4567,8 @@
       /* Los Excel son información confidencial: nunca se muestran a visitantes
          sin sesión activa. El acceso se habilita únicamente después de
          identificarse en JARVIS. */
-      if (!sesionActual) {
-        container.innerHTML = '<span style="padding:12px; color:#E9D5FF; font-size:0.82rem; display:block; font-weight:600;">🔐 Inicia sesión para acceder a los Excel institucionales.</span>';
+      if (!sesionActual || (sesionActual.role==='CONFIANZA' && !usuarioConfianzaPuedeJARVIS('verExcel'))) {
+        container.innerHTML = '<span style="padding:12px; color:#E9D5FF; font-size:0.82rem; display:block; font-weight:600;">🔐 Tu cuenta no tiene acceso a los Excel institucionales.</span>';
         return;
       }
 
@@ -4673,7 +4692,23 @@
         return;
       }
 
-      alert('Credenciales incorrectas. Usa una cuenta institucional de sede o la cuenta del Programador.');
+      var usuarioConfianza = (usuariosConfianzaDB || []).find(function(x){ return x.username && x.username.toLowerCase() === u.toLowerCase() && x.activo !== false; });
+      if (usuarioConfianza && p === usuarioConfianza.password) {
+        esProgramador = false;
+        sesionActual = { username: usuarioConfianza.username, role: 'CONFIANZA', displayName: usuarioConfianza.displayName || usuarioConfianza.username, sede: usuarioConfianza.sede || 'TODAS' };
+        guardarSesionPersistente();
+        sesionPersistidaRestaurada = true;
+        document.getElementById('btnAdmin').style.display = 'none';
+        cerrarModalLogin();
+        actualizarUISesion();
+        renderizarDropdownExcel();
+        if (usuarioConfianzaPuedeJARVIS('verAulas')) renderizarSedesTree();
+        actualizarControlesProcesosJARVIS();
+        alert('Sesión iniciada: ' + (usuarioConfianza.displayName || usuarioConfianza.username));
+        return;
+      }
+
+      alert('Credenciales incorrectas. Usa una cuenta institucional, una cuenta autorizada o la cuenta del Programador.');
     }
 
     function resetTabs() {
@@ -4908,25 +4943,28 @@
     /* ============================================================
        MODO SOLO LECTURA PARA PERSONAS EXTERNAS
        ============================================================ */
-    function procesosSoloLecturaJARVIS() { return !sesionActual; }
+    function procesosSoloLecturaJARVIS() { return !sesionActual || (sesionActual.role==='CONFIANZA' && !usuarioConfianzaPuedeJARVIS('avanzarProcesos')); }
     function exigirSesionProcesoJARVIS(mensaje) {
       if (sesionActual) return true;
       exigirSesionParaEscrituraJARVIS(mensaje || '🔐 Inicia sesión para modificar este seguimiento.');
       return false;
     }
     function actualizarControlesProcesosJARVIS() {
-      var puedeEditar = !!sesionActual;
+      var puedeVer=!!sesionActual;
+      var puedeCrear=!!sesionActual && (esProgramador || usuarioConfianzaPuedeJARVIS('crearProcesos'));
+      var puedeEditar=!!sesionActual && (esProgramador || usuarioConfianzaPuedeJARVIS('personalizarProcesos'));
+      var puedeBit=!!sesionActual && (esProgramador || usuarioConfianzaPuedeJARVIS('verBitacora'));
+      var puedePdf=!!sesionActual && (esProgramador || usuarioConfianzaPuedeJARVIS('descargarBitacora'));
       var btnAgregar = document.getElementById('btnAgregarCursoProceso');
       var btnEditar = document.getElementById('btnEditarProcesoCurso');
       var btnBitacora = document.getElementById('btnSubBitacora');
       var btnPdfGlobal = document.getElementById('btnDescargarBitacorasGlobales');
       var btnPdfCurso = document.getElementById('btnDescargarBitacoraCurso');
-      if (btnAgregar) btnAgregar.style.display = puedeEditar ? 'inline-flex' : 'none';
+      if (btnAgregar) btnAgregar.style.display = puedeCrear ? 'inline-flex' : 'none';
       if (btnEditar) btnEditar.style.display = puedeEditar ? 'inline-flex' : 'none';
-      /* La bitácora y cualquier exportación de seguimientos son confidenciales. */
-      if (btnBitacora) btnBitacora.style.display = puedeEditar ? 'inline-flex' : 'none';
-      if (btnPdfGlobal) btnPdfGlobal.style.display = puedeEditar ? 'inline-flex' : 'none';
-      if (btnPdfCurso) btnPdfCurso.style.display = puedeEditar ? 'inline-flex' : 'none';
+      if (btnBitacora) btnBitacora.style.display = puedeBit ? 'inline-flex' : 'none';
+      if (btnPdfGlobal) btnPdfGlobal.style.display = puedePdf ? 'inline-flex' : 'none';
+      if (btnPdfCurso) btnPdfCurso.style.display = puedePdf ? 'inline-flex' : 'none';
     }
 
     function mostrarProcesos() {
@@ -4939,6 +4977,7 @@
     }
 
     function mostrarHorarios() {
+      if (sesionActual && sesionActual.role==='CONFIANZA' && !usuarioConfianzaPuedeJARVIS('verHorarios')) { alert('⛔ Tu cuenta no tiene acceso a Horarios.'); return; }
       resetTabs();
       document.getElementById('vistaHorarios').style.display = 'block';
       document.getElementById('btnHorarios').classList.add('active');
@@ -4946,6 +4985,7 @@
     }
 
     function mostrarAulas() {
+      if (sesionActual && sesionActual.role==='CONFIANZA' && !usuarioConfianzaPuedeJARVIS('verAulas')) { alert('⛔ Tu cuenta no tiene acceso a Aulas.'); return; }
       resetTabs();
       document.getElementById('vistaAulas').style.display = 'block';
       document.getElementById('btnAulas').classList.add('active');
@@ -4960,6 +5000,7 @@
         exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para acceder al Buscador de CVs.');
         return;
       }
+      if (sesionActual.role==='CONFIANZA' && !usuarioConfianzaPuedeJARVIS('verCV')) { alert('⛔ Tu cuenta no tiene acceso al Buscador de CVs.'); return; }
       resetTabs();
       document.getElementById('vistaBuscador').style.display = 'block';
       document.getElementById('btnBuscador').classList.add('active');
@@ -4978,10 +5019,11 @@
       renderizarAdminEtapasGlobales();
       renderizarConfigEtapas();
       renderizarAdminSedesAulas();
+      renderizarUsuariosConfianzaJARVIS();
     }
 
     function cambiarModoDetalle(modo) {
-      if (modo === 'BITACORA' && !sesionActual) {
+      if (modo === 'BITACORA' && (!sesionActual || !exigirPermisoConfianzaJARVIS('verBitacora','⛔ Tu cuenta no tiene permiso para consultar la bitácora.'))) {
         exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para consultar la bitácora confidencial del seguimiento.');
         return;
       }
@@ -5448,6 +5490,7 @@
 
     function abrirModalPersonalizarCursoProceso() {
       if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para modificar este seguimiento.')) return;
+      if (!exigirPermisoConfianzaJARVIS('avanzarProcesos','⛔ Tu cuenta no tiene permiso para modificar este seguimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -5789,12 +5832,14 @@
 
     function openModal() {
       if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para agregar un curso o programa.')) return;
+      if (!exigirPermisoConfianzaJARVIS('crearProcesos','⛔ Tu cuenta no tiene permiso para crear cursos o programas.')) return;
       document.getElementById('addModal').style.display = 'flex';
     }
     function closeModal() { document.getElementById('addModal').style.display = 'none'; }
 
     function saveCourse() {
       if (!exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para agregar un proceso.')) return;
+      if (!exigirPermisoConfianzaJARVIS('crearProcesos','⛔ Tu cuenta no tiene permiso para crear cursos o programas.')) return;
       var name = document.getElementById('inputCourseName').value.trim();
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
@@ -5967,6 +6012,7 @@
 
     function guardarTareaEntrada(taskKey, valor, tipo) {
       if (!exigirSesionProcesoJARVIS('🔐 Inicia sesión para avanzar o modificar este seguimiento.')) return;
+      if (!exigirPermisoConfianzaJARVIS('avanzarProcesos','⛔ Tu cuenta no tiene permiso para avanzar o modificar este seguimiento.')) return;
       var course = courses.find(function(c){ return c.id === activeCourseId; });
       if (!course) return;
 
@@ -6098,8 +6144,47 @@
       if (cambio) syncToCloud();
     }
 
+    function permisosPredeterminadosUsuarioConfianzaJARVIS(){
+      return {
+        verProcesos:true, avanzarProcesos:false, personalizarProcesos:false, crearProcesos:false,
+        verBitacora:false, descargarBitacora:false,
+        verCV:false, agregarCVs:false, verExcel:false,
+        verHorarios:false, agregarHorarios:false, editarHorarios:false,
+        verAulas:false, crearReservas:false, editarReservas:false, aprobarReservas:false
+      };
+    }
+
+    function asegurarUsuariosConfianzaJARVIS(){
+      if(!Array.isArray(usuariosConfianzaDB)) usuariosConfianzaDB=[];
+      usuariosConfianzaDB.forEach(function(u){
+        u.permisos=Object.assign({}, permisosPredeterminadosUsuarioConfianzaJARVIS(), u.permisos||{});
+        if(typeof u.activo!=='boolean') u.activo=true;
+      });
+    }
+    asegurarUsuariosConfianzaJARVIS();
+
+    function usuarioConfianzaActualJARVIS(){
+      if(!sesionActual || sesionActual.role!=='CONFIANZA') return null;
+      return usuariosConfianzaDB.find(function(u){return u.username===sesionActual.username;}) || null;
+    }
+    function usuarioConfianzaPuedeJARVIS(clave){
+      var u=usuarioConfianzaActualJARVIS();
+      return !!(u && u.activo && u.permisos && u.permisos[clave]);
+    }
+
+    function exigirPermisoConfianzaJARVIS(clave,mensaje){
+      if(esProgramador || (sesionActual && sesionActual.role!=='CONFIANZA')) return true;
+      if(sesionActual && sesionActual.role==='CONFIANZA' && usuarioConfianzaPuedeJARVIS(clave)) return true;
+      alert(mensaje || '⛔ Tu cuenta no tiene permiso para realizar esta acción.');
+      return false;
+    }
+
     function permisosCuentaActual() {
       if (esProgramador) return { crearReservas:true, editarReservas:true, aprobarReservas:true };
+      if (sesionActual && sesionActual.role==='CONFIANZA') {
+        var uc=usuarioConfianzaActualJARVIS();
+        return uc && uc.permisos ? uc.permisos : {};
+      }
       var c = cuentasSedeDB.find(function(x){ return sesionActual && x.username === sesionActual.username; });
       return (c && c.permisos) ? c.permisos : { crearReservas:false, editarReservas:false, aprobarReservas:false };
     }
@@ -6168,6 +6253,18 @@
             role: 'ENCARGADO',
             displayName: cuentaGuardada.displayName,
             sede: cuentaGuardada.sede
+          };
+        } else if (guardada.role === 'CONFIANZA') {
+          var usuarioGuardado = (usuariosConfianzaDB || []).find(function(u){
+            return u.username && u.username.toLowerCase() === String(guardada.username).toLowerCase() && u.activo !== false;
+          });
+          if (!usuarioGuardado) return; // Esperar a que Firebase termine de cargar usuarios autorizados.
+          esProgramador = false;
+          sesionActual = {
+            username: usuarioGuardado.username,
+            role: 'CONFIANZA',
+            displayName: usuarioGuardado.displayName || usuarioGuardado.username,
+            sede: usuarioGuardado.sede || 'TODAS'
           };
         } else {
           eliminarSesionPersistente();
@@ -6529,6 +6626,45 @@
           if(existing) existing.outerHTML=html; else grid.insertAdjacentHTML('beforeend',html);
         });
       });
+    }
+
+    function crearUsuarioConfianzaJARVIS(){
+      if(!esProgramador) return alert('⛔ Solo el Programador puede crear usuarios autorizados.');
+      var username=document.getElementById('confianzaUsuarioInput').value.trim();
+      var nombre=document.getElementById('confianzaNombreInput').value.trim();
+      var password=document.getElementById('confianzaPasswordInput').value;
+      var sede=document.getElementById('confianzaSedeInput').value.trim();
+      if(!username||!nombre||!password) return alert('Completa usuario, nombre y contraseña.');
+      if(!/^[a-zA-Z0-9._-]{3,40}$/.test(username)) return alert('El usuario debe tener entre 3 y 40 caracteres y solo usar letras, números, punto, guion o guion bajo.');
+      if(password.length<6) return alert('La contraseña debe tener al menos 6 caracteres.');
+      var existe=(usuariosConfianzaDB||[]).some(function(u){return u.username.toLowerCase()===username.toLowerCase();}) || (cuentasSedeDB||[]).some(function(u){return u.username.toLowerCase()===username.toLowerCase();}) || username.toLowerCase()==='continua';
+      if(existe) return alert('Ese usuario ya existe.');
+      var u={id:Date.now(),username:username,displayName:nombre,password:password,sede:sede||'TODAS',activo:true,permisos:permisosPredeterminadosUsuarioConfianzaJARVIS()};
+      usuariosConfianzaDB.push(u); syncToCloud();
+      ['confianzaUsuarioInput','confianzaNombreInput','confianzaPasswordInput','confianzaSedeInput'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      renderizarUsuariosConfianzaJARVIS();
+      alert('✅ Usuario autorizado creado. Ahora puedes asignarle permisos.');
+    }
+
+    function renderizarUsuariosConfianzaJARVIS(){
+      var cont=document.getElementById('listaUsuariosConfianzaAdmin'); if(!cont)return; cont.innerHTML=''; asegurarUsuariosConfianzaJARVIS();
+      if(!usuariosConfianzaDB.length){cont.innerHTML='<div class="jarvis-session-required">No hay usuarios de confianza creados.</div>';return;}
+      usuariosConfianzaDB.forEach(function(u,idx){
+        var p=u.permisos||{};
+        var chk=function(key,label){return '<label class="jarvis-permission-toggle">'+label+' <input type="checkbox" '+(p[key]?'checked':'')+' onchange="cambiarPermisoUsuarioConfianzaJARVIS('+idx+',\''+key+'\',this.checked)"></label>';};
+        cont.innerHTML+='<div style="background:#FFF;border:1px solid var(--border-color);border-radius:10px;padding:14px;margin-bottom:12px;"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;"><div><strong style="color:var(--primary-purple);">👤 '+escaparHtmlCorreoJARVIS(u.displayName)+'</strong><div style="font-size:.76rem;color:var(--text-muted);">Usuario: '+escaparHtmlCorreoJARVIS(u.username)+' | Sede/Área: '+escaparHtmlCorreoJARVIS(u.sede||'TODAS')+'</div></div><div style="display:flex;gap:6px;"><button class="tab-btn" onclick="cambiarEstadoUsuarioConfianzaJARVIS('+idx+')">'+(u.activo?'🟢 Activo':'⚪ Inactivo')+'</button><button class="btn-danger" onclick="eliminarUsuarioConfianzaJARVIS('+idx+')">❌ Eliminar</button></div></div><div class="jarvis-permissions-grid" style="margin-top:12px;">'+chk('verProcesos','👁️ Ver procesos')+chk('avanzarProcesos','✏️ Avanzar procesos')+chk('crearProcesos','➕ Crear procesos')+chk('personalizarProcesos','⚙️ Personalizar procesos')+chk('verBitacora','📋 Ver bitácora')+chk('descargarBitacora','📄 Descargar bitácora')+chk('verCV','👤 Ver CV')+chk('agregarCVs','➕ Agregar CV')+chk('verExcel','📊 Ver Excel')+chk('verHorarios','🗓️ Ver horarios')+chk('agregarHorarios','➕ Agregar horarios')+chk('editarHorarios','✏️ Editar horarios')+chk('verAulas','🏛️ Ver aulas')+chk('crearReservas','➕ Crear reservas')+chk('editarReservas','✏️ Editar reservas')+chk('aprobarReservas','✅ Aprobar reservas')+'</div></div>';
+      });
+    }
+
+    function cambiarPermisoUsuarioConfianzaJARVIS(idx,key,estado){
+      if(!esProgramador||!usuariosConfianzaDB[idx])return;
+      asegurarUsuariosConfianzaJARVIS(); usuariosConfianzaDB[idx].permisos[key]=!!estado; syncToCloud();
+    }
+    function cambiarEstadoUsuarioConfianzaJARVIS(idx){
+      if(!esProgramador||!usuariosConfianzaDB[idx])return; usuariosConfianzaDB[idx].activo=usuariosConfianzaDB[idx].activo===false; syncToCloud(); renderizarUsuariosConfianzaJARVIS();
+    }
+    function eliminarUsuarioConfianzaJARVIS(idx){
+      if(!esProgramador||!usuariosConfianzaDB[idx])return; if(!confirm('¿Eliminar este usuario autorizado?'))return; usuariosConfianzaDB.splice(idx,1); syncToCloud(); renderizarUsuariosConfianzaJARVIS();
     }
 
     function renderizarAdminCuentasOficiales(){
