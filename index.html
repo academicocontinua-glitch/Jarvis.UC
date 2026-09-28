@@ -1493,8 +1493,9 @@
     .jarvis-skeleton{position:relative;overflow:hidden;background:#EDE9F2;border-radius:8px}.jarvis-skeleton:after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:jarvisShimmer 1.15s infinite}.jarvis-skeleton-head{display:flex;justify-content:space-between;gap:18px;margin-bottom:20px}.jarvis-skeleton-card{background:#fff;border:1px solid #E8E1EF;border-radius:15px;padding:17px;min-height:112px}.sk-sm{width:130px;height:9px}.sk-title{width:min(380px,70vw);height:30px;margin:9px 0}.sk-line{width:230px;height:10px}.sk-line.short{width:120px}.sk-date{width:180px;height:38px}.sk-number{width:70px;height:30px;margin:14px 0 8px}@keyframes jarvisShimmer{100%{transform:translateX(100%)}}
     .btn-save,.btn-edit,.btn-danger,.tab-btn,.nav-week-btn{transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}.btn-save:hover,.btn-edit:hover,.btn-danger:hover,.tab-btn:hover,.nav-week-btn:hover{transform:translateY(-1px);box-shadow:0 5px 13px rgba(45,18,77,.12)}.btn-save:active,.btn-edit:active,.btn-danger:active,.tab-btn:active,.nav-week-btn:active{transform:translateY(0)}
     .jarvis-modal-modern .modal-box{animation:jarvisModalIn .2s ease}@keyframes jarvisModalIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
-    @media(max-width:1050px){.jarvis-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jarvis-dashboard-columns{grid-template-columns:1fr}.jarvis-profile-card{margin-top:0}.aulas-layout{grid-template-columns:1fr}.sidebar-aulas-panel{order:2}}
-    @media(max-width:700px){.jarvis-dashboard-grid{grid-template-columns:1fr}.jarvis-dashboard-head{align-items:flex-start}.jarvis-dashboard-date{width:100%;text-align:center}.jarvis-reserva-card{flex-direction:column;align-items:flex-start}.jarvis-reserva-card-actions{width:100%}.jarvis-reserva-card-actions button{flex:1}.jarvis-toast-container{right:15px;bottom:15px}.jarvis-subnav{overflow-x:auto;flex-wrap:nowrap}.jarvis-subnav-btn{white-space:nowrap}.jarvis-profile-body{flex-direction:column}.jarvis-audit-toolbar{align-items:flex-start;flex-direction:column}}
+    @media(max-width:1050px){.jarvis-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jarvis-dashboard-columns{grid-template-columns:1fr}.jarvis-profile-card{margin-top:0}}
+    @media(max-width:900px){.aulas-layout{grid-template-columns:minmax(0,1fr) 280px;gap:12px}.sidebar-aulas-panel{order:initial;padding:14px}.sedes-tree-container{max-height:380px}}
+    @media(max-width:700px){.aulas-layout{grid-template-columns:1fr}.sidebar-aulas-panel{order:2}.jarvis-dashboard-grid{grid-template-columns:1fr}.jarvis-dashboard-grid{grid-template-columns:1fr}.jarvis-dashboard-head{align-items:flex-start}.jarvis-dashboard-date{width:100%;text-align:center}.jarvis-reserva-card{flex-direction:column;align-items:flex-start}.jarvis-reserva-card-actions{width:100%}.jarvis-reserva-card-actions button{flex:1}.jarvis-toast-container{right:15px;bottom:15px}.jarvis-subnav{overflow-x:auto;flex-wrap:nowrap}.jarvis-subnav-btn{white-space:nowrap}.jarvis-profile-body{flex-direction:column}.jarvis-audit-toolbar{align-items:flex-start;flex-direction:column}}
 
 
     .jarvis-breadcrumb{max-width:1240px;margin:0 auto 12px;padding:8px 2px;display:flex;align-items:center;gap:8px;color:#94A3B8;font-size:.72rem;font-weight:700;min-height:28px}.jarvis-breadcrumb b{color:#C4B5FD}.jarvis-breadcrumb strong:last-child{color:#6D28D9}
@@ -2058,6 +2059,7 @@
       <h3 style="margin-bottom: 12px; color: var(--primary-purple);">📋 Detalle de Reserva de Aula</h3>
       
       <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; font-size: 0.88rem; background: #F8F5FC; padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <p><strong>🔖 Código de Reserva:</strong> <span id="infoAulaCodigoReserva">--</span></p>
         <p><strong>🏛️ Sede:</strong> <span id="infoAulaSede">--</span></p>
         <p><strong>🚪 Aula:</strong> <span id="infoAulaNombre">--</span></p>
         <p><strong>👥 Aforo de Aula:</strong> <span id="infoAulaAforo">--</span></p>
@@ -3977,7 +3979,7 @@
     }
 
     function verDetalleReservaAula(idReserva) {
-      var res = reservasAulasDB.find(function(item){ return item.id === idReserva; });
+      var res = reservasAulasDB.find(function(item){ return String(item.id) === String(idReserva); });
       if (!res) return;
 
       activeAulaReservaIdToDelete = idReserva;
@@ -5961,11 +5963,14 @@
     }
 
     function verDetalleReservaAula(idReserva) {
-      var res=reservasAulasDB.find(function(item){return item.id===idReserva;}); if(!res)return;
+      var res=reservasAulasDB.find(function(item){return String(item.id)===String(idReserva);}); if(!res)return;
       activeAulaReservaIdToDelete=idReserva;
       var slotsDetalle=obtenerSlotsReservaAula(res), minH=slotsDetalle.length?Math.min.apply(null,slotsDetalle):0, maxH=slotsDetalle.length?Math.max.apply(null,slotsDetalle)+0.5:0;
+      var codigoReserva='RV-'+String(res.id).replace(/\D/g,'').slice(-8);
+      var infoCodigo=document.getElementById('infoAulaCodigoReserva');
+      if(infoCodigo) infoCodigo.innerText=codigoReserva;
       document.getElementById('infoAulaSede').innerText=res.sede; document.getElementById('infoAulaNombre').innerText=res.aula; document.getElementById('infoAulaAforo').innerText=res.aforo||'No especificado'; document.getElementById('infoAulaResponsable').innerText=res.responsable; document.getElementById('infoAulaTipoEvento').innerText=res.tipoEvento; document.getElementById('infoAulaArea').innerText=res.area; document.getElementById('infoAulaDistribucion').innerText=res.distribucion||'No registrado'; document.getElementById('infoAulaRequerimientos').innerText=res.requerimientosTecnicos||'No registrado'; document.getElementById('infoAulaResponde').innerText=res.responde||'Pendiente'; document.getElementById('infoAulaRespuestaAuditoria').innerText=res.respuestaAuditoria||'Pendiente';
-      var estadoTexto=res.estadoAprobacion==='PENDIENTE'?'⏳ PENDIENTE DE APROBACIÓN':(res.estadoAprobacion==='RECHAZADA'?'🔴 RECHAZADA':'🟢 APROBADA'); document.getElementById('infoAulaEstadoAprobacion').innerText=estadoTexto;
+      var estadoTexto=res.estadoAprobacion==='PENDIENTE'?'⏳ PENDIENTE DE APROBACIÓN':(res.estadoAprobacion==='RECHAZADA'?'🔴 RECHAZADA':(res.estadoAprobacion==='LIBERADA'?'⚪ LIBERADA':'🟢 APROBADA')); document.getElementById('infoAulaEstadoAprobacion').innerText=estadoTexto;
       document.getElementById('infoAulaDiaHora').innerText=res.diaNombre+' ('+res.fechaIso+') de '+formatearHoraJarvis(minH)+' a '+formatearHoraJarvis(maxH); document.getElementById('infoAulaFechaAuditoria').innerText=res.fechaAuditoria||'Registrado previamente';
       var grupo=document.getElementById('accionesAprobacionReservaGroup');
       // El Programador tiene alcance global. El encargado solo puede procesar
@@ -6459,7 +6464,7 @@
     var verDetalleReservaAulaBaseCelda = verDetalleReservaAula;
     verDetalleReservaAula = function(idReserva){
       verDetalleReservaAulaBaseCelda(idReserva);
-      var res = reservasAulasDB.find(function(r){ return r.id === idReserva; });
+      var res = reservasAulasDB.find(function(r){ return String(r.id) === String(idReserva); });
       prepararAccionesCeldaProgramador(res);
       // El estado rechazado siempre se muestra en rojo en el detalle.
       if (res) {
@@ -6968,20 +6973,48 @@
       var nav=document.createElement('div');nav.id='jarvisFase2AulasNav';nav.className='jarvis-subnav';
       nav.innerHTML='<button class="jarvis-subnav-btn active" data-f2="CALENDARIO" onclick="cambiarVistaFase2AulasJARVIS(\'CALENDARIO\')">📅 Calendario</button><button class="jarvis-subnav-btn" data-f2="MIS" onclick="cambiarVistaFase2AulasJARVIS(\'MIS\')">📋 Mis reservas</button><button class="jarvis-subnav-btn" data-f2="HISTORIAL" onclick="cambiarVistaFase2AulasJARVIS(\'HISTORIAL\')">🕘 Historial</button>';
       title.insertAdjacentElement('afterend',nav);
+
+      /* El panel de Fase 2 vive dentro de la columna izquierda del layout.
+         Así, al entrar a Mis reservas/Historial no queda un bloque vacío
+         en el centro y el selector de sedes/aulas permanece siempre a la derecha. */
+      var layout=vista.querySelector('.aulas-layout');
+      var columnaPrincipal=layout && layout.children && layout.children[0] ? layout.children[0] : null;
       var panel=document.createElement('div');panel.id='jarvisFase2AulasPanel';panel.className='jarvis-fase2-panel';
       panel.innerHTML='<div id="jarvisFase2AulasContent"></div>';
-      vista.appendChild(panel);
+      if(columnaPrincipal) columnaPrincipal.appendChild(panel);
+      else vista.appendChild(panel);
     }
     function cambiarVistaFase2AulasJARVIS(modo){
       fase2AulasVistaJARVIS=modo;
       var nav=document.getElementById('jarvisFase2AulasNav');if(nav)nav.querySelectorAll('.jarvis-subnav-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-f2')===modo);});
-      var cal=document.getElementById('calendarAulaContainerDiv');var panel=document.getElementById('jarvisFase2AulasPanel');
+      var cal=document.getElementById('calendarAulaContainerDiv');
+      var panel=document.getElementById('jarvisFase2AulasPanel');
+      var calNav=document.querySelector('#vistaAulas .aulas-layout > div:first-child .calendar-navigation-bar');
       if(modo==='CALENDARIO'){
-        if(cal)cal.style.display='block';if(panel)panel.style.display='none';return;
+        if(calNav)calNav.style.display='flex';
+        if(cal)cal.style.display='block';
+        if(panel)panel.style.display='none';
+        return;
       }
-      if(cal)cal.style.display='none';if(panel)panel.style.display='block';
+      if(calNav)calNav.style.display='none';
+      if(cal)cal.style.display='none';
+      if(panel)panel.style.display='block';
       if(modo==='MIS')renderizarMisReservasJARVIS();else renderizarHistorialReservasJARVIS();
     }
+    function ordenarReservasFase2JARVIS(a,b){
+      var pa=a && a.estadoAprobacion==='PENDIENTE'?0:1;
+      var pb=b && b.estadoAprobacion==='PENDIENTE'?0:1;
+      if(pa!==pb)return pa-pb;
+      var fa=String(a && a.fechaIso || '9999-12-31');
+      var fb=String(b && b.fechaIso || '9999-12-31');
+      if(fa!==fb)return fa.localeCompare(fb);
+      var sa=obtenerSlotsReservaAula(a)||[];
+      var sb=obtenerSlotsReservaAula(b)||[];
+      var ha=sa.length?Math.min.apply(null,sa):9999;
+      var hb=sb.length?Math.min.apply(null,sb):9999;
+      return Number(ha)-Number(hb);
+    }
+
     function tarjetaReservaFase2JARVIS(r,modo){
       var st=estadoVisualDashboardJARVIS(r), slots=obtenerSlotsReservaAula(r), hora=horaInicioFinDashboardJARVIS(r);
       var puedeEliminar=r.estadoAprobacion!=='PENDIENTE';
@@ -6990,7 +7023,7 @@
     function renderizarMisReservasJARVIS(){
       var c=document.getElementById('jarvisFase2AulasContent');if(!c)return;
       var arr=(reservasAulasDB||[]).filter(function(r){return sesionActual && r.solicitadoPorCuenta===sesionActual.username;});
-      arr.sort(function(a,b){return String(b.fechaIso||'').localeCompare(String(a.fechaIso||''));});
+      arr.sort(ordenarReservasFase2JARVIS);
       c.innerHTML='<div class="jarvis-section-heading"><div><span class="jarvis-kicker">FASE 2</span><h2>📋 Mis reservas</h2><p>Consulta tus solicitudes, reservas confirmadas y estados actuales.</p></div><span class="jarvis-count-badge">'+arr.length+' registros</span></div><div class="jarvis-reserva-list">'+(arr.length?arr.map(function(r){return tarjetaReservaFase2JARVIS(r,'MIS');}).join(''):'<div class="jarvis-empty-state">📋<strong>Aún no tienes reservas registradas.</strong><span>Las nuevas solicitudes aparecerán aquí.</span></div>')+'</div>';
     }
     function renderizarHistorialReservasJARVIS(){
@@ -7000,7 +7033,7 @@
         if(sesionActual.role==='PROGRAMADOR')return true;
         return r.solicitadoPorCuenta===sesionActual.username || sedesCoincidenJarvis(r.sede,sesionActual.sede);
       });
-      arr.sort(function(a,b){return String(b.fechaIso||'').localeCompare(String(a.fechaIso||''));});
+      arr.sort(ordenarReservasFase2JARVIS);
       c.innerHTML='<div class="jarvis-section-heading"><div><span class="jarvis-kicker">FASE 2</span><h2>🕘 Historial de reservas</h2><p>Registro de solicitudes y estados. Las reservas liberadas permanecen como histórico.</p></div><span class="jarvis-count-badge">'+arr.length+' registros</span></div><div class="jarvis-reserva-list">'+(arr.length?arr.map(function(r){return tarjetaReservaFase2JARVIS(r,'HISTORIAL');}).join(''):'<div class="jarvis-empty-state">🕘<strong>No hay registros históricos.</strong><span>Los movimientos aparecerán aquí.</span></div>')+'</div>';
     }
 
