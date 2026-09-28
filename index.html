@@ -1514,7 +1514,7 @@
     .jarvis-skeleton{position:relative;overflow:hidden;background:#EDE9F2;border-radius:8px}.jarvis-skeleton:after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:jarvisShimmer 1.15s infinite}.jarvis-skeleton-head{display:flex;justify-content:space-between;gap:18px;margin-bottom:20px}.jarvis-skeleton-card{background:#fff;border:1px solid #E8E1EF;border-radius:15px;padding:17px;min-height:112px}.sk-sm{width:130px;height:9px}.sk-title{width:min(380px,70vw);height:30px;margin:9px 0}.sk-line{width:230px;height:10px}.sk-line.short{width:120px}.sk-date{width:180px;height:38px}.sk-number{width:70px;height:30px;margin:14px 0 8px}@keyframes jarvisShimmer{100%{transform:translateX(100%)}}
     .btn-save,.btn-edit,.btn-danger,.tab-btn,.nav-week-btn{transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}.btn-save:hover,.btn-edit:hover,.btn-danger:hover,.tab-btn:hover,.nav-week-btn:hover{transform:translateY(-1px);box-shadow:0 5px 13px rgba(45,18,77,.12)}.btn-save:active,.btn-edit:active,.btn-danger:active,.tab-btn:active,.nav-week-btn:active{transform:translateY(0)}
     .jarvis-modal-modern .modal-box{animation:jarvisModalIn .2s ease}@keyframes jarvisModalIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
-    @media(max-width:1050px){.jarvis-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jarvis-dashboard-columns{grid-template-columns:1fr}.jarvis-profile-card{margin-top:0}}
+    @media(max-width:1050px){.jarvis-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jarvis-dashboard-columns{grid-template-columns:1fr}.jarvis-profile-card{margin-top:0 !important;grid-column:1 !important;grid-row:auto !important}}
     @media(max-width:900px){.aulas-layout{grid-template-columns:minmax(0,1fr) 280px;gap:12px}.sidebar-aulas-panel{order:initial;padding:14px}.sedes-tree-container{max-height:380px}}
     @media(max-width:700px){.aulas-layout{grid-template-columns:1fr}.sidebar-aulas-panel{order:2}.jarvis-dashboard-grid{grid-template-columns:1fr}.jarvis-dashboard-grid{grid-template-columns:1fr}.jarvis-dashboard-head{align-items:flex-start}.jarvis-dashboard-date{width:100%;text-align:center}.jarvis-reserva-card{flex-direction:column;align-items:flex-start}.jarvis-reserva-card-actions{width:100%}.jarvis-reserva-card-actions button{flex:1}.jarvis-toast-container{right:15px;bottom:15px}.jarvis-subnav{overflow-x:auto;flex-wrap:nowrap}.jarvis-subnav-btn{white-space:nowrap}.jarvis-profile-body{flex-direction:column}.jarvis-audit-toolbar{align-items:flex-start;flex-direction:column}}
 
@@ -1611,7 +1611,7 @@
        para evitar el hueco visual generado por el grid.
        ============================================================ */
     @media (min-width: 1051px) {
-      #dashboardJARVIS .jarvis-dashboard-columns:first-of-type .jarvis-profile-card {
+      #dashboardJARVIS .jarvis-dashboard-columns .jarvis-profile-card {
         grid-column: 2;
         grid-row: 2;
         margin-top: 16px;
@@ -7237,11 +7237,19 @@
       if(!sesionActual)return;
       var dash=document.querySelector('#dashboardJARVIS .jarvis-dashboard');if(!dash)return;
       var perfil=obtenerCuentaPerfilJARVIS();
-      var cols=dash.querySelector('.jarvis-dashboard-columns');
+      var cols=dash.querySelector('.jarvis-dashboard-columns:first-of-type');
       if(!cols || document.getElementById('jarvisPerfilDashboard'))return;
       var card=document.createElement('div');card.id='jarvisPerfilDashboard';card.className='jarvis-dashboard-card jarvis-profile-card';
       card.innerHTML='<div class="jarvis-dashboard-card-head"><h3>👤 Mi perfil</h3><span>'+ (perfil.online?'🟢 En línea':'⚪') +'</span></div><div class="jarvis-profile-body"><div class="jarvis-profile-avatar">'+(sesionActual.role==='PROGRAMADOR'?'🛠️':'👨‍💼')+'</div><div class="jarvis-profile-info"><h3>'+escaparJARVIS(perfil.displayName)+'</h3><div class="jarvis-profile-role">'+(sesionActual.role==='PROGRAMADOR'?'Programador':'Administrador de Sede')+'</div><div class="jarvis-profile-row">📍 <strong>Sede:</strong> '+escaparJARVIS(perfil.sede||'TODAS')+'</div><div class="jarvis-profile-row">👤 <strong>Usuario:</strong> '+escaparJARVIS(perfil.username||'')+'</div><div class="jarvis-profile-row">🕘 <strong>Último acceso:</strong> '+escaparJARVIS(formatearUltimoAccesoJARVIS(perfil.ultimoAcceso))+'</div><div class="jarvis-profile-stats"><span><strong>'+contarReservasGestionadasJARVIS()+'</strong><small>Gestionadas</small></span><span><strong>'+contarPendientesPerfilJARVIS()+'</strong><small>Pendientes</small></span></div></div></div>';
-      cols.appendChild(card);
+      var columnaDerecha=cols.querySelector('.jarvis-dashboard-card:nth-child(2)');
+      if(columnaDerecha && columnaDerecha.parentElement===cols){
+        // Colocamos el perfil inmediatamente debajo de Acciones rápidas, sin crear una fila vacía.
+        card.style.gridColumn='2';
+        card.style.gridRow='2';
+        cols.appendChild(card);
+      } else {
+        cols.appendChild(card);
+      }
     };
 
     /* ---------- ÚLTIMO ACCESO + AUDITORÍA DE LOGIN ---------- */
