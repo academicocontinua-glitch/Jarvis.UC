@@ -220,6 +220,27 @@
     .jarvis-dashboard-date { background:#F8F5FC; border:1px solid #E8DDF4; color:#5B21B6; border-radius:12px; padding:10px 14px; font-size:.78rem; font-weight:700; white-space:nowrap; }
     .jarvis-dashboard-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
     .jarvis-kpi-card { position:relative; overflow:hidden; background:#fff; border:1px solid #E8E1EF; border-radius:15px; padding:17px; min-height:112px; box-shadow:0 4px 14px rgba(45,18,77,.06); }
+    .jarvis-kpi-card.jarvis-kpi-clickable { cursor:pointer; transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .jarvis-kpi-card.jarvis-kpi-clickable:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(45,18,77,.12); border-color:#C4B5FD; }
+    .jarvis-kpi-card.jarvis-kpi-clickable:focus-visible { outline:3px solid rgba(124,58,237,.25); outline-offset:2px; }
+    .jarvis-dashboard-modal-overlay { position:fixed; inset:0; background:rgba(24,12,38,.48); backdrop-filter:blur(3px); z-index:10050; display:flex; align-items:center; justify-content:center; padding:22px; }
+    .jarvis-dashboard-modal { width:min(760px,94vw); max-height:84vh; overflow:hidden; background:#fff; border:1px solid #E8E1EF; border-radius:18px; box-shadow:0 24px 70px rgba(35,15,55,.25); display:flex; flex-direction:column; }
+    .jarvis-dashboard-modal-head { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 20px; border-bottom:1px solid #EEE7F4; background:#FCFAFF; }
+    .jarvis-dashboard-modal-head h3 { margin:0; color:#3B176F; font-size:1.05rem; }
+    .jarvis-dashboard-modal-head p { margin:4px 0 0; color:#7A6A89; font-size:.78rem; }
+    .jarvis-dashboard-modal-close { width:34px; height:34px; border:0; border-radius:9px; background:#F3E8FF; color:#6D28D9; cursor:pointer; font-size:18px; font-weight:700; }
+    .jarvis-dashboard-modal-body { padding:16px 20px 20px; overflow:auto; }
+    .jarvis-dashboard-modal-list { display:flex; flex-direction:column; gap:9px; }
+    .jarvis-dashboard-modal-item { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 13px; border:1px solid #E8E1EF; border-radius:12px; background:#fff; }
+    .jarvis-dashboard-modal-item-main { min-width:0; flex:1; }
+    .jarvis-dashboard-modal-item-title { font-weight:800; color:#30115C; font-size:.88rem; }
+    .jarvis-dashboard-modal-item-meta { color:#75667F; font-size:.76rem; margin-top:4px; line-height:1.45; }
+    .jarvis-dashboard-modal-item-actions { display:flex; gap:7px; flex-shrink:0; }
+    .jarvis-dashboard-modal-date { padding:10px 12px; margin-top:4px; border-radius:10px; background:#F7F3FB; border:1px solid #E9DDF5; color:#4C1D95; font-weight:800; font-size:.82rem; }
+    .jarvis-dashboard-modal-empty { text-align:center; padding:28px 15px; color:#8B7C96; }
+    .jarvis-dashboard-modal-empty strong { display:block; color:#4B3560; margin-bottom:4px; }
+    .jarvis-dashboard-modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:15px; }
+    @media(max-width:620px){ .jarvis-dashboard-modal-overlay{padding:10px}.jarvis-dashboard-modal{width:100%;max-height:90vh}.jarvis-dashboard-modal-item{align-items:flex-start;flex-direction:column}.jarvis-dashboard-modal-item-actions{width:100%}.jarvis-dashboard-modal-item-actions button{flex:1} }
     .jarvis-kpi-card::after { content:''; position:absolute; left:0; bottom:0; width:100%; height:3px; background:#7C3AED; opacity:.8; }
     .jarvis-kpi-top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
     .jarvis-kpi-label { color:#64748B; font-size:.76rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
@@ -1499,6 +1520,89 @@
 
 
     .jarvis-breadcrumb{max-width:1240px;margin:0 auto 12px;padding:8px 2px;display:flex;align-items:center;gap:8px;color:#94A3B8;font-size:.72rem;font-weight:700;min-height:28px}.jarvis-breadcrumb b{color:#C4B5FD}.jarvis-breadcrumb strong:last-child{color:#6D28D9}
+
+
+    /* ============================================================
+       JARVIS - CABECERA RESPONSIVA PARA PANTALLA DIVIDIDA
+       Evita que marca, fecha/hora y controles se superpongan.
+       ============================================================ */
+    @media (max-width: 1100px) {
+      .header-info {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        align-items: center !important;
+        gap: 7px !important;
+        padding: 8px 16px !important;
+      }
+      .brand {
+        min-width: 0 !important;
+        width: 100% !important;
+        font-size: 1rem !important;
+        gap: 10px !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
+      }
+      .brand-logo-wrapper {
+        flex: 0 0 auto !important;
+        max-width: 170px !important;
+      }
+      .brand-logo-wrapper img {
+        max-width: 170px !important;
+      }
+      .time-info {
+        min-width: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 7px !important;
+      }
+      .sync-status-badge {
+        flex: 0 1 auto !important;
+      }
+      .nav-tabs {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        scrollbar-width: thin;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+      .nav-tabs .tab-btn {
+        flex: 0 0 auto !important;
+      }
+      main {
+        margin-top: 166px !important;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .header-info {
+        padding: 7px 12px !important;
+      }
+      .brand {
+        font-size: .88rem !important;
+        gap: 7px !important;
+      }
+      .brand-logo-wrapper {
+        max-width: 135px !important;
+        height: 34px !important;
+      }
+      .brand-logo-wrapper img {
+        max-width: 135px !important;
+      }
+      .time-info {
+        justify-content: center !important;
+        gap: 5px !important;
+        font-size: .72rem !important;
+      }
+      .sync-status-badge {
+        display: none !important;
+      }
+      main {
+        margin-top: 158px !important;
+      }
+    }
 
 </style>
 </head>
@@ -4594,6 +4698,75 @@
       return eventos.sort(function(a,b){ return String(b.orden).localeCompare(String(a.orden)); }).slice(0,6);
     }
 
+    /* ============================================================
+       DASHBOARD - ACCIONES DE KPI
+       Los indicadores son interactivos y solo consultan los datos existentes.
+       ============================================================ */
+    function cerrarModalDashboardJARVIS(){
+      var m=document.getElementById('dashboardKpiModalJARVIS');
+      if(m)m.remove();
+    }
+
+    function abrirModalDashboardJARVIS(titulo,subtitulo,contenido,botonExtra){
+      cerrarModalDashboardJARVIS();
+      var overlay=document.createElement('div');
+      overlay.id='dashboardKpiModalJARVIS';
+      overlay.className='jarvis-dashboard-modal-overlay';
+      overlay.innerHTML='<div class="jarvis-dashboard-modal" role="dialog" aria-modal="true" aria-label="'+escaparDashboardJARVIS(titulo)+'">'+
+        '<div class="jarvis-dashboard-modal-head"><div><h3>'+escaparDashboardJARVIS(titulo)+'</h3><p>'+escaparDashboardJARVIS(subtitulo||'')+'</p></div><button class="jarvis-dashboard-modal-close" type="button" onclick="cerrarModalDashboardJARVIS()" aria-label="Cerrar">×</button></div>'+
+        '<div class="jarvis-dashboard-modal-body">'+contenido+(botonExtra?'<div class="jarvis-dashboard-modal-actions">'+botonExtra+'</div>':'')+'</div></div>';
+      overlay.addEventListener('click',function(e){if(e.target===overlay)cerrarModalDashboardJARVIS();});
+      document.body.appendChild(overlay);
+    }
+
+    function botonDetalleDashboardJARVIS(id){
+      return '<button class="btn-edit" type="button" onclick="verDetalleReservaAula(\''+String(id).replace(/'/g,"\\'")+'\')">Ver detalle</button>';
+    }
+
+    function abrirDashboardSolicitudesPendientesJARVIS(){
+      if(!sesionActual)return abrirModalLogin();
+      var lista=reservasDashboardJARVIS().filter(function(r){return r.estadoAprobacion==='PENDIENTE';}).sort(ordenarReservasFase2JARVIS);
+      var html=lista.length?'<div class="jarvis-dashboard-modal-list">'+lista.map(function(r){
+        return '<div class="jarvis-dashboard-modal-item"><div class="jarvis-dashboard-modal-item-main"><div class="jarvis-dashboard-modal-item-title">🟡 '+escaparDashboardJARVIS(r.aula||'Aula')+' · '+escaparDashboardJARVIS(r.sede||'')+'</div><div class="jarvis-dashboard-modal-item-meta">📅 '+escaparDashboardJARVIS(r.fechaIso||'Sin fecha')+' · ⏰ '+escaparDashboardJARVIS(horaInicioFinDashboardJARVIS(r))+'<br>👤 '+escaparDashboardJARVIS(r.responsable||'Sin responsable')+' · '+escaparDashboardJARVIS(r.tipoEvento||'Sin evento')+'</div></div><div class="jarvis-dashboard-modal-item-actions">'+botonDetalleDashboardJARVIS(r.id)+'</div></div>';
+      }).join('')+'</div>':'<div class="jarvis-dashboard-modal-empty">🟢<strong>No hay solicitudes pendientes.</strong><span>Las nuevas solicitudes aparecerán aquí.</span></div>';
+      abrirModalDashboardJARVIS('Solicitudes pendientes',lista.length+' solicitud(es) requieren atención.',html);
+    }
+
+    function abrirDashboardAprobadasHoyJARVIS(){
+      if(!sesionActual)return abrirModalLogin();
+      var lista=reservasDashboardJARVIS().filter(esAprobadaHoyDashboardJARVIS).sort(ordenarReservasFase2JARVIS);
+      var html=lista.length?'<div class="jarvis-dashboard-modal-list">'+lista.map(function(r){
+        return '<div class="jarvis-dashboard-modal-item"><div class="jarvis-dashboard-modal-item-main"><div class="jarvis-dashboard-modal-item-title">🔵 '+escaparDashboardJARVIS(r.aula||'Aula')+' · '+escaparDashboardJARVIS(r.sede||'')+'</div><div class="jarvis-dashboard-modal-item-meta">📅 '+escaparDashboardJARVIS(r.fechaIso||'Hoy')+' · ⏰ '+escaparDashboardJARVIS(horaInicioFinDashboardJARVIS(r))+'<br>👤 '+escaparDashboardJARVIS(r.responsable||'Sin responsable')+'</div></div><div class="jarvis-dashboard-modal-item-actions">'+botonDetalleDashboardJARVIS(r.id)+'</div></div>';
+      }).join('')+'</div>':'<div class="jarvis-dashboard-modal-empty">📋<strong>No hay reservas aprobadas hoy.</strong><span>Las aprobaciones realizadas durante el día aparecerán aquí.</span></div>';
+      abrirModalDashboardJARVIS('Aprobadas hoy',lista.length+' reserva(s) confirmadas durante el día.',html);
+    }
+
+    function abrirDashboardAulasOcupadasJARVIS(){
+      if(!sesionActual)return abrirModalLogin();
+      var hoy=fechaHoyDashboardJARVIS();
+      var lista=reservasDashboardJARVIS().filter(function(r){return r.estadoAprobacion==='APROBADO' && String(r.fechaIso||'')>=hoy;}).sort(function(a,b){
+        var ka=String(a.fechaIso||'9999-12-31')+'|'+String(obtenerSlotsReservaAula(a)[0]||9999),kb=String(b.fechaIso||'9999-12-31')+'|'+String(obtenerSlotsReservaAula(b)[0]||9999);return ka.localeCompare(kb);
+      });
+      var grupos={};
+      lista.forEach(function(r){(grupos[r.fechaIso]||(grupos[r.fechaIso]=[])).push(r);});
+      var fechas=Object.keys(grupos).sort();
+      var html=fechas.length?fechas.map(function(fecha){
+        var d=new Date(fecha+'T12:00:00');
+        var etiqueta=d.toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+        var esHoy=fecha===hoy;
+        return '<div class="jarvis-dashboard-modal-date">'+(esHoy?'📅 HOY · ':'📅 ')+escaparDashboardJARVIS(etiqueta)+'</div><div class="jarvis-dashboard-modal-list" style="margin-top:8px;margin-bottom:12px;">'+grupos[fecha].map(function(r){
+          return '<div class="jarvis-dashboard-modal-item"><div class="jarvis-dashboard-modal-item-main"><div class="jarvis-dashboard-modal-item-title">🏫 '+escaparDashboardJARVIS(r.aula||'Aula')+' · '+escaparDashboardJARVIS(r.sede||'')+'</div><div class="jarvis-dashboard-modal-item-meta">⏰ '+escaparDashboardJARVIS(horaInicioFinDashboardJARVIS(r))+' · 👤 '+escaparDashboardJARVIS(r.responsable||'Sin responsable')+'</div></div><div class="jarvis-dashboard-modal-item-actions">'+botonDetalleDashboardJARVIS(r.id)+'</div></div>';
+        }).join('')+'</div>';
+      }).join(''):'<div class="jarvis-dashboard-modal-empty">🟢<strong>No hay aulas ocupadas hoy ni reservas futuras.</strong><span>Cuando exista una reserva confirmada aparecerá organizada por fecha.</span></div>';
+      abrirModalDashboardJARVIS('Aulas ocupadas', 'Hoy y próximas fechas con reservas confirmadas.', html);
+    }
+
+    function abrirDashboardAulasJARVIS(){
+      cerrarModalDashboardJARVIS();
+      mostrarAulas();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
     function renderizarDashboardJARVIS(){
       var box=document.getElementById('dashboardJARVIS');
       if(!box) return;
@@ -4638,10 +4811,10 @@
       box.innerHTML='<div class="jarvis-dashboard">'+
         '<div class="jarvis-dashboard-head"><div><div class="jarvis-dashboard-kicker">JARVIS · CENTRO DE CONTROL</div><h1 class="jarvis-dashboard-title">'+saludo+', '+escaparDashboardJARVIS(sesionActual.displayName||'usuario')+' 👋</h1><p class="jarvis-dashboard-subtitle">'+escaparDashboardJARVIS(titulo)+'. Información actualizada desde la nube.</p></div><div class="jarvis-dashboard-date">📅 '+escaparDashboardJARVIS(fechaTexto)+'</div></div>'+
         '<div class="jarvis-dashboard-grid">'+
-          '<div class="jarvis-kpi-card"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Solicitudes pendientes</span><span class="jarvis-kpi-icon">🟡</span></div><div class="jarvis-kpi-value">'+pendientes.length+'</div><div class="jarvis-kpi-detail">'+(atencion?'Requieren atención':'Sin solicitudes pendientes')+'</div></div>'+
-          '<div class="jarvis-kpi-card"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Aprobadas hoy</span><span class="jarvis-kpi-icon">🔵</span></div><div class="jarvis-kpi-value">'+aprobadasHoy.length+'</div><div class="jarvis-kpi-detail">Confirmadas durante el día</div></div>'+
-          '<div class="jarvis-kpi-card"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Aulas ocupadas</span><span class="jarvis-kpi-icon">🏫</span></div><div class="jarvis-kpi-value">'+aulasOcupadas+'</div><div class="jarvis-kpi-detail">En este momento · '+totalAulas+' aulas registradas</div></div>'+
-          '<div class="jarvis-kpi-card"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Aulas disponibles</span><span class="jarvis-kpi-icon">🟢</span></div><div class="jarvis-kpi-value">'+aulasDisponibles+'</div><div class="jarvis-kpi-detail">Disponibles en este momento</div></div>'+
+          '<div class="jarvis-kpi-card jarvis-kpi-clickable" role="button" tabindex="0" title="Ver solicitudes pendientes" onclick="irAPendientesAulas()" onkeydown="if(event.key===\'Enter\'||event.key===\' \')irAPendientesAulas()"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Solicitudes pendientes</span><span class="jarvis-kpi-icon">🟡</span></div><div class="jarvis-kpi-value">'+pendientes.length+'</div><div class="jarvis-kpi-detail">'+(atencion?'Requieren atención':'Sin solicitudes pendientes')+'</div></div>'+
+          '<div class="jarvis-kpi-card jarvis-kpi-clickable" role="button" tabindex="0" title="Ver aprobadas hoy" onclick="abrirDashboardAprobadasHoyJARVIS()" onkeydown="if(event.key===\'Enter\'||event.key===\' \')abrirDashboardAprobadasHoyJARVIS()"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Aprobadas hoy</span><span class="jarvis-kpi-icon">🔵</span></div><div class="jarvis-kpi-value">'+aprobadasHoy.length+'</div><div class="jarvis-kpi-detail">Confirmadas durante el día</div></div>'+
+          '<div class="jarvis-kpi-card jarvis-kpi-clickable" role="button" tabindex="0" title="Ver aulas ocupadas" onclick="abrirDashboardAulasOcupadasJARVIS()" onkeydown="if(event.key===\'Enter\'||event.key===\' \')abrirDashboardAulasOcupadasJARVIS()"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Aulas ocupadas</span><span class="jarvis-kpi-icon">🏫</span></div><div class="jarvis-kpi-value">'+aulasOcupadas+'</div><div class="jarvis-kpi-detail">En este momento · '+totalAulas+' aulas registradas</div></div>'+
+          '<div class="jarvis-kpi-card jarvis-kpi-clickable" role="button" tabindex="0" title="Ir a Aulas" onclick="abrirDashboardAulasJARVIS()" onkeydown="if(event.key===\'Enter\'||event.key===\' \')abrirDashboardAulasJARVIS()"><div class="jarvis-kpi-top"><span class="jarvis-kpi-label">Aulas disponibles</span><span class="jarvis-kpi-icon">🟢</span></div><div class="jarvis-kpi-value">'+aulasDisponibles+'</div><div class="jarvis-kpi-detail">Disponibles en este momento</div></div>'+
         '</div>'+
         '<div class="jarvis-dashboard-columns">'+
           '<div class="jarvis-dashboard-card"><div class="jarvis-dashboard-card-head"><h3>📅 Próximas reservas</h3><span>'+proximas.length+' mostradas</span></div><div class="jarvis-dashboard-list">'+(proximas.length?proximas.map(itemReserva).join(''):'<div class="jarvis-empty-dashboard">No hay reservas confirmadas próximas.</div>')+'</div></div>'+ 
