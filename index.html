@@ -2848,8 +2848,27 @@
       return dias + " día(s) en esta etapa";
     }
 
+    /* ============================================================
+       CONTROL DE ACCESO PARA ACCIONES DE ESCRITURA
+       Solo usuarios con sesión activa pueden crear/editar información
+       operativa: procesos, CVs, horarios y reservas.
+       La consulta pública de módulos permanece disponible.
+       ============================================================ */
+    function exigirSesionParaEscrituraJARVIS(mensaje) {
+      if (sesionActual) return true;
+      accionPendienteTrasLogin = null;
+      if (typeof mostrarToastJARVIS === 'function') {
+        mostrarToastJARVIS(mensaje || '🔐 Debes iniciar sesión para realizar esta acción.', 'warning');
+      } else {
+        alert(mensaje || '🔐 Debes iniciar sesión para realizar esta acción.');
+      }
+      abrirModalLogin();
+      return false;
+    }
+
     /* MÓDULO CONTROL DE HORARIOS DOCENTES */
     function activarModoSeleccionHorario() {
+      if (!modoSeleccionHorarioActivo && !exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para agregar horarios docentes.')) return;
       modoSeleccionHorarioActivo = !modoSeleccionHorarioActivo;
       var btn = document.getElementById('btnToggleModoSeleccion');
       var container = document.getElementById('calendarContainerDiv');
@@ -3180,6 +3199,7 @@
     }
 
     function guardarHorarioDocenteMultiple() {
+      if (!exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para guardar el horario docente.')) return;
       var docente = document.getElementById('scheduleDocenteInput').value.trim();
       var tipo = document.getElementById('scheduleTipoSelect').value;
       var curso = document.getElementById('scheduleCursoInput').value.trim();
@@ -3224,6 +3244,7 @@
     }
 
     function guardarEdicionBloqueActual() {
+      if (!exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para editar el horario docente.')) return;
       if (!activeBlockIdToDelete) return;
 
       var b = horariosDB.find(function(item){ return item.id === activeBlockIdToDelete; });
@@ -4575,7 +4596,7 @@
       var box=document.getElementById('dashboardJARVIS');
       if(!box) return;
       if(!sesionActual){
-        box.innerHTML='<div class="jarvis-dashboard-login"><div class="jarvis-dashboard-login-icon"><img src="https://raw.githubusercontent.com/academicocontinua-glitch/Jarvis.UC/main/JARVIS%20IMAGEN.png" alt="JARVIS"></div><h2>Centro de Control JARVIS</h2><p>Inicia sesión para consultar tu actividad, reservas, solicitudes y el resumen de tu sede.</p><button class="jarvis-dashboard-primary-btn" onclick="abrirModalLogin()">🔐 Iniciar Sesión</button></div>';
+        box.innerHTML='<div class="jarvis-dashboard-login"><div class="jarvis-dashboard-login-icon"><img src="https://raw.githubusercontent.com/academicocontinua-glitch/Jarvis.UC/main/JARVIS%20IMAGEN.png" alt="JARVIS"></div><h2>Sistema de Control JARVIS</h2><p>Inicia sesión para consultar tu actividad, reservas, solicitudes y el resumen de tu sede.</p><button class="jarvis-dashboard-primary-btn" onclick="abrirModalLogin()">🔐 Iniciar Sesión</button></div>';
         return;
       }
 
@@ -4599,7 +4620,7 @@
         var ka=String(a.fechaIso||'')+'|'+String(obtenerSlotsReservaAula(a)[0]||99), kb=String(b.fechaIso||'')+'|'+String(obtenerSlotsReservaAula(b)[0]||99); return ka.localeCompare(kb);
       }).slice(0,5);
       var actividad=obtenerActividadDashboardJARVIS(lista);
-      var titulo=sesionActual.role==='PROGRAMADOR'?'Centro de Control JARVIS':'Resumen de '+(sesionActual.sede||'tu sede');
+      var titulo=sesionActual.role==='PROGRAMADOR'?'Sistema de Control JARVIS':'Resumen de '+(sesionActual.sede||'tu sede');
       var saludo=new Date().getHours()<12?'Buenos días':(new Date().getHours()<19?'Buenas tardes':'Buenas noches');
       var fechaTexto=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
       var atencion=sesionActual.role==='PROGRAMADOR'?pendientes.length:pendientes.length;
@@ -5282,6 +5303,7 @@
     }
 
     function guardarCandidato() {
+      if (!exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para agregar un CV.')) return;
       var prof = document.getElementById('regProfesion').value.trim();
       var esp = document.getElementById('regEspecialidad').value.trim();
       var ciu = document.getElementById('regCiudad').value.trim();
@@ -5431,6 +5453,7 @@
     function closeModal() { document.getElementById('addModal').style.display = 'none'; }
 
     function saveCourse() {
+      if (!exigirSesionParaEscrituraJARVIS('🔐 Inicia sesión para agregar un proceso.')) return;
       var name = document.getElementById('inputCourseName').value.trim();
       var proposer = document.getElementById('inputProposer').value.trim();
       if(!name || !proposer) return alert('Completa los campos');
