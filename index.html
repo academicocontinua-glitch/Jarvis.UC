@@ -6099,11 +6099,50 @@
         var c=cuentasSedeDB.find(function(x){return x.username===base.username;})||base;
         var p=c.permisos||{crearReservas:true,editarReservas:true,aprobarReservas:true};
         if(typeof c.email !== 'string') c.email='';
-        cont.innerHTML += '<div class="jarvis-account-card"><div class="jarvis-account-header"><div><strong style="color:var(--primary-purple);">👨‍💼 '+c.displayName+'</strong><div style="font-size:.75rem;color:var(--text-muted);">Cuenta: '+c.username+' | Sede: '+c.sede+' | Credencial institucional configurada</div></div><span class="jarvis-online-dot" id="cuentaDot_'+idx+'"></span></div><div class="jarvis-permissions-grid"><label class="jarvis-permission-toggle">➕ Crear reservas <input type="checkbox" '+(p.crearReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'crearReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✏️ Editar reservas <input type="checkbox" '+(p.editarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'editarReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✅ Aprobar / Rechazar <input type="checkbox" '+(p.aprobarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'aprobarReservas\',this.checked)"></label></div></div>';
+        var nombreSeguro=escaparHtmlCorreoJARVIS(c.displayName||'');
+        var usuarioSeguro=escaparHtmlCorreoJARVIS(c.username||'');
+        cont.innerHTML += '<div class="jarvis-account-card"><div class="jarvis-account-header"><div style="flex:1;min-width:260px;"><strong style="color:var(--primary-purple);font-size:1rem;">👨‍💼 '+nombreSeguro+'</strong><div style="font-size:.75rem;color:var(--text-muted);">Cuenta: '+usuarioSeguro+' | Sede: '+escaparHtmlCorreoJARVIS(c.sede)+' | Credencial institucional configurada</div></div><span class="jarvis-online-dot" id="cuentaDot_'+idx+'"></span></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0;"><label style="font-size:.78rem;font-weight:700;color:var(--primary-purple);min-width:150px;">Nombre del encargado</label><input type="text" id="nombreCuenta_'+usuarioSeguro.replace(/[^a-zA-Z0-9_-]/g,'_')+'" class="input-field" value="'+nombreSeguro+'" placeholder="Nombre completo del encargado" style="flex:1;min-width:220px;"><button class="btn-save" onclick="guardarNombreCuentaSede(\''+c.username+'\')">💾 Guardar nombre</button></div><div class="jarvis-permissions-grid"><label class="jarvis-permission-toggle">➕ Crear reservas <input type="checkbox" '+(p.crearReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'crearReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✏️ Editar reservas <input type="checkbox" '+(p.editarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'editarReservas\',this.checked)"></label><label class="jarvis-permission-toggle">✅ Aprobar / Rechazar <input type="checkbox" '+(p.aprobarReservas?'checked':'')+' onchange="cambiarPermisoCuentaSede(\''+c.username+'\',\'aprobarReservas\',this.checked)"></label></div></div>';
       });
       renderizarPresenciaSedes();
       renderizarCorreosCuentasAdmin();
       cargarConfiguracionCorreoJARVISEnUI();
+    }
+
+    function guardarNombreCuentaSede(username){
+      if(!esProgramador)return alert('⛔ Solo el Programador puede modificar el nombre del encargado.');
+      var c=cuentasSedeDB.find(function(x){return x.username===username;}); if(!c)return;
+      var key='nombreCuenta_'+username.replace(/[^a-zA-Z0-9_-]/g,'_');
+      var input=document.getElementById(key); if(!input)return;
+      var nuevoNombre=input.value.trim();
+      if(!nuevoNombre)return alert('⚠️ Ingresa un nombre para el encargado.');
+      if(nuevoNombre.length>80)return alert('⚠️ El nombre no puede superar los 80 caracteres.');
+      var nombreAnterior=c.displayName||'';
+
+      // Actualizamos también los registros históricos de esa misma cuenta cuando
+      // el nombre almacenado coincide exactamente con su nombre anterior.
+      // No se toca información de otras cuentas ni nombres escritos manualmente.
+      (reservasAulasDB||[]).forEach(function(r){
+        if(r.solicitadoPorCuenta!==username) return;
+        if(r.responsable===nombreAnterior) r.responsable=nuevoNombre;
+        if(r.responde===nombreAnterior) r.responde=nuevoNombre;
+        if(r.ultimaEdicionPor===nombreAnterior) r.ultimaEdicionPor=nuevoNombre;
+      });
+
+      c.displayName=nuevoNombre;
+
+      // Si esa cuenta está actualmente conectada en este navegador, actualizamos
+      // inmediatamente toda la sesión para que el nuevo nombre aparezca en el
+      // botón superior, saludo, dashboard y nuevas reservas.
+      if(sesionActual && sesionActual.username===username){
+        sesionActual.displayName=nuevoNombre;
+        guardarSesionPersistente();
+        actualizarUISesion();
+        try{ iniciarPresenciaSesion(); }catch(e){}
+      }
+
+      syncToCloud();
+      renderizarAdminCuentasOficiales();
+      alert('✅ Nombre actualizado para '+username+': '+nuevoNombre);
     }
 
     function escaparHtmlCorreoJARVIS(valor){
