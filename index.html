@@ -1450,7 +1450,35 @@
     .brand-logo-wrapper { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
     .brand-logo-wrapper img { background: transparent !important; border: none !important; box-shadow: none !important; display: block; object-fit: contain; filter: brightness(0) invert(1); }
 
-  </style>
+  
+    /* ============================================================
+       JARVIS - PULIDO VISUAL PROFESIONAL / FASE 2 / FASE 3
+       ============================================================ */
+    .jarvis-fade-in{animation:jarvisFadeIn .28s ease both;}
+    @keyframes jarvisFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .jarvis-toast-container{position:fixed;right:22px;bottom:22px;z-index:10000;display:flex;flex-direction:column;gap:10px;width:min(390px,calc(100vw - 30px));pointer-events:none}
+    .jarvis-toast{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #E8E1EF;border-left:4px solid #7C3AED;border-radius:12px;box-shadow:0 12px 35px rgba(30,18,51,.18);padding:13px 13px 13px 12px;transform:translateY(15px);opacity:0;transition:.22s ease;pointer-events:auto}
+    .jarvis-toast.show{transform:none;opacity:1}
+    .jarvis-toast-success{border-left-color:#16A34A}.jarvis-toast-error{border-left-color:#DC2626}.jarvis-toast-warning{border-left-color:#D97706}.jarvis-toast-info{border-left-color:#7C3AED}
+    .jarvis-toast-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F3E8FF;color:#6D28D9;font-weight:900;flex:none}.jarvis-toast-success .jarvis-toast-icon{background:#DCFCE7;color:#15803D}.jarvis-toast-error .jarvis-toast-icon{background:#FEE2E2;color:#B91C1C}.jarvis-toast-warning .jarvis-toast-icon{background:#FEF3C7;color:#B45309}
+    .jarvis-toast-content{font-size:.82rem;color:#334155;line-height:1.45;flex:1}.jarvis-toast-close{border:0;background:transparent;color:#94A3B8;font-size:1.2rem;cursor:pointer;line-height:1}
+    .jarvis-notification-item{position:relative;transition:background .18s,transform .18s}.jarvis-notification-item:hover{background:#FAF7FF;transform:translateX(-1px)}.jarvis-notification-item.is-unread{background:#FCFAFF}.jarvis-notification-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.jarvis-notification-delete{border:0;background:#FEE2E2;color:#B91C1C;width:24px;height:24px;border-radius:50%;font-size:1rem;line-height:1;cursor:pointer;flex:none}.jarvis-notification-delete:hover{background:#FECACA}.jarvis-notification-lock{font-size:.75rem;opacity:.75}.jarvis-notification-time{font-size:.68rem;color:#94A3B8;margin-top:7px}.jarvis-empty-icon{font-size:1.7rem;margin-bottom:4px}.jarvis-notification-empty{text-align:center}
+    .jarvis-subnav{display:flex;gap:7px;flex-wrap:wrap;background:#F8F5FC;border:1px solid #E8DDF4;border-radius:12px;padding:6px;margin:0 0 14px;box-shadow:0 2px 8px rgba(107,0,215,.04)}
+    .jarvis-subnav-btn{border:0;background:transparent;color:#64748B;padding:9px 15px;border-radius:8px;font-weight:800;cursor:pointer;transition:.18s ease}.jarvis-subnav-btn:hover{background:#EFE7F8;color:#6D28D9}.jarvis-subnav-btn.active{background:#6D00D7;color:#fff;box-shadow:0 4px 10px rgba(109,0,215,.18)}
+    .jarvis-fase2-panel{display:none;animation:jarvisFadeIn .25s ease}.jarvis-section-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:14px;background:#fff;border:1px solid #E8E1EF;border-radius:14px;padding:17px 18px;box-shadow:0 4px 14px rgba(45,18,77,.05)}.jarvis-section-heading h2{margin:2px 0 3px;color:#35145A}.jarvis-section-heading p{margin:0;color:#64748B;font-size:.82rem}.jarvis-kicker{font-size:.68rem;letter-spacing:.08em;font-weight:900;color:#7C3AED}.jarvis-count-badge{display:inline-flex;align-items:center;justify-content:center;background:#F3E8FF;color:#6D28D9;border:1px solid #DDD6FE;border-radius:999px;padding:5px 9px;font-size:.7rem;font-weight:900;white-space:nowrap}
+    .jarvis-reserva-list{display:grid;gap:10px}.jarvis-reserva-card{background:#fff;border:1px solid #E8E1EF;border-radius:14px;padding:15px 16px;display:flex;justify-content:space-between;gap:15px;align-items:center;box-shadow:0 4px 12px rgba(45,18,77,.04);transition:.18s ease}.jarvis-reserva-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(45,18,77,.08)}.jarvis-reserva-code{font-size:.66rem;font-weight:900;color:#94A3B8;letter-spacing:.05em}.jarvis-reserva-card h3{margin:3px 0 5px;color:#35145A;font-size:.96rem}.jarvis-reserva-card p{margin:3px 0;color:#64748B;font-size:.76rem}.jarvis-reserva-card-actions{display:flex;align-items:center;gap:7px}.jarvis-lock-note{font-size:.72rem;color:#B45309;font-weight:800}
+    .jarvis-profile-card{margin-top:16px}.jarvis-profile-body{display:flex;gap:14px;padding:17px}.jarvis-profile-avatar{width:54px;height:54px;border-radius:16px;background:#F3E8FF;border:1px solid #DDD6FE;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex:none}.jarvis-profile-info{flex:1}.jarvis-profile-info h3{margin:0;color:#35145A}.jarvis-profile-role{font-size:.73rem;color:#7C3AED;font-weight:800;margin:2px 0 9px}.jarvis-profile-row{font-size:.76rem;color:#64748B;margin:4px 0}.jarvis-profile-stats{display:flex;gap:18px;margin-top:12px;padding-top:10px;border-top:1px solid #F0EAF5}.jarvis-profile-stats span{display:flex;flex-direction:column}.jarvis-profile-stats strong{font-size:1.05rem;color:#35145A}.jarvis-profile-stats small{font-size:.65rem;color:#94A3B8}
+    .jarvis-audit-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.jarvis-audit-row{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #F0EAF5}.jarvis-audit-row:last-child{border-bottom:0}.jarvis-audit-icon{width:32px;height:32px;border-radius:10px;background:#F8F5FC;color:#6D28D9;display:flex;align-items:center;justify-content:center;font-weight:900;flex:none}.jarvis-audit-main{flex:1}.jarvis-audit-detail{font-size:.8rem;color:#475569;margin-top:5px}.jarvis-audit-meta{font-size:.68rem;color:#94A3B8;margin-top:5px}.jarvis-badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 7px;font-size:.64rem;font-weight:900;margin-left:5px}.jarvis-badge-info{background:#EDE9FE;color:#6D28D9}.jarvis-badge-success{background:#DCFCE7;color:#15803D}.jarvis-badge-danger{background:#FEE2E2;color:#B91C1C}.jarvis-badge-neutral{background:#F1F5F9;color:#475569}.jarvis-badge-warning{background:#FEF3C7;color:#B45309}.jarvis-empty-state{min-height:150px;border:1px dashed #D8CCE5;border-radius:14px;background:#FCFAFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#64748B;text-align:center;padding:25px}.jarvis-empty-state strong{color:#475569}.jarvis-empty-state span{font-size:.76rem}
+    .jarvis-skeleton{position:relative;overflow:hidden;background:#EDE9F2;border-radius:8px}.jarvis-skeleton:after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:jarvisShimmer 1.15s infinite}.jarvis-skeleton-head{display:flex;justify-content:space-between;gap:18px;margin-bottom:20px}.jarvis-skeleton-card{background:#fff;border:1px solid #E8E1EF;border-radius:15px;padding:17px;min-height:112px}.sk-sm{width:130px;height:9px}.sk-title{width:min(380px,70vw);height:30px;margin:9px 0}.sk-line{width:230px;height:10px}.sk-line.short{width:120px}.sk-date{width:180px;height:38px}.sk-number{width:70px;height:30px;margin:14px 0 8px}@keyframes jarvisShimmer{100%{transform:translateX(100%)}}
+    .btn-save,.btn-edit,.btn-danger,.tab-btn,.nav-week-btn{transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}.btn-save:hover,.btn-edit:hover,.btn-danger:hover,.tab-btn:hover,.nav-week-btn:hover{transform:translateY(-1px);box-shadow:0 5px 13px rgba(45,18,77,.12)}.btn-save:active,.btn-edit:active,.btn-danger:active,.tab-btn:active,.nav-week-btn:active{transform:translateY(0)}
+    .jarvis-modal-modern .modal-box{animation:jarvisModalIn .2s ease}@keyframes jarvisModalIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+    @media(max-width:1050px){.jarvis-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jarvis-dashboard-columns{grid-template-columns:1fr}.jarvis-profile-card{margin-top:0}.aulas-layout{grid-template-columns:1fr}.sidebar-aulas-panel{order:2}}
+    @media(max-width:700px){.jarvis-dashboard-grid{grid-template-columns:1fr}.jarvis-dashboard-head{align-items:flex-start}.jarvis-dashboard-date{width:100%;text-align:center}.jarvis-reserva-card{flex-direction:column;align-items:flex-start}.jarvis-reserva-card-actions{width:100%}.jarvis-reserva-card-actions button{flex:1}.jarvis-toast-container{right:15px;bottom:15px}.jarvis-subnav{overflow-x:auto;flex-wrap:nowrap}.jarvis-subnav-btn{white-space:nowrap}.jarvis-profile-body{flex-direction:column}.jarvis-audit-toolbar{align-items:flex-start;flex-direction:column}}
+
+
+    .jarvis-breadcrumb{max-width:1240px;margin:0 auto 12px;padding:8px 2px;display:flex;align-items:center;gap:8px;color:#94A3B8;font-size:.72rem;font-weight:700;min-height:28px}.jarvis-breadcrumb b{color:#C4B5FD}.jarvis-breadcrumb strong:last-child{color:#6D28D9}
+
+</style>
 </head>
 <body>
 
@@ -6545,6 +6573,503 @@
     // inmediatamente las notificaciones relevantes.
     try { actualizarContadorNotificaciones(); } catch(e){}
 
-  </script>
+  
+
+    /* ============================================================
+       JARVIS - FASE 2/3 + EXPERIENCIA PROFESIONAL
+       Este bloque amplía la interfaz sin eliminar módulos existentes.
+       Incluye:
+       - Skeleton loading / animaciones / toasts / badges / responsive
+       - Breadcrumbs y navegación de Reserva de Aulas
+       - Mis reservas / Historial
+       - Detector de conflictos de horario
+       - Historial de liberaciones sin borrar físicamente la reserva
+       - Perfil del encargado
+       - Centro de notificaciones persistente con eliminación selectiva
+       - Auditoría de acciones
+       ============================================================ */
+
+    /* ---------- ESTADO NUEVO: NOTIFICACIONES Y AUDITORÍA ---------- */
+    var notificacionesJARVIS = [];
+    var auditoriaJARVIS = [];
+    var datosReservasAuditoriaAnteriorJARVIS = null;
+    var notificacionesJARVISInicializadas = false;
+    var auditoriaJARVISInicializada = false;
+    var fase2AulasVistaJARVIS = 'CALENDARIO';
+    var toastTimerJARVIS = null;
+
+    function nowIsoJARVIS(){ return new Date().toISOString(); }
+    function idUnicoJARVIS(prefijo){ return prefijo+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,9); }
+    function escaparJARVIS(v){ return escapeHtmlJarvis(String(v==null?'':v)); }
+
+    /* ---------- TOASTS ---------- */
+    function inicializarToastsJARVIS(){
+      if(document.getElementById('jarvisToastContainer')) return;
+      var c=document.createElement('div');
+      c.id='jarvisToastContainer';
+      c.className='jarvis-toast-container';
+      document.body.appendChild(c);
+    }
+    function mostrarToastJARVIS(mensaje,tipo,duracion){
+      inicializarToastsJARVIS();
+      var c=document.getElementById('jarvisToastContainer');
+      var icono=tipo==='success'?'✓':tipo==='error'?'!':tipo==='warning'?'⚠':'i';
+      var t=document.createElement('div');
+      t.className='jarvis-toast jarvis-toast-'+(tipo||'info');
+      t.innerHTML='<div class="jarvis-toast-icon">'+icono+'</div><div class="jarvis-toast-content">'+escaparJARVIS(mensaje).replace(/\n/g,'<br>')+'</div><button class="jarvis-toast-close" aria-label="Cerrar">×</button>';
+      c.appendChild(t);
+      requestAnimationFrame(function(){t.classList.add('show');});
+      var cerrar=function(){t.classList.remove('show');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},220);};
+      t.querySelector('.jarvis-toast-close').onclick=cerrar;
+      setTimeout(cerrar,duracion||4200);
+    }
+    function alertProfesionalJARVIS(mensaje){
+      var txt=String(mensaje||'');
+      var tipo=/error|incorrect|no pudo|no tienes|solo |⛔|⚠️/i.test(txt)?'error':/aprobada|confirmada|guardad|correctamente|éxito|enviado/i.test(txt)?'success':'info';
+      mostrarToastJARVIS(txt,tipo,5200);
+    }
+    inicializarToastsJARVIS();
+    /* Sustituye los alert() por una notificación visual, manteniendo confirm() para acciones destructivas. */
+    window.alert = alertProfesionalJARVIS;
+
+    /* ---------- SKELETON ---------- */
+    function mostrarSkeletonDashboardJARVIS(){
+      var box=document.getElementById('dashboardJARVIS'); if(!box)return;
+      box.innerHTML='<div class="jarvis-dashboard jarvis-fade-in"><div class="jarvis-skeleton-head"><div><div class="jarvis-skeleton sk-sm"></div><div class="jarvis-skeleton sk-title"></div><div class="jarvis-skeleton sk-line"></div></div><div class="jarvis-skeleton sk-date"></div></div><div class="jarvis-dashboard-grid">'+[1,2,3,4].map(function(){return '<div class="jarvis-skeleton-card"><div class="jarvis-skeleton sk-line"></div><div class="jarvis-skeleton sk-number"></div><div class="jarvis-skeleton sk-line short"></div></div>';}).join('')+'</div></div>';
+    }
+
+    /* ---------- PERFIL ---------- */
+    function obtenerCuentaPerfilJARVIS(){
+      if(!sesionActual)return null;
+      if(sesionActual.role==='PROGRAMADOR') return {username:'Continua',displayName:sesionActual.displayName||'Programador Lázaro',sede:'TODAS',role:'PROGRAMADOR',online:true,ultimoAcceso:sesionActual.ultimoAcceso||''};
+      var c=(cuentasSedeDB||[]).find(function(x){return x.username===sesionActual.username;});
+      return c||{username:sesionActual.username,displayName:sesionActual.displayName,sede:sesionActual.sede,role:'ENCARGADO'};
+    }
+    function contarReservasGestionadasJARVIS(){
+      if(!sesionActual)return 0;
+      var nombre=sesionActual.displayName, usuario=sesionActual.username;
+      var n=0;
+      (reservasAulasDB||[]).forEach(function(r){
+        if((r.responde===nombre)||(r.ultimaEdicionPor===nombre)||(r.liberadaPorCuenta===usuario))n++;
+      });
+      return n;
+    }
+    function contarPendientesPerfilJARVIS(){
+      if(!sesionActual)return 0;
+      return (reservasAulasDB||[]).filter(function(r){return r.estadoAprobacion==='PENDIENTE' && (sesionActual.role==='PROGRAMADOR'||sedesCoincidenJarvis(r.sede,sesionActual.sede));}).length;
+    }
+    function formatearUltimoAccesoJARVIS(v){
+      if(!v)return 'Aún no registrado';
+      try{return new Date(v).toLocaleString('es-PE',{dateStyle:'short',timeStyle:'short'});}catch(e){return String(v);}
+    }
+
+    /* ---------- NOTIFICACIONES PERSISTENTES ---------- */
+    function cargarNotificacionesJARVIS(){
+      if(!db)return;
+      db.ref('jarvisData/notificacionesJARVIS').on('value',function(snap){
+        var v=snap.val();
+        notificacionesJARVIS=Array.isArray(v)?v:(v&&typeof v==='object'?Object.keys(v).map(function(k){return v[k];}):[]);
+        notificacionesJARVISInicializadas=true;
+        actualizarContadorNotificaciones();
+        renderizarPanelNotificacionesAulas();
+      });
+    }
+    function guardarNotificacionesJARVIS(){
+      if(!nubeInicializada || !db)return;
+      db.ref('jarvisData').update({notificacionesJARVIS:clonarParaNube(notificacionesJARVIS)}).catch(function(e){console.error('JARVIS notificaciones',e);});
+    }
+    function agregarNotificacionJARVIS(obj){
+      obj=obj||{};
+      if(!obj.destinatarioUsername && !obj.destinatarioSede && obj.tipo!=='PENDIENTE')return;
+      var clave=obj.claveEvento||idUnicoJARVIS('NTF');
+      if(notificacionesJARVIS.some(function(n){return n.claveEvento===clave && n.destinatarioUsername===obj.destinatarioUsername;}))return;
+      notificacionesJARVIS.push({id:idUnicoJARVIS('NTF'),claveEvento:clave,tipo:obj.tipo||'INFO',titulo:obj.titulo||'Notificación JARVIS',mensaje:obj.mensaje||'',reservaId:obj.reservaId||'',destinatarioUsername:obj.destinatarioUsername||'',destinatarioSede:obj.destinatarioSede||'',fecha:obj.fecha||nowIsoJARVIS(),leida:false,puedeEliminar:obj.puedeEliminar!==false});
+      guardarNotificacionesJARVIS();
+    }
+    function notificacionVisibleParaSesionJARVIS(n){
+      if(!sesionActual)return false;
+      if(sesionActual.role==='PROGRAMADOR')return !n.destinatarioUsername || n.destinatarioUsername==='Continua';
+      return n.destinatarioUsername===sesionActual.username || (n.tipo==='PENDIENTE' && sedesCoincidenJarvis(n.destinatarioSede,sesionActual.sede));
+    }
+    function obtenerNotificacionesSesionJARVIS(){
+      return (notificacionesJARVIS||[]).filter(notificacionVisibleParaSesionJARVIS).sort(function(a,b){return String(b.fecha||'').localeCompare(String(a.fecha||''));});
+    }
+    function eliminarNotificacionJARVIS(id){
+      var n=notificacionesJARVIS.find(function(x){return x.id===id;});
+      if(!n)return;
+      if(n.tipo==='PENDIENTE' || n.puedeEliminar===false){return mostrarToastJARVIS('Las solicitudes pendientes no se pueden eliminar.','warning');}
+      if(!confirm('¿Eliminar esta notificación?\n\nLa reserva y su historial NO se eliminarán.'))return;
+      notificacionesJARVIS=notificacionesJARVIS.filter(function(x){return x.id!==id;});
+      guardarNotificacionesJARVIS();
+      actualizarContadorNotificaciones();
+      mostrarToastJARVIS('Notificación eliminada.','success');
+    }
+    function marcarNotificacionLeidaJARVIS(id){
+      var n=notificacionesJARVIS.find(function(x){return x.id===id;});
+      if(!n)return;
+      if(n.destinatarioUsername && sesionActual && n.destinatarioUsername!==sesionActual.username && sesionActual.role!=='PROGRAMADOR')return;
+      n.leida=true;guardarNotificacionesJARVIS();actualizarContadorNotificaciones();
+    }
+    function abrirNotificacionJARVIS(id){
+      var n=notificacionesJARVIS.find(function(x){return x.id===id;}); if(!n)return;
+      marcarNotificacionLeidaJARVIS(id);
+      if(n.reservaId){
+        var r=(reservasAulasDB||[]).find(function(x){return String(x.id)===String(n.reservaId);});
+        if(r)verDetalleReservaAula(r.id);
+      }
+    }
+    function iconoNotificacionJARVIS(tipo){return {PENDIENTE:'🟡',APROBADA:'🟢',RECHAZADA:'🔴',LIBERADA:'⚪',MODIFICADA:'🟠',INFO:'🔵'}[tipo]||'🔵';}
+
+    renderizarPanelNotificacionesAulas=function(){
+      var lista=document.getElementById('listaNotificacionesAulas'); if(!lista)return;
+      var items=obtenerNotificacionesSesionJARVIS();
+      if(!items.length){lista.innerHTML='<div class="jarvis-notification-empty"><div class="jarvis-empty-icon">🔔</div><strong>Todo al día</strong><br><span>No tienes notificaciones nuevas.</span></div>';return;}
+      lista.innerHTML=items.map(function(n){
+        var eliminable=n.tipo!=='PENDIENTE' && n.puedeEliminar!==false;
+        return '<div class="jarvis-notification-item '+(n.leida?'is-read':'is-unread')+'" onclick="abrirNotificacionJARVIS(\''+String(n.id).replace(/'/g,"\\'")+'\')">'+
+          '<div class="jarvis-notification-item-head"><div class="jarvis-notification-item-title">'+iconoNotificacionJARVIS(n.tipo)+' '+escaparJARVIS(n.titulo)+'</div>'+(eliminable?'<button class="jarvis-notification-delete" title="Eliminar notificación" onclick="event.stopPropagation();eliminarNotificacionJARVIS(\''+String(n.id).replace(/'/g,"\\'")+'\')">×</button>':'<span class="jarvis-notification-lock" title="No se puede eliminar">🔒</span>')+'</div>'+
+          '<div class="jarvis-notification-item-line">'+escaparJARVIS(n.mensaje)+'</div><div class="jarvis-notification-time">'+escaparJARVIS(new Date(n.fecha).toLocaleString('es-PE',{dateStyle:'short',timeStyle:'short'}))+(n.leida?' · Leída':' · Nueva')+'</div></div>';
+      }).join('');
+    };
+    actualizarContadorNotificaciones=function(){
+      var items=obtenerNotificacionesSesionJARVIS();
+      var pendientesActuales=(reservasAulasDB||[]).filter(function(r){return r.estadoAprobacion==='PENDIENTE' && sesionActual && (sesionActual.role==='PROGRAMADOR'||sedesCoincidenJarvis(r.sede,sesionActual.sede));});
+      var unread=items.filter(function(n){return !n.leida;}).length;
+      /* Las solicitudes pendientes siempre cuentan, aunque el usuario haya abierto el panel. */
+      var pendientesNotificados=items.filter(function(n){return n.tipo==='PENDIENTE';}).length;
+      var count=Math.max(unread,pendientesNotificados,pendientesActuales.length);
+      var badge=document.getElementById('contadorNotificacionesAulas');
+      if(badge){badge.innerText=count>99?'99+':String(count);badge.style.display=count?'inline-flex':'none';}
+      renderizarPanelNotificacionesAulas();
+      try{renderizarDashboardJARVIS();}catch(e){}
+    };
+
+    /* ---------- AUDITORÍA ---------- */
+    function cargarAuditoriaJARVIS(){
+      if(!db)return;
+      db.ref('jarvisData/auditoriaJARVIS').on('value',function(snap){
+        var v=snap.val();
+        auditoriaJARVIS=Array.isArray(v)?v:(v&&typeof v==='object'?Object.keys(v).map(function(k){return v[k];}):[]);
+        auditoriaJARVISInicializada=true;
+        renderizarAuditoriaJARVIS();
+      });
+    }
+    function guardarAuditoriaJARVIS(){
+      if(!nubeInicializada || !db)return;
+      db.ref('jarvisData').update({auditoriaJARVIS:clonarParaNube(auditoriaJARVIS)}).catch(function(e){console.error('JARVIS auditoria',e);});
+    }
+    function registrarAuditoriaJARVIS(tipo,res,detalle,actorOverride){
+      var actor=actorOverride||sesionActual||{};
+      var usuario=actor.username||'SISTEMA';
+      var clave=(tipo||'ACCION')+'|'+String(res&&res.id||detalle&&detalle.id||'')+'|'+String(detalle&&detalle.marca||detalle&&detalle.fecha||'');
+      if(auditoriaJARVIS.some(function(a){return a.claveEvento===clave && a.usuario===usuario;}))return;
+      auditoriaJARVIS.unshift({id:idUnicoJARVIS('AUD'),claveEvento:clave,tipo:tipo,usuario:usuario,nombre:actor.displayName||actor.nombre||'Sistema',sede:actor.sede||((res&&res.sede)||'TODAS'),fecha:new Date().toISOString(),reservaId:res&&res.id||'',aula:res&&res.aula||'',detalle:detalle&&detalle.texto?detalle.texto:String(detalle||'')});
+      if(auditoriaJARVIS.length>500)auditoriaJARVIS=auditoriaJARVIS.slice(0,500);
+      guardarAuditoriaJARVIS();
+    }
+    function auditoriaVisibleJARVIS(a){
+      if(!sesionActual)return false;
+      if(sesionActual.role==='PROGRAMADOR')return true;
+      return a.usuario===sesionActual.username || sedesCoincidenJarvis(a.sede,sesionActual.sede);
+    }
+    function renderizarAuditoriaJARVIS(){
+      var c=document.getElementById('jarvisAuditoriaContainer');if(!c)return;
+      var arr=(auditoriaJARVIS||[]).filter(auditoriaVisibleJARVIS).slice(0,100);
+      if(!arr.length){c.innerHTML='<div class="jarvis-empty-state">🔎<strong>Aún no hay movimientos registrados.</strong><span>Las acciones de JARVIS aparecerán aquí automáticamente.</span></div>';return;}
+      c.innerHTML=arr.map(function(a){
+        var mapa={CREACION:['➕','Creación','jarvis-badge-info'],APROBACION:['✓','Aprobación','jarvis-badge-success'],RECHAZO:['×','Rechazo','jarvis-badge-danger'],LIBERACION:['↗','Liberación','jarvis-badge-neutral'],MODIFICACION:['✎','Modificación','jarvis-badge-warning'],LOGIN:['→','Inicio de sesión','jarvis-badge-info']};
+        var m=mapa[a.tipo]||['•',a.tipo,'jarvis-badge-info'];
+        return '<div class="jarvis-audit-row"><div class="jarvis-audit-icon">'+m[0]+'</div><div class="jarvis-audit-main"><div><span class="jarvis-badge '+m[2]+'">'+m[1]+'</span> <strong>'+escaparJARVIS(a.nombre)+'</strong></div><div class="jarvis-audit-detail">'+escaparJARVIS(a.detalle||'Sin detalle')+'</div><div class="jarvis-audit-meta">'+escaparJARVIS(a.sede||'')+(a.aula?' · '+escaparJARVIS(a.aula):'')+' · '+escaparJARVIS(new Date(a.fecha).toLocaleString('es-PE',{dateStyle:'short',timeStyle:'short'}))+'</div></div></div>';
+      }).join('');
+    }
+    function abrirAuditoriaJARVIS(){
+      if(sesionActual && sesionActual.role==='PROGRAMADOR'){
+        mostrarAdmin();
+        setTimeout(function(){var el=document.getElementById('jarvisAuditoriaContainer');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},100);
+      }
+    }
+
+    /* ---------- DETECTOR DE CAMBIOS EN RESERVAS ---------- */
+    function obtenerReservaPorIdJARVIS(arr,id){return (arr||[]).find(function(r){return String(r.id)===String(id);});}
+    function generarNotificacionReservaJARVIS(tipo,res,extra){
+      if(!res)return;
+      var solicitante=res.solicitadoPorCuenta||'';
+      var targetSede=res.sede||'';
+      var hora=horaInicioFinDashboardJARVIS(res);
+      var titulo='',mensaje='',clave='';
+      if(tipo==='PENDIENTE'){
+        titulo='Nueva solicitud de reserva';mensaje=(res.responsable||'Sin responsable')+' solicitó '+res.aula+' · '+targetSede+' · '+res.fechaIso+' · '+hora;clave=String(res.id)+'|PENDIENTE';
+        var cuentas=(cuentasSedeDB||[]).filter(function(c){return sedesCoincidenJarvis(c.sede,targetSede);});
+        if(cuentas.length)cuentas.forEach(function(c){agregarNotificacionJARVIS({tipo:tipo,titulo:titulo,mensaje:mensaje,reservaId:res.id,destinatarioUsername:c.username,destinatarioSede:c.sede,claveEvento:clave,puedeEliminar:false});});
+        if(solicitante && solicitante===targetSede){} // sin acción adicional
+      }else{
+        if(tipo==='APROBADA'){titulo='Reserva aprobada';mensaje='La reserva '+res.aula+' del '+res.fechaIso+' · '+hora+' fue aprobada por '+(res.responde||'el responsable de sede')+'.';}
+        if(tipo==='RECHAZADA'){titulo='Reserva rechazada';mensaje='La reserva '+res.aula+' del '+res.fechaIso+' · '+hora+' fue rechazada. '+(res.respuestaAuditoria||res.notificacionMotivo||'Revisa el detalle de la solicitud.');}
+        if(tipo==='LIBERADA'){titulo='Reserva liberada';mensaje='La reserva '+res.aula+' del '+res.fechaIso+' · '+hora+' fue liberada por '+(res.liberadaPor||'un administrador')+'.';}
+        if(tipo==='MODIFICADA'){titulo='Reserva modificada';mensaje='La reserva '+res.aula+' del '+res.fechaIso+' · '+hora+' fue modificada por '+(res.ultimaEdicionPor||'un administrador')+'.';}
+        clave=String(res.id)+'|'+tipo;
+        if(solicitante)agregarNotificacionJARVIS({tipo:tipo,titulo:titulo,mensaje:mensaje,reservaId:res.id,destinatarioUsername:solicitante,destinatarioSede:targetSede,claveEvento:clave,puedeEliminar:true});
+      }
+      /* La notificación pendiente deja de ser vigente cuando se resuelve la solicitud. */
+      if(tipo!=='PENDIENTE'){
+        var antes=notificacionesJARVIS.length;
+        notificacionesJARVIS=notificacionesJARVIS.filter(function(n){return !(n.reservaId && String(n.reservaId)===String(res.id) && n.tipo==='PENDIENTE');});
+        if(antes!==notificacionesJARVIS.length)guardarNotificacionesJARVIS();
+      }
+    }
+    function procesarCambiosReservasJARVIS(actual){
+      if(!Array.isArray(actual))actual=[];
+      if(datosReservasAuditoriaAnteriorJARVIS===null){
+        datosReservasAuditoriaAnteriorJARVIS=actual.map(function(r){return JSON.parse(JSON.stringify(r));});
+        return;
+      }
+      var anterior=datosReservasAuditoriaAnteriorJARVIS;
+      actual.forEach(function(r){
+        var old=obtenerReservaPorIdJARVIS(anterior,r.id);
+        if(!old){
+          if(r.estadoAprobacion==='PENDIENTE')generarNotificacionReservaJARVIS('PENDIENTE',r);
+          registrarAuditoriaJARVIS('CREACION',r,{texto:'Se registró la reserva '+String(r.id)+' en '+(r.sede||'')+' · '+(r.aula||''),marca:'CREACION'});
+        }else{
+          if(old.estadoAprobacion!==r.estadoAprobacion){
+            if(r.estadoAprobacion==='APROBADO'){generarNotificacionReservaJARVIS('APROBADA',r);registrarAuditoriaJARVIS('APROBACION',r,{texto:'Reserva aprobada. Responde: '+(r.responde||'Sin registrar'),marca:'APROBACION'});}
+            if(r.estadoAprobacion==='RECHAZADA'){generarNotificacionReservaJARVIS('RECHAZADA',r);registrarAuditoriaJARVIS('RECHAZO',r,{texto:'Reserva rechazada. Motivo: '+(r.respuestaAuditoria||r.notificacionMotivo||'Sin motivo'),marca:'RECHAZO'});}
+            if(r.estadoAprobacion==='LIBERADA'){generarNotificacionReservaJARVIS('LIBERADA',r);registrarAuditoriaJARVIS('LIBERACION',r,{texto:'Reserva liberada por '+(r.liberadaPor||'un administrador'),marca:'LIBERACION'});}
+          }
+          if((old.fechaUltimaEdicion||'')!==(r.fechaUltimaEdicion||'')){
+            if(r.fechaUltimaEdicion){generarNotificacionReservaJARVIS('MODIFICADA',r);registrarAuditoriaJARVIS('MODIFICACION',r,{texto:'Reserva modificada por '+(r.ultimaEdicionPor||'un administrador'),marca:r.fechaUltimaEdicion});}
+          }
+        }
+      });
+      anterior.forEach(function(old){
+        if(!obtenerReservaPorIdJARVIS(actual,old.id) && old.estadoAprobacion!=='RECHAZADA'){
+          /* Compatibilidad con versiones anteriores: si una reserva fue eliminada físicamente,
+             conservamos un aviso de liberación en la nueva capa de historial. */
+          generarNotificacionReservaJARVIS('LIBERADA',old);
+          registrarAuditoriaJARVIS('LIBERACION',old,{texto:'La reserva dejó de estar en el calendario. Se conservó el registro en auditoría.',marca:'LIBERACION_'+String(old.id)});
+        }
+      });
+      datosReservasAuditoriaAnteriorJARVIS=actual.map(function(r){return JSON.parse(JSON.stringify(r));});
+    }
+    if(db){
+      db.ref('jarvisData/reservasAulasDB').on('value',function(snap){
+        var v=snap.val();var arr=Array.isArray(v)?v:(v&&typeof v==='object'?Object.keys(v).map(function(k){return v[k];}):[]);
+        procesarCambiosReservasJARVIS(arr);
+      });
+    }
+
+    /* ---------- CAMBIOS DE RESERVA: NO BORRAR HISTÓRICOS ---------- */
+    var eliminarReservaAulaActualBaseF2=eliminarReservaAulaActual;
+    eliminarReservaAulaActual=function(){
+      if(!activeAulaReservaIdToDelete)return;
+      var res=reservasAulasDB.find(function(r){return String(r.id)===String(activeAulaReservaIdToDelete);});if(!res)return;
+      if(!usuarioPuedeLiberarReservaAula(res))return alert('⛔ Solo el administrador de la sede correspondiente puede liberar esta reserva.');
+      if(!confirm('Vas a liberar esta reserva del calendario.\n\nEl registro histórico se conservará en JARVIS.\n\n¿Deseas continuar?'))return;
+      res.estadoAprobacion='LIBERADA';
+      res.liberadaPor=sesionActual.displayName;
+      res.liberadaPorCuenta=sesionActual.username;
+      res.fechaLiberacion=getRelojFechaTexto();
+      syncToCloud();
+      cerrarModalVerReservaAula();
+      actualizarContadorNotificaciones();
+      renderizarTablaCalendarioAulas();
+      renderizarPanelNotificacionesAulas();
+      mostrarToastJARVIS('Reserva liberada. El historial se conserva.','success');
+    };
+
+    /* ---------- CONFLICTOS DE HORARIO ---------- */
+    function reservaActivaParaConflictoJARVIS(r){return r && r.estadoAprobacion!=='RECHAZADA' && r.estadoAprobacion!=='LIBERADA';}
+    function detectarConflictoAulaJARVIS(sede,aula,fechaIso,slots,ignoreId){
+      var ocupados=[];
+      (reservasAulasDB||[]).forEach(function(r){
+        if(String(r.id)===String(ignoreId))return;
+        if(!reservaActivaParaConflictoJARVIS(r))return;
+        if(!sedesCoincidenJarvis(r.sede,sede)||String(r.aula)!==String(aula)||String(r.fechaIso)!==String(fechaIso))return;
+        obtenerSlotsReservaAula(r).forEach(function(h){ocupados.push(Number(h));});
+      });
+      return slots.some(function(h){return ocupados.some(function(o){return Math.abs(Number(o)-Number(h))<0.001;});});
+    }
+    var guardarReservaAulaBaseF2=guardarReservaAula;
+    guardarReservaAula=function(){
+      if(!sesionActual)return alert('🔐 Debes iniciar sesión para registrar una reserva.');
+      var sede=(sedeFiltroSeleccionada||'').trim();
+      var aula=aulaFiltroSeleccionada||document.getElementById('selectAulaFiltro').value;
+      if(!sede||!aula||!celdasAulaSeleccionadasSet||!celdasAulaSeleccionadasSet.size)return guardarReservaAulaBaseF2();
+      var porFecha={};
+      celdasAulaSeleccionadasSet.forEach(function(x){if(!porFecha[x.fechaIso])porFecha[x.fechaIso]=[];porFecha[x.fechaIso].push(Number(x.hora));});
+      for(var f in porFecha){
+        var slots=porFecha[f].sort(function(a,b){return a-b;});
+        if(detectarConflictoAulaJARVIS(sede,aula,f,slots,null)){
+          var existente=(reservasAulasDB||[]).find(function(r){return reservaActivaParaConflictoJARVIS(r)&&sedesCoincidenJarvis(r.sede,sede)&&String(r.aula)===String(aula)&&String(r.fechaIso)===String(f)&&obtenerSlotsReservaAula(r).some(function(h){return slots.some(function(x){return Math.abs(Number(h)-Number(x))<0.001;});});});
+          var horaExistente=existente?horaInicioFinDashboardJARVIS(existente):'el horario seleccionado';
+          return alert('⚠️ CONFLICTO DE HORARIO\n\nEl '+aula+' ya posee una reserva entre '+horaExistente+'.\n\nSelecciona otro horario o aula.');
+        }
+      }
+      guardarReservaAulaBaseF2();
+    };
+
+    /* ---------- CALENDARIO: OCULTAR LIBERADAS ---------- */
+    var renderizarTablaCalendarioAulasBaseF2=renderizarTablaCalendarioAulas;
+    renderizarTablaCalendarioAulas=function(){
+      var original=reservasAulasDB;
+      reservasAulasDB=(original||[]).filter(function(r){return r.estadoAprobacion!=='LIBERADA';});
+      try{return renderizarTablaCalendarioAulasBaseF2.apply(this,arguments);}finally{reservasAulasDB=original;}
+    };
+
+    /* ---------- NAVEGACIÓN FASE 2 ---------- */
+    function montarNavegacionFase2AulasJARVIS(){
+      var vista=document.getElementById('vistaAulas');if(!vista)return;
+      var existing=document.getElementById('jarvisFase2AulasNav');
+      if(existing)return;
+      var title=vista.querySelector('.page-title-section');if(!title)return;
+      var nav=document.createElement('div');nav.id='jarvisFase2AulasNav';nav.className='jarvis-subnav';
+      nav.innerHTML='<button class="jarvis-subnav-btn active" data-f2="CALENDARIO" onclick="cambiarVistaFase2AulasJARVIS(\'CALENDARIO\')">📅 Calendario</button><button class="jarvis-subnav-btn" data-f2="MIS" onclick="cambiarVistaFase2AulasJARVIS(\'MIS\')">📋 Mis reservas</button><button class="jarvis-subnav-btn" data-f2="HISTORIAL" onclick="cambiarVistaFase2AulasJARVIS(\'HISTORIAL\')">🕘 Historial</button>';
+      title.insertAdjacentElement('afterend',nav);
+      var panel=document.createElement('div');panel.id='jarvisFase2AulasPanel';panel.className='jarvis-fase2-panel';
+      panel.innerHTML='<div id="jarvisFase2AulasContent"></div>';
+      vista.appendChild(panel);
+    }
+    function cambiarVistaFase2AulasJARVIS(modo){
+      fase2AulasVistaJARVIS=modo;
+      var nav=document.getElementById('jarvisFase2AulasNav');if(nav)nav.querySelectorAll('.jarvis-subnav-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-f2')===modo);});
+      var cal=document.getElementById('calendarAulaContainerDiv');var panel=document.getElementById('jarvisFase2AulasPanel');
+      if(modo==='CALENDARIO'){
+        if(cal)cal.style.display='block';if(panel)panel.style.display='none';return;
+      }
+      if(cal)cal.style.display='none';if(panel)panel.style.display='block';
+      if(modo==='MIS')renderizarMisReservasJARVIS();else renderizarHistorialReservasJARVIS();
+    }
+    function tarjetaReservaFase2JARVIS(r,modo){
+      var st=estadoVisualDashboardJARVIS(r), slots=obtenerSlotsReservaAula(r), hora=horaInicioFinDashboardJARVIS(r);
+      var puedeEliminar=r.estadoAprobacion!=='PENDIENTE';
+      return '<div class="jarvis-reserva-card"><div class="jarvis-reserva-card-main"><div class="jarvis-reserva-code">RV-'+String(r.id).replace(/\D/g,'').slice(-8)+'</div><h3>🏫 '+escaparJARVIS(r.aula||'Aula')+' <span class="jarvis-badge '+st.clase+'">'+escaparJARVIS(st.texto)+'</span></h3><p>📍 '+escaparJARVIS(r.sede||'')+' · 📅 '+escaparJARVIS(r.fechaIso||'')+' · ⏰ '+escaparJARVIS(hora)+'</p><p>👤 '+escaparJARVIS(r.responsable||'Sin responsable')+' · '+escaparJARVIS(r.tipoEvento||'Sin evento')+'</p></div><div class="jarvis-reserva-card-actions"><button class="btn-edit" onclick="verDetalleReservaAula(\''+String(r.id).replace(/'/g,"\\'")+'\')">Ver detalle</button>'+(puedeEliminar?'':'<span class="jarvis-lock-note">🔒 Pendiente</span>')+'</div></div>';
+    }
+    function renderizarMisReservasJARVIS(){
+      var c=document.getElementById('jarvisFase2AulasContent');if(!c)return;
+      var arr=(reservasAulasDB||[]).filter(function(r){return sesionActual && r.solicitadoPorCuenta===sesionActual.username;});
+      arr.sort(function(a,b){return String(b.fechaIso||'').localeCompare(String(a.fechaIso||''));});
+      c.innerHTML='<div class="jarvis-section-heading"><div><span class="jarvis-kicker">FASE 2</span><h2>📋 Mis reservas</h2><p>Consulta tus solicitudes, reservas confirmadas y estados actuales.</p></div><span class="jarvis-count-badge">'+arr.length+' registros</span></div><div class="jarvis-reserva-list">'+(arr.length?arr.map(function(r){return tarjetaReservaFase2JARVIS(r,'MIS');}).join(''):'<div class="jarvis-empty-state">📋<strong>Aún no tienes reservas registradas.</strong><span>Las nuevas solicitudes aparecerán aquí.</span></div>')+'</div>';
+    }
+    function renderizarHistorialReservasJARVIS(){
+      var c=document.getElementById('jarvisFase2AulasContent');if(!c)return;
+      var arr=(reservasAulasDB||[]).filter(function(r){
+        if(!sesionActual)return false;
+        if(sesionActual.role==='PROGRAMADOR')return true;
+        return r.solicitadoPorCuenta===sesionActual.username || sedesCoincidenJarvis(r.sede,sesionActual.sede);
+      });
+      arr.sort(function(a,b){return String(b.fechaIso||'').localeCompare(String(a.fechaIso||''));});
+      c.innerHTML='<div class="jarvis-section-heading"><div><span class="jarvis-kicker">FASE 2</span><h2>🕘 Historial de reservas</h2><p>Registro de solicitudes y estados. Las reservas liberadas permanecen como histórico.</p></div><span class="jarvis-count-badge">'+arr.length+' registros</span></div><div class="jarvis-reserva-list">'+(arr.length?arr.map(function(r){return tarjetaReservaFase2JARVIS(r,'HISTORIAL');}).join(''):'<div class="jarvis-empty-state">🕘<strong>No hay registros históricos.</strong><span>Los movimientos aparecerán aquí.</span></div>')+'</div>';
+    }
+
+    var mostrarAulasBaseF2=mostrarAulas;
+    mostrarAulas=function(){
+      mostrarAulasBaseF2.apply(this,arguments);
+      montarNavegacionFase2AulasJARVIS();
+      cambiarVistaFase2AulasJARVIS(fase2AulasVistaJARVIS||'CALENDARIO');
+    };
+
+    /* ---------- PERFIL EN DASHBOARD ---------- */
+    var renderizarDashboardBaseF2=renderizarDashboardJARVIS;
+    renderizarDashboardJARVIS=function(){
+      renderizarDashboardBaseF2.apply(this,arguments);
+      if(!sesionActual)return;
+      var dash=document.querySelector('#dashboardJARVIS .jarvis-dashboard');if(!dash)return;
+      var perfil=obtenerCuentaPerfilJARVIS();
+      var cols=dash.querySelector('.jarvis-dashboard-columns');
+      if(!cols || document.getElementById('jarvisPerfilDashboard'))return;
+      var card=document.createElement('div');card.id='jarvisPerfilDashboard';card.className='jarvis-dashboard-card jarvis-profile-card';
+      card.innerHTML='<div class="jarvis-dashboard-card-head"><h3>👤 Mi perfil</h3><span>'+ (perfil.online?'🟢 En línea':'⚪') +'</span></div><div class="jarvis-profile-body"><div class="jarvis-profile-avatar">'+(sesionActual.role==='PROGRAMADOR'?'🛠️':'👨‍💼')+'</div><div class="jarvis-profile-info"><h3>'+escaparJARVIS(perfil.displayName)+'</h3><div class="jarvis-profile-role">'+(sesionActual.role==='PROGRAMADOR'?'Programador':'Administrador de Sede')+'</div><div class="jarvis-profile-row">📍 <strong>Sede:</strong> '+escaparJARVIS(perfil.sede||'TODAS')+'</div><div class="jarvis-profile-row">👤 <strong>Usuario:</strong> '+escaparJARVIS(perfil.username||'')+'</div><div class="jarvis-profile-row">🕘 <strong>Último acceso:</strong> '+escaparJARVIS(formatearUltimoAccesoJARVIS(perfil.ultimoAcceso))+'</div><div class="jarvis-profile-stats"><span><strong>'+contarReservasGestionadasJARVIS()+'</strong><small>Gestionadas</small></span><span><strong>'+contarPendientesPerfilJARVIS()+'</strong><small>Pendientes</small></span></div></div></div>';
+      cols.appendChild(card);
+    };
+
+    /* ---------- ÚLTIMO ACCESO + AUDITORÍA DE LOGIN ---------- */
+    function registrarUltimoAccesoJARVIS(){
+      if(!sesionActual)return;
+      sesionActual.ultimoAcceso=nowIsoJARVIS();
+      if(sesionActual.role==='ENCARGADO'){
+        var c=(cuentasSedeDB||[]).find(function(x){return x.username===sesionActual.username;});
+        if(c){c.ultimoAcceso=sesionActual.ultimoAcceso;syncToCloud();}
+      }
+      registrarAuditoriaJARVIS('LOGIN',null,{texto:'Inicio de sesión de '+(sesionActual.displayName||sesionActual.username),marca:sesionActual.ultimoAcceso});
+      guardarSesionPersistente();
+    }
+    var validarCredencialesBaseF2=validarCredenciales;
+    validarCredenciales=function(){
+      validarCredencialesBaseF2.apply(this,arguments);
+      if(sesionActual){registrarUltimoAccesoJARVIS();}
+    };
+
+    /* ---------- ADMIN: AUDITORÍA ---------- */
+    var mostrarAdminBaseF2=mostrarAdmin;
+    mostrarAdmin=function(){
+      mostrarAdminBaseF2.apply(this,arguments);
+      if(!esProgramador)return;
+      var vista=document.getElementById('vistaAdmin');if(!vista)return;
+      if(!document.getElementById('panelAuditoriaJARVIS')){
+        var panel=document.createElement('div');panel.className='admin-panel';panel.id='panelAuditoriaJARVIS';
+        panel.innerHTML='<h3 style="color:var(--primary-purple);">9. 🧾 Auditoría de JARVIS</h3><p style="font-size:.85rem;color:var(--text-muted);margin-bottom:12px;">Registro de acciones: creación, aprobación, rechazo, modificación, liberación e inicio de sesión.</p><div class="jarvis-audit-toolbar"><span class="jarvis-count-badge">Auditoría global</span><button class="btn-edit" onclick="renderizarAuditoriaJARVIS()">↻ Actualizar</button></div><div id="jarvisAuditoriaContainer"></div>';
+        vista.appendChild(panel);
+      }
+      renderizarAuditoriaJARVIS();
+    };
+
+    /* ---------- ESTADOS VACÍOS Y SKELETON EN CARGA ---------- */
+    var mostrarInicioBaseF2=mostrarInicio;
+    mostrarInicio=function(){
+      resetTabs();
+      document.getElementById('vistaHome').style.display='flex';
+      document.getElementById('btnInicio').classList.add('active');
+      if(sesionActual){mostrarSkeletonDashboardJARVIS();setTimeout(function(){renderizarDashboardJARVIS();},180);}else renderizarDashboardJARVIS();
+    };
+
+    /* ---------- MODAL PROFESIONAL: CIERRE POR ESC / CLICK ---------- */
+    document.addEventListener('keydown',function(e){
+      if(e.key!=='Escape')return;
+      document.querySelectorAll('.modal-overlay').forEach(function(m){if(m.style.display==='flex')m.style.display='none';});
+      var panel=document.getElementById('panelNotificacionesAulas');if(panel)panel.classList.remove('open');
+    });
+    document.querySelectorAll('.modal-overlay').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.style.display='none';});});
+
+
+    /* ---------- BREADCRUMBS ---------- */
+    function actualizarBreadcrumbJARVIS(seccion,subseccion){
+      var main=document.getElementById('jarvisBreadcrumb');
+      if(!main){
+        main=document.createElement('div');main.id='jarvisBreadcrumb';main.className='jarvis-breadcrumb';
+        var mainEl=document.querySelector('main');if(mainEl)mainEl.insertBefore(main,mainEl.firstChild);
+      }
+      main.innerHTML='<span>🏠 JARVIS</span><b>›</b><strong>'+escaparJARVIS(seccion||'Inicio')+'</strong>'+(subseccion?'<b>›</b><strong>'+escaparJARVIS(subseccion)+'</strong>':'');
+    }
+    var cambiarVistaFase2AulasBaseBreadcrumb=cambiarVistaFase2AulasJARVIS;
+    cambiarVistaFase2AulasJARVIS=function(modo){
+      cambiarVistaFase2AulasBaseBreadcrumb.apply(this,arguments);
+      actualizarBreadcrumbJARVIS('Reserva de Aulas',modo==='MIS'?'Mis reservas':modo==='HISTORIAL'?'Historial':'Calendario');
+    };
+    var mostrarInicioBaseBreadcrumb=mostrarInicio;
+    mostrarInicio=function(){mostrarInicioBaseBreadcrumb.apply(this,arguments);actualizarBreadcrumbJARVIS('Inicio','Centro de Control');};
+    var mostrarHorariosBaseBreadcrumb=mostrarHorarios;
+    mostrarHorarios=function(){mostrarHorariosBaseBreadcrumb.apply(this,arguments);actualizarBreadcrumbJARVIS('Horarios','Calendario docente');};
+    var mostrarProcesosBaseBreadcrumb=mostrarProcesos;
+    mostrarProcesos=function(){mostrarProcesosBaseBreadcrumb.apply(this,arguments);actualizarBreadcrumbJARVIS('Procesos','Gestión continua');};
+    var mostrarBuscadorBaseBreadcrumb=mostrarBuscador;
+    mostrarBuscador=function(){mostrarBuscadorBaseBreadcrumb.apply(this,arguments);actualizarBreadcrumbJARVIS('Buscador','Currículums');};
+    var mostrarAdminBaseBreadcrumb=mostrarAdmin;
+    mostrarAdmin=function(){mostrarAdminBaseBreadcrumb.apply(this,arguments);if(esProgramador)actualizarBreadcrumbJARVIS('Panel Programador','Administración');};
+
+    /* ---------- MODALES MODERNOS ---------- */
+    document.querySelectorAll('.modal-overlay').forEach(function(m){m.classList.add('jarvis-modal-modern');});
+
+    /* ---------- INICIALIZACIÓN ---------- */
+    if(db){
+      cargarNotificacionesJARVIS();
+      cargarAuditoriaJARVIS();
+    }
+    setTimeout(function(){
+      try{montarNavegacionFase2AulasJARVIS();}catch(e){}
+      try{renderizarAuditoriaJARVIS();}catch(e){}
+    },300);
+
+    /* ---------- OVERRIDE VISUAL DE BOTONES / BADGES / RESPONSIVE ---------- */
+
+</script>
 </body>
 </html>
