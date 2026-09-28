@@ -1604,6 +1604,19 @@
       }
     }
 
+
+    /* ============================================================
+       JARVIS - DASHBOARD: APILADO SIN ESPACIO VACIO
+       El perfil ocupa la columna derecha debajo de Acciones rápidas
+       para evitar el hueco visual generado por el grid.
+       ============================================================ */
+    @media (min-width: 1051px) {
+      #dashboardJARVIS .jarvis-dashboard-columns:first-of-type .jarvis-profile-card {
+        grid-column: 2;
+        grid-row: 2;
+        margin-top: 16px;
+      }
+    }
 </style>
 </head>
 <body>
