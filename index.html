@@ -530,6 +530,15 @@
     }
 
     .course-card h3 { color: var(--primary-purple); }
+    .course-sede-highlight {
+      display:inline-block;
+      background:#FACC15;
+      color:#111827;
+      font-weight:800;
+      padding:2px 7px;
+      border-radius:6px;
+      line-height:1.25;
+    }
 
     .progress-bar-bg {
       background-color: #E2E8F0;
@@ -1770,6 +1779,15 @@
           <button class="btn-edit" id="btnActualizarReservasAulas" onclick="actualizarReservasAulas()"><i class="fa-solid fa-rotate"></i> Actualizar Reservas</button>
           <button class="btn-save" id="btnToggleModoSeleccionAula" onclick="activarModoSeleccionAula()"><i class="fa-solid fa-calendar-plus"></i> Modificar Selección de Aula</button>
         </div>
+      </div>
+
+      <!-- BUSCADOR DE RESERVAS POR CÓDIGO -->
+      <div class="jarvis-reserva-code-search" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:0 0 16px 0; padding:12px 14px; background:#F8F5FC; border:1px solid var(--border-color); border-radius:10px;">
+        <div style="flex:1; min-width:240px;">
+          <label for="buscarCodigoReservaAulaInput" style="display:block; font-size:.82rem; font-weight:700; color:var(--primary-purple); margin-bottom:5px;">🔎 Buscar Reserva por Código</label>
+          <input type="text" id="buscarCodigoReservaAulaInput" class="input-field" style="margin:0; text-transform:uppercase;" placeholder="Ej. RV-12345678" onkeydown="if(event.key==='Enter'){buscarReservaPorCodigoAula();}">
+        </div>
+        <button class="btn-edit" type="button" onclick="buscarReservaPorCodigoAula()" style="margin-top:19px;"><i class="fa-solid fa-magnifying-glass"></i> Buscar Reserva</button>
       </div>
 
       <div class="aulas-layout">
@@ -5795,7 +5813,30 @@
 
       var cursosFiltrados = courses.filter(function(c) {
         if (filtroEtapaCursosActual === 'TODOS') return true;
-        return c.currentStage === parseInt(filtroEtapaCursosActual);
+
+        /*
+         * IMPORTANTE: algunos cursos conservan un esquema de etapas propio
+         * (customEtapas). Si el catálogo global cambió de posición, por ejemplo
+         * "Testing" pasó de la etapa 2 a la 3, comparar únicamente el ID
+         * deja fuera cursos que siguen estando en "Testing".
+         *
+         * Por eso el filtro acepta tanto coincidencia por ID como por nombre.
+         * Así no se modifica ni se migra ningún dato existente del curso.
+         */
+        var etapaSeleccionada = nombresEtapasMaster.find(function(e){
+          return String(e.id) === String(filtroEtapaCursosActual);
+        });
+        var etapasCurso = obtenerEtapasCurso(c);
+        var etapaActual = etapasCurso.find(function(e){
+          return String(e.id) === String(c.currentStage);
+        });
+
+        if (String(c.currentStage) === String(filtroEtapaCursosActual)) return true;
+        if (!etapaSeleccionada || !etapaActual) return false;
+
+        var nombreFiltro = String(etapaSeleccionada.name || '').trim().toLowerCase();
+        var nombreActual = String(etapaActual.name || '').trim().toLowerCase();
+        return nombreFiltro !== '' && nombreFiltro === nombreActual;
       });
 
       if (cursosFiltrados.length === 0) {
@@ -5818,7 +5859,7 @@
         var botonEliminarCurso = sesionActual ? '<button class="course-card-delete-btn" onclick="solicitarEliminarCurso(' + c.id + ', event)">🗑️ Eliminar</button>' : '';
         grid.innerHTML += '<div class="course-card" onclick="openCourseDetail(' + c.id + ')">' +
           botonEliminarCurso +
-          '<div style="color:var(--primary-purple); font-size:0.82rem; font-weight:700; margin-bottom:4px; padding-right:90px;">📍 Sede: ' + (c.lugar ? c.lugar : 'No definida') + '</div>' +
+          '<div style="color:var(--primary-purple); font-size:0.82rem; font-weight:700; margin-bottom:4px; padding-right:90px;">📍 Sede: <span class="course-sede-highlight">' + (c.lugar ? c.lugar : 'No definida') + '</span></div>' +
           '<h3 style="padding-right: 80px;">' + c.name + '</h3>' +
           '<p style="color:var(--text-muted); font-size:0.83rem; margin-bottom:8px;">Propuesto por: ' + c.proposer + '</p>' +
           '<div style="background:#F8F5FC; padding:8px 10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:12px; font-size:0.8rem;">' +
@@ -6413,11 +6454,39 @@
       if(!requiereAprobacion){ reservasAulasDB.slice(-mapaPorFecha.size).forEach(function(r){ enviarCorreoEstadoReserva(r,'ACEPTADO',false); }); }
     }
 
+    function generarCodigoReservaAula(res) {
+      if (!res || res.id === undefined || res.id === null) return '';
+      return 'RV-' + String(res.id).replace(/\D/g,'').slice(-8);
+    }
+
+    function buscarReservaPorCodigoAula() {
+      var input=document.getElementById('buscarCodigoReservaAulaInput');
+      var valor=(input ? input.value : '').trim().toUpperCase();
+      if (!valor) {
+        if (input) input.focus();
+        return alert('🔎 Ingresa el código de la reserva. Ejemplo: RV-12345678');
+      }
+
+      var codigoBuscado=valor.replace(/\s+/g,'');
+      if (codigoBuscado.indexOf('RV-') !== 0) codigoBuscado='RV-'+codigoBuscado.replace(/^RV[- ]?/i,'');
+
+      var res=reservasAulasDB.find(function(item){
+        return generarCodigoReservaAula(item).toUpperCase() === codigoBuscado;
+      });
+
+      if (!res) {
+        return alert('⚠️ No se encontró una reserva con el código "'+codigoBuscado+'".\n\nVerifica el código e inténtalo nuevamente.');
+      }
+
+      input.value=codigoBuscado;
+      verDetalleReservaAula(res.id);
+    }
+
     function verDetalleReservaAula(idReserva) {
       var res=reservasAulasDB.find(function(item){return String(item.id)===String(idReserva);}); if(!res)return;
       activeAulaReservaIdToDelete=idReserva;
       var slotsDetalle=obtenerSlotsReservaAula(res), minH=slotsDetalle.length?Math.min.apply(null,slotsDetalle):0, maxH=slotsDetalle.length?Math.max.apply(null,slotsDetalle)+0.5:0;
-      var codigoReserva='RV-'+String(res.id).replace(/\D/g,'').slice(-8);
+      var codigoReserva=generarCodigoReservaAula(res);
       var infoCodigo=document.getElementById('infoAulaCodigoReserva');
       if(infoCodigo) infoCodigo.innerText=codigoReserva;
       document.getElementById('infoAulaSede').innerText=res.sede; document.getElementById('infoAulaNombre').innerText=res.aula; document.getElementById('infoAulaAforo').innerText=res.aforo||'No especificado'; document.getElementById('infoAulaResponsable').innerText=res.responsable; document.getElementById('infoAulaTipoEvento').innerText=res.tipoEvento; document.getElementById('infoAulaArea').innerText=res.area; document.getElementById('infoAulaDistribucion').innerText=res.distribucion||'No registrado'; document.getElementById('infoAulaRequerimientos').innerText=res.requerimientosTecnicos||'No registrado'; document.getElementById('infoAulaResponde').innerText=res.responde||'Pendiente'; document.getElementById('infoAulaRespuestaAuditoria').innerText=res.respuestaAuditoria||'Pendiente';
